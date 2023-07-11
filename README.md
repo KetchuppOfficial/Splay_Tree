@@ -1,4 +1,4 @@
-# HWT. Level 2: Splay tree
+# HWT. Level 2: splay tree
 
 This project is a task on course "Uses and applications of C++ language" by [K.I.Vladimirov](https://github.com/tilir). The task was to implement a class representing splay tree.
 
