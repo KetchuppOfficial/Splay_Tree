@@ -11,7 +11,7 @@
 #include <ostream>
 #include <cassert>
 
-#include "nodes.hpp"
+#include "splay_node.hpp"
 
 namespace yLab
 {
@@ -60,7 +60,7 @@ void arrow_dump (std::ostream &os, const Node_T *node)
 }
 
 template<typename Node_T>
-void graphic_dump (std::ostream &os, const Node_T *begin, const End_Node<Node_T> *end)
+void graphic_dump (std::ostream &os, const Node_T *begin, const Node_Base *end)
 {
     using node_ptr = const Node_T *;
     using end_node_ptr = const End_Node<Node_T> *;

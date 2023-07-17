@@ -1,15 +1,14 @@
 #include <gtest/gtest.h>
-#include <utility>
 
 #include "splay_tree.hpp"
 
-TEST (Iterators, Check_Iterator_Concept)
+TEST (Iterator, Check_Iterator_Concept)
 {
-    using node_type = yLab::Node<int>;
-    static_assert (std::bidirectional_iterator<yLab::tree_iterator<node_type>>);
+    using node_type = yLab::Splay_Node<int>;
+    static_assert (std::bidirectional_iterator<yLab::tree_iterator<node_type, yLab::Node_Base>>);
 }
 
-TEST (Iterators, Preincrement)
+TEST (Iterator, Preincrement)
 {
     yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
@@ -20,7 +19,7 @@ TEST (Iterators, Preincrement)
     EXPECT_EQ (it_3, it_2);
 }
 
-TEST (Iterators, Postincrement)
+TEST (Iterator, Postincrement)
 {
     yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
@@ -32,7 +31,7 @@ TEST (Iterators, Postincrement)
     EXPECT_EQ (it_3, it_1_copy);
 }
 
-TEST (Iterators, Predecrement)
+TEST (Iterator, Predecrement)
 {
     yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
@@ -43,7 +42,7 @@ TEST (Iterators, Predecrement)
     EXPECT_EQ (it_3, it_2);
 }
 
-TEST (Iterators, Postdecrement)
+TEST (Iterator, Postdecrement)
 {
     yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
@@ -55,7 +54,7 @@ TEST (Iterators, Postdecrement)
     EXPECT_EQ (it_3, it_1_copy);
 }
 
-TEST (Iterators, Dereference)
+TEST (Iterator, Dereference)
 {
     yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
 
@@ -64,7 +63,7 @@ TEST (Iterators, Dereference)
         EXPECT_EQ (*it, elem);
 }
 
-TEST (Iterators, Arrow)
+TEST (Iterator, Arrow)
 {
     yLab::Splay_Tree<std::pair<int, int>> tree = {{1, -1}, {2, -2}, {3, -3}};
 
