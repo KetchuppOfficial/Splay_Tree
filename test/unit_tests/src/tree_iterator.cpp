@@ -1,6 +1,12 @@
 #include <gtest/gtest.h>
 
-#include "splay_tree.hpp"
+#include "search_tree.hpp"
+#include "splay_node.hpp"
+
+using node_type = yLab::Splay_Node<int>;
+
+template<typename Key_T>
+using tree_type = yLab::Search_Tree<yLab::Splay_Node<Key_T>>;
 
 TEST (Iterator, Check_Iterator_Concept)
 {
@@ -10,7 +16,7 @@ TEST (Iterator, Check_Iterator_Concept)
 
 TEST (Iterator, Preincrement)
 {
-    yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
+    tree_type<int> tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
     auto it_2 = tree.find (3);
     auto it_3 = ++it_1;
@@ -21,7 +27,7 @@ TEST (Iterator, Preincrement)
 
 TEST (Iterator, Postincrement)
 {
-    yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
+    tree_type<int> tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
     auto it_2 = tree.find (3);
     auto it_1_copy = it_1;
@@ -33,7 +39,7 @@ TEST (Iterator, Postincrement)
 
 TEST (Iterator, Predecrement)
 {
-    yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
+    tree_type<int> tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
     auto it_2 = tree.find (1);
     auto it_3 = --it_1;
@@ -44,7 +50,7 @@ TEST (Iterator, Predecrement)
 
 TEST (Iterator, Postdecrement)
 {
-    yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
+    tree_type<int> tree = {1, 2, 3, 4, 5};
     auto it_1 = tree.find (2);
     auto it_2 = tree.find (1);
     auto it_1_copy = it_1;
@@ -56,7 +62,7 @@ TEST (Iterator, Postdecrement)
 
 TEST (Iterator, Dereference)
 {
-    yLab::Splay_Tree tree = {1, 2, 3, 4, 5};
+    tree_type<int> tree = {1, 2, 3, 4, 5};
 
     auto elem = 1;
     for (auto it = tree.begin(), ite = tree.end(); it != ite; ++it, ++elem)
@@ -65,7 +71,7 @@ TEST (Iterator, Dereference)
 
 TEST (Iterator, Arrow)
 {
-    yLab::Splay_Tree<std::pair<int, int>> tree = {{1, -1}, {2, -2}, {3, -3}};
+    tree_type<std::pair<int, int>> tree = {{1, -1}, {2, -2}, {3, -3}};
 
     auto elem = 1;
     for (auto it = tree.begin(), ite = tree.end(); it != ite; ++it, ++elem)
