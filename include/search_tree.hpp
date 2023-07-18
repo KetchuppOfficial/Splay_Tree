@@ -191,26 +191,26 @@ public:
 
     // Lookup
 
-    virtual const_iterator find (const key_type &key) const
+    const_iterator find (const key_type &key) const
     {
         auto node = find_impl (key);
-        return node ? const_iterator{node} : end();
+        return const_iterator{node};
     }
 
     bool contains (const key_type &key) const { return find (key) != end(); }
 
     // Finds first element that is not less than key
-    virtual const_iterator lower_bound (const key_type &key) const
+    const_iterator lower_bound (const key_type &key) const
     {
         auto node = lower_bound_impl (key);
-        return node ? const_iterator{node} : end();
+        return const_iterator{node};
     }
 
     // Finds first element that is greater than key
-    virtual const_iterator upper_bound (const key_type &key) const
+    const_iterator upper_bound (const key_type &key) const
     {
         auto node = upper_bound_impl (key);
-        return node ? const_iterator{node} : end();
+        return const_iterator{node};
     }
 
     // Modifiers
@@ -234,7 +234,7 @@ public:
 
     std::pair<iterator, bool> insert (const key_type &key)
     {
-        auto [node, parent] = position_to_insert (key);
+        auto [node, parent] = find_with_parent (key);
     
         if (node == nullptr)
         {
@@ -293,42 +293,33 @@ public:
 
 protected:
 
-    /*
-     * lookup_impl() (where "lookup" is one of "find", "lower_bound", "upper_bound")
-     * works the same for any BST.
-     * 
-     * At the same time lookup() methods differ between different kinds of BST.
-     * For example, splay trees require calling splay() method after every lookup.
-     * 
-     * So lookup_impl() are regual methods and lookup() methods are virtual methods.
-     */
-    const_node_ptr find_impl (const key_type &key) const
+    virtual const_base_node_ptr find_impl (const key_type &key) const
     {
         auto node = control_node_.get_root();
 
         while (node)
         {
-            if (comp_(key, node->get_key())) // less
+            if (comp_(key, node->get_key())) // key < node->get_key()
                 node = node->get_left();
-            else if (comp_(node->get_key(), key)) // greater
+            else if (comp_(node->get_key(), key)) // key > node->get_key()
                 node = node->get_right();
             else
                 return node;
         }
 
-        return nullptr;
+        return control_node_.get_end_node();
     }
 
-    std::pair<node_ptr, base_node_ptr> position_to_insert (const key_type &key)
+    std::pair<node_ptr, base_node_ptr> find_with_parent (const key_type &key)
     {
         auto node = control_node_.get_root();
         base_node_ptr parent = control_node_.get_end_node();
 
         while (node)
         {
-            if (comp_(key, node->get_key())) // less
+            if (comp_(key, node->get_key())) // key < node->get_key()
                 parent = std::exchange (node, node->get_left());
-            else if (comp_(node->get_key(), key)) // greater
+            else if (comp_(node->get_key(), key)) // key > node->get_key()
                 parent = std::exchange (node, node->get_right());
             else
                 break;
@@ -337,42 +328,36 @@ protected:
         return std::pair{node, parent};
     }
     
-    const_node_ptr lower_bound_impl (const key_type &key) const
+    virtual const_base_node_ptr lower_bound_impl (const key_type &key) const
     {    
         auto node = control_node_.get_root();
-        const_node_ptr result = nullptr;
+        const_base_node_ptr lower_bound = control_node_.get_end_node();
 
         while (node)
         {
-            if (!comp_(node->get_key(), key))
-            {
-                result = node;
-                node = node->get_left();
-            }
+            if (!comp_(node->get_key(), key)) // key <= node->get_key()
+                lower_bound = std::exchange (node, node->get_left());
             else
                 node = node->get_right();
         }
 
-        return result;
+        return lower_bound;
     }
 
-    const_node_ptr upper_bound_impl (const key_type &key) const
+    virtual const_base_node_ptr upper_bound_impl (const key_type &key) const
     {
         auto node = control_node_.get_root();
-        const_node_ptr result = nullptr;
+        const_base_node_ptr upper_bound = control_node_.get_end_node();
         
         while (node)
         {
-            if (comp_(key, node->get_key()))
-            {
-                result = node;
-                node = node->get_left();
-            }
+            if (comp_(key, node->get_key())) // key < node->get_key()
+                upper_bound = std::exchange (node, node->get_left());
             else
                 node = node->get_right();
         }
 
-        return result;
+        return upper_bound;
     }
 
     /*
@@ -413,7 +398,7 @@ protected:
 
     void insert_unique (const key_type &key)
     {
-        auto [node, parent] = position_to_insert (key);
+        auto [node, parent] = find_with_parent (key);
     
         if (node == nullptr)
         {
