@@ -1,6 +1,8 @@
 #ifndef INCLUDE_SPLAY_NODE_HPP
 #define INCLUDE_SPLAY_NODE_HPP
 
+#include <utility>
+
 #include "node_base.hpp"
 
 namespace yLab
