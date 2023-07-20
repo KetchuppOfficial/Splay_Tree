@@ -12,6 +12,10 @@
 #include <algorithm>
 #include <compare>
 
+#ifdef DEBUG
+#include <iostream>
+#endif // DEBUG
+
 #include "node_base.hpp"
 #include "tree_iterator.hpp"
 
@@ -65,6 +69,9 @@ protected:
         base_node_ptr get_leftmost () noexcept { return head_.get_parent(); }
         const_base_node_ptr get_leftmost () const noexcept { return head_.get_parent(); }
         void set_leftmost (base_node_ptr leftmost) noexcept { head_.set_parent (leftmost); }
+
+        node_ptr get_leftmost_unsafe () noexcept { return static_cast<node_ptr>(get_leftmost()); }
+        const_node_ptr get_leftmost_unsafe () const noexcept { return static_cast<const_node_ptr>(get_leftmost()); }
 
         void clean_up ()
         {
@@ -238,10 +245,13 @@ public:
     
         if (node == nullptr)
         {
-            auto new_node = insert_impl (key, parent);
+            auto new_node = insert_impl (key, const_cast<base_node_ptr>(parent));
 
-            if (new_node == control_node_.get_leftmost()->get_left())
+            if (size_ == 0 ||
+                (size_ > 0 && comp_(key, control_node_.get_leftmost_unsafe()->get_key())))
+            {
                 control_node_.set_leftmost (new_node);
+            }
             size_++;
 
             return std::pair{iterator{new_node}, true};
@@ -291,6 +301,38 @@ public:
         }
     }
 
+    #ifdef DEBUG
+    
+    void graphic_dump (std::ostream &os = std::cout) const
+    {
+        if (empty())
+            return;
+
+        os << "digraph Tree\n"
+              "{\n"
+              "    rankdir = TB;\n"
+              "    node [shape = record];\n\n";
+
+        auto begin_node = begin().node_;
+        auto end_node = end().node_;
+
+        os << "    node_" << end().node_
+           << " [color = black, style = filled, fillcolor = yellow, label = \"end node\"];\n";
+
+        for (auto node = begin_node; node != end_node; node = node->successor())
+            Search_Tree::node_dump (os, node);
+
+        os << std::endl;
+
+        for (auto node = begin_node; node != end_node; node = node->successor())
+            Search_Tree::arrow_dump (os, node);
+
+        os << "    node_" << end_node << " -> node_"
+           << end_node->get_left() << " [color = \"blue\"];\n}\n";
+    }
+
+    #endif // DEBUG
+
 protected:
 
     virtual const_base_node_ptr find_impl (const key_type &key) const
@@ -310,10 +352,10 @@ protected:
         return control_node_.get_end_node();
     }
 
-    std::pair<node_ptr, base_node_ptr> find_with_parent (const key_type &key)
+    std::pair<const_node_ptr, const_base_node_ptr> find_with_parent (const key_type &key) const
     {
         auto node = control_node_.get_root();
-        base_node_ptr parent = control_node_.get_end_node();
+        auto parent = control_node_.get_end_node();
 
         while (node)
         {
@@ -360,26 +402,11 @@ protected:
         return upper_bound;
     }
 
-    /*
-     * insert_impl() is a function that calls all functions to do insertion
-     * on level of pointers.
-     * 
-     * For example, insert_impl() for red-black tree consists of bst_insert()
-     * and tree rebalance.
-     * 
-     * Because insert_impl() may be different for different kinds of trees,
-     * it is made virtual.
-     */
     virtual node_ptr insert_impl (const key_type &key, base_node_ptr parent)
     {
         return bst_insert (key, parent);
     }
 
-    /*
-     * bst_insert() is a basic part of insertion in any BST: red-black tree
-     * requires additional rebalance, splay tree requires additional call
-     * of splay operation.
-     */
     node_ptr bst_insert (const key_type &key, base_node_ptr parent)
     {
         auto new_node = new node_type{key};
@@ -402,30 +429,19 @@ protected:
     
         if (node == nullptr)
         {
-            auto new_node = insert_impl (key, parent);
+            auto new_node = insert_impl (key, const_cast<base_node_ptr>(parent));
 
-            if (new_node == control_node_.get_leftmost()->get_left())
+            if (size_ == 0 ||
+                (size_ > 0 && comp_(key, control_node_.get_leftmost_unsafe()->get_key())))
+            {
                 control_node_.set_leftmost (new_node);
+            }
             size_++;
         }
     }
 
-    /*
-     * erase_impl() is a function that calls all functions to do erasure
-     * on level of pointers.
-     * 
-     * For example, erase_impl() for red-black tree is a complex function.
-     * At the same time erase_impl() for splay tree is splay() + bst_erase().
-     * 
-     * That is why erase_impl() is virtual.
-     */
     virtual void erase_impl (node_ptr node) { bst_erase (node); }
 
-    /*
-     * bst_erase() is not necessarily how erasure from any BST
-     * is implemented. Though some types of BST require bst_erase()
-     * as part of their erasure routine, e.g. splay tree.
-     */
     void bst_erase (node_ptr node)
     {
         assert (node);
@@ -467,6 +483,48 @@ protected:
         if (v)
             v->set_parent (u->get_parent());
     }
+
+    #ifdef DEBUG
+
+    static void node_dump (std::ostream &os, const_base_node_ptr node)
+    {
+        assert (node);
+
+        os << "    node_" << node << " [shape = record, color = black, style = filled, "
+              "fillcolor = red, fontcolor = black, label = \"" << static_cast<const_node_ptr>(node)->get_key() << "\"];\n";
+
+        if (node->get_left() == nullptr)
+            os << "    left_nil_node_" << node << " [shape = record, color = red, "
+                  "style = filled, fillcolor = black, fontcolor = white, label = \"nil\"];\n";
+
+        if (node->get_right() == nullptr)
+            os << "    right_nil_node_" << node << " [shape = record, color = red, "
+                  "style = filled, fillcolor = black, fontcolor = white, label = \"nil\"];\n";
+    }
+
+    static void arrow_dump (std::ostream &os, const_base_node_ptr node)
+    {
+        assert (node);
+            
+        os << "    node_" << node << " -> ";
+        if (node->get_left())
+            os << "node_" << node->get_left();
+        else
+            os << "left_nil_node_" << node;
+        os << " [color = \"blue\"];\n";
+
+        os << "    node_" << node << " -> ";
+        if (node->get_right())
+            os << "node_" << node->get_right();
+        else
+            os << "right_nil_node_" << node;
+        os << " [color = \"gold\"];\n";
+            
+        os << "    node_" << node << " -> "
+            << "node_" << node->get_parent() << " [color = \"dimgray\"];\n";
+    }
+
+    #endif // DEBUG
 };
 
 template<typename Node_T, typename Compare>
