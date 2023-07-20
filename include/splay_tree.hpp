@@ -78,48 +78,78 @@ public:
         return *this;
     }
 
+protected:
+
     // Lookup
 
-    const_iterator find (const key_type &key) const override
+    const_base_node_ptr find_impl (const key_type &key) const override
     {
-        auto node = this->find_impl (key);
-        
-        if (node)
-        {
-            splay (const_cast<node_ptr>(node));
-            return const_iterator{node};
-        }
-        else
-            return this->end();
+        auto [node, parent] = this->find_with_parent (key);
+        auto result = lookup_splay (node, parent);
+
+        return result;
     }
 
-    const_iterator lower_bound (const key_type &key) const override
+    const_base_node_ptr lower_bound_impl (const key_type &key) const override
     {
-        auto node = this->lower_bound_impl (key);
+        auto parent = this->control_node_.get_end_node();
+        const_base_node_ptr lower_bound = nullptr;
 
-        if (node)
+        auto node = this->control_node_.get_root();
+        while (node)
         {
-            splay (const_cast<node_ptr>(node));
-            return const_iterator{node};
+            parent = node;
+
+            if (!this->comp_(node->get_key(), key)) // key <= node->get_key()
+                lower_bound = std::exchange (node, node->get_left());
+            else
+                node = node->get_right();
         }
-        else
-            return this->end();
+
+        auto result = lookup_splay (lower_bound, parent);
+
+        return result;
     }
 
-    const_iterator upper_bound (const key_type &key) const override
+    const_base_node_ptr upper_bound_impl (const key_type &key) const override
     {
-        auto node = this->upper_bound_impl (key);
+        auto parent = this->control_node_.get_end_node();
+        const_base_node_ptr upper_bound = nullptr;
 
-        if (node)
+        auto node = this->control_node_.get_root();
+        while (node)
         {
-            splay (const_cast<node_ptr>(node));
-            return const_iterator{node};
+            parent = node;
+
+            if (this->comp_(key, node->get_key())) // key < node->get_key()
+                upper_bound = std::exchange (node, node->get_left());
+            else
+                node = node->get_right();
         }
-        else
-            return this->end();
+
+        auto result = lookup_splay (upper_bound, parent);
+
+        return result;
     }
 
-protected:
+    const_base_node_ptr lookup_splay (const_base_node_ptr node, const_base_node_ptr parent) const
+    {
+        if (node)
+        {
+            splay (static_cast<node_ptr>(const_cast<base_node_ptr>(node)));
+            return node;
+        }
+        else
+        {
+            auto end_node = this->control_node_.get_end_node();
+            if (parent != end_node)
+                splay (static_cast<node_ptr>(const_cast<base_node_ptr>(parent)));
+
+            return end_node;
+        }
+    }
+
+    // Modifiers
 
     node_ptr insert_impl (const key_type &key, base_node_ptr parent) override
     {
@@ -135,8 +165,6 @@ protected:
         this->bst_erase (node);
     }
 
-private:
-
     void splay (node_ptr node) const
     {
         assert (node);
@@ -144,7 +172,7 @@ private:
         while (node != this->control_node_.get_root())
         {
             auto parent = node->get_parent();
-            auto node_is_left_child = node->is_left_child ();
+            auto node_is_left_child = node->is_left_child();
 
             if (parent == this->control_node_.get_root())
             {
@@ -156,7 +184,7 @@ private:
             else
             {
                 auto grandparent = parent->get_parent();
-                auto parent_is_left_child = parent->is_left_child ();
+                auto parent_is_left_child = parent->is_left_child();
 
                 if (node_is_left_child && parent_is_left_child)
                 {
