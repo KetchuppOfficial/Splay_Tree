@@ -216,7 +216,7 @@ TEST (Search_Tree, Insert_Range)
     EXPECT_TRUE (std::equal (tree.begin(), tree.end(), model.begin(), model.end()));
 }
 
-TEST (Modifiers, Insert_By_Initializer_List)
+TEST (Search_Tree, Insert_By_Initializer_List)
 {
     auto ilist = {1, 6, 3, 7, 1, 8, 5, 3, 8, 35162, -46, 35};
 
@@ -229,7 +229,7 @@ TEST (Modifiers, Insert_By_Initializer_List)
     EXPECT_TRUE (std::equal (tree.begin(), tree.end(), model.begin(), model.end()));
 }
 
-TEST (Modifiers, Erase_By_Iterator)
+TEST (Search_Tree, Erase_By_Iterator)
 {
     std::set<int> model{15, 2, 1, 8, 3, 5, 7, 9, 4, 11};
     tree_type tree{model.begin(), model.end()};
@@ -241,7 +241,7 @@ TEST (Modifiers, Erase_By_Iterator)
     EXPECT_TRUE (std::equal (tree.begin(), tree.end(), model.begin(), model.end()));
 }
 
-TEST (Splay_Tree, Erase_By_Key)
+TEST (Search_Tree, Erase_By_Key)
 {
     std::vector<key_type> vec(1000);
     std::iota (vec.begin(), vec.end(), 1);
@@ -268,7 +268,7 @@ TEST (Splay_Tree, Erase_By_Key)
     EXPECT_EQ (tree_2, empty_tree);
 }
 
-TEST (Splay_Tree, Equality)
+TEST (Search_Tree, Equality)
 {
     tree_type tree_1{1, 2, 3, 4, 5, 6};
     tree_type tree_2{1, 2, 3, 4, 5};
@@ -287,7 +287,7 @@ TEST (Splay_Tree, Equality)
     EXPECT_NE (tree_1, tree_3);
 }
 
-TEST (Splay_Tree, Ordering)
+TEST (Search_Tree, Ordering)
 {
     tree_type tree_1{1, 2, 3, 4, 5};
     tree_type tree_2{1, 2, 3, 4, 5, 6};
