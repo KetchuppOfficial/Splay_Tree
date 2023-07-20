@@ -60,7 +60,8 @@ public:
 
     bool operator== (const tree_iterator &rhs) const noexcept { return node_ == rhs.node_; }
 
-    template<typename key_t, typename compare> friend class Search_Tree;
+    template<typename node_t, typename compare> friend class Search_Tree;
+    template<typename key_t, typename compare> friend class Splay_Tree;
 };
 
 } // namespace yLab
