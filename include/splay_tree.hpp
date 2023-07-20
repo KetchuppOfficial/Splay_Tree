@@ -5,6 +5,7 @@
 #include <utility>
 #include <iterator>
 #include <initializer_list>
+#include <type_traits>
 #include <cassert>
 
 #include "search_tree.hpp"
