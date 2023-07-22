@@ -155,15 +155,49 @@ protected:
     node_ptr insert_impl (const key_type &key, base_node_ptr parent) override
     {
         auto new_node = this->bst_insert (key, parent);
+        Splay_Tree::increment_size (parent, this->control_node_.get_end_node());
         splay (new_node);
 
         return new_node;
     }
 
+    static void increment_size (base_node_ptr from, base_node_ptr to)
+    {
+        assert (from);
+        
+        for (; from != to; from = from->get_parent())
+            static_cast<node_ptr>(from)->size_++;
+    }
+
     void erase_impl (node_ptr node) override
     {
+        assert (node);
+        
         splay (node);
-        this->bst_erase (node);
+
+        if (node->get_left() == nullptr)
+            this->transplant (node, node->get_right());
+        else if (node->get_right() == nullptr)
+            this->transplant (node, node->get_left());
+        else
+            join (node->get_left(), node->get_right());
+    }
+
+    void join (node_ptr left_subtree, node_ptr right_subtree)
+    {
+        assert (left_subtree);
+        assert (right_subtree);
+        assert (left_subtree == this->control_node_.get_root()->get_left());
+        assert (right_subtree == this->control_node_.get_root()->get_right());
+
+        this->control_node_.set_root (left_subtree);
+        left_subtree->set_parent (this->control_node_.get_end_node());
+
+        auto left_max = static_cast<node_ptr>(left_subtree->maximum());
+
+        splay (left_max);
+        left_max->set_right (right_subtree);
+        right_subtree->set_parent (left_max);
     }
 
     void splay (node_ptr node) const
