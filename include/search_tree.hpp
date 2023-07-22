@@ -275,13 +275,13 @@ public:
 
     iterator erase (iterator pos)
     {
-        auto node = const_cast<base_node_ptr>(pos.node_);
+        auto node = const_cast<base_node_ptr>(pos.base());
         ++pos;
 
         erase_impl (static_cast<node_ptr>(node));
 
         if (node == control_node_.get_leftmost())
-            control_node_.set_leftmost (const_cast<base_node_ptr>(pos.node_));
+            control_node_.set_leftmost (const_cast<base_node_ptr>(pos.base()));
         size_--;
 
         delete node;
