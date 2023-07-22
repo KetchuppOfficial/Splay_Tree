@@ -57,28 +57,6 @@ public:
         this->insert (ilist);
     }
 
-    Splay_Tree (const Splay_Tree &rhs) : base_tree{rhs}
-    {
-        for (auto &&key : rhs)
-            this->insert_unique (key);
-    }
-
-    Splay_Tree &operator= (const Splay_Tree &rhs)
-    {
-        auto tmp_tree{rhs};
-        std::swap (*this, tmp_tree);
-
-        return *this;
-    }
-
-    Splay_Tree (Splay_Tree &&rhs) : base_tree{std::move (rhs)} {}
-
-    Splay_Tree &operator= (Splay_Tree &&rhs)
-    {
-        this->swap (rhs);
-        return *this;
-    }
-
 protected:
 
     // Lookup
