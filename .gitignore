@@ -1,2 +1,5 @@
 build/
 TODO
+bin/
+data/
+*.info
