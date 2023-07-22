@@ -224,8 +224,6 @@ TEST (Splay_Tree, Insert_By_Initializer_List)
     tree_type tree;
     tree.insert (ilist);
 
-    std::copy (tree.begin(), tree.end(), std::ostream_iterator<key_type>{std::cerr, "\n"});
-
     EXPECT_TRUE (std::equal (tree.begin(), tree.end(), model.begin(), model.end()));
 }
 
