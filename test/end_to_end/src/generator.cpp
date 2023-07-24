@@ -43,7 +43,7 @@ std::pair<Key_T, Key_T> generate_keys (std::size_t n_keys, Distr_T distr, Engine
     std::copy (keys.begin(), keys.end(), std::ostream_iterator<Key_T>{std::cout, " "});
     std::cout << std::endl;
 
-    return std::pair{(min + max) / 2, (max - min) / 2};
+    return std::pair{std::midpoint (min, max), (max - min) / 2};
 }
 
 template<typename Key_T, typename Distr_T, typename Engine>
