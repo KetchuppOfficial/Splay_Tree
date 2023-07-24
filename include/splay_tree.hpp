@@ -57,6 +57,22 @@ public:
         this->insert (ilist);
     }
 
+    Splay_Tree (const Splay_Tree &rhs) : base_tree{rhs.comp_}
+    {
+        this->insert (rhs.begin(), rhs.end());
+    }
+
+    Splay_Tree &operator= (const Splay_Tree &rhs)
+    {
+        auto tmp_tree{rhs};
+        std::swap (*this, rhs);
+
+        return *this;
+    }
+
+    Splay_Tree (Splay_Tree &&rhs) = default;
+    Splay_Tree &operator= (Splay_Tree &&rhs) = default;
+
 protected:
 
     // Lookup
