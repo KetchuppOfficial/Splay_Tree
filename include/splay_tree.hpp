@@ -65,7 +65,7 @@ public:
     Splay_Tree &operator= (const Splay_Tree &rhs)
     {
         auto tmp_tree{rhs};
-        std::swap (*this, rhs);
+        std::swap (*this, tmp_tree);
 
         return *this;
     }
