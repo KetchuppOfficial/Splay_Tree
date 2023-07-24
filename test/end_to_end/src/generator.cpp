@@ -11,7 +11,7 @@
 namespace yLab
 {
 
-std::pair<int, int> get_cmd_line_args (int argc, char *argv[])
+std::pair<std::size_t, std::size_t> get_cmd_line_args (int argc, char *argv[])
 {
     if (argc != 3)
         throw std::runtime_error{"Program requires 2 arguments"};
