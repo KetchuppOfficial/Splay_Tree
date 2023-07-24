@@ -192,6 +192,7 @@ protected:
         splay (left_max);
         left_max->set_right (right_subtree);
         right_subtree->set_parent (left_max);
+        left_max->size_ += right_subtree->size_;
     }
 
     void splay (node_ptr node) const
