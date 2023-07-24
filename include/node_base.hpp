@@ -118,7 +118,7 @@ protected:
 
     /*
      *   |               |
-     *   x               y
+     *   x = this        y
      *  / \             / \
      * a   y    -->    x   c
      *    / \         / \
@@ -128,27 +128,26 @@ protected:
     {
         assert (right_);
 
-        auto x = this;
         auto y = right_;
         auto b = y->left_;
 
-        x->right_ = b;
-        y->left_ = x;
+        right_ = b;
+        y->left_ = this;
         if (b)
-            b->parent_ = x;
+            b->parent_ = this;
 
-        y->parent_ = x->parent_;
-        if (x->is_left_child())
-            x->parent_->left_ = y;
+        y->parent_ = parent_;
+        if (is_left_child())
+            parent_->left_ = y;
         else
-            x->parent_->right_ = y;
+            parent_->right_ = y;
 
-        x->parent_ = y;
+        parent_ = y;
     }
 
     /*
      *   |               |
-     *   y               x
+     *   y               x = this
      *  / \             / \
      * a   x    <--    y   c
      *    / \         / \
@@ -158,22 +157,21 @@ protected:
     {
         assert (left_);
         
-        auto x = this;
         auto y = left_;
         auto b = y->right_;
 
-        x->left_ = b;
-        y->right_ = x;
+        left_ = b;
+        y->right_ = this;
         if (b)
-            b->parent_ = x;
+            b->parent_ = this;
 
-        y->parent_ = x->parent_;
-        if (x->is_left_child())
-            x->parent_->left_ = y;
+        y->parent_ = parent_;
+        if (is_left_child())
+            parent_->left_ = y;
         else
-            x->parent_->right_ = y;
+            parent_->right_ = y;
 
-        x->parent_ = y;
+        parent_ = y;
     }
 };
 
