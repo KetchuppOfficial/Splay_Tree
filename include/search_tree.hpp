@@ -313,10 +313,10 @@ public:
               "    rankdir = TB;\n"
               "    node [shape = record];\n\n";
 
-        auto begin_node = begin().node_;
-        auto end_node = end().node_;
+        auto begin_node = begin().base();
+        auto end_node = end().base();
 
-        os << "    node_" << end().node_
+        os << "    node_" << end_node
            << " [color = black, style = filled, fillcolor = yellow, label = \"end node\"];\n";
 
         for (auto node = begin_node; node != end_node; node = node->successor())
