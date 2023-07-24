@@ -16,26 +16,39 @@
 #include <iostream>
 #endif // DEBUG
 
-#include "node_base.hpp"
 #include "tree_iterator.hpp"
 
 namespace yLab
 {
 
-template<typename Node_T, typename Compare = std::less<typename Node_T::key_type>>
-requires std::derived_from<Node_T, Node_Base>
+template<typename T>
+concept BT_Node = requires (const T &cnode, T &node)
+{
+    { node->get_left() } -> std::same_as<T *>;
+    { node->get_right() } -> std::same_as<T *>;
+    { node->get_parent() } -> std::same_as<T *>;
+
+    { cnode->get_left() } -> std::same_as<const T *>;
+    { cnode->get_right() } -> std::same_as<const T *>;
+    { cnode->get_parent() } -> std::same_as<const T *>;
+};
+
+template<typename Node_T, typename Base_Node_T,
+         typename Compare = std::less<typename Node_T::key_type>>
+requires std::derived_from<Node_T, Base_Node_T>
 class Search_Tree
 {
 protected:
 
-    using base_node_ptr = Node_Base *;
-    using const_base_node_ptr = const Node_Base *;
+    using base_node_type = Base_Node_T;
+    using base_node_ptr = base_node_type *;
+    using const_base_node_ptr = const base_node_type *;
     using node_ptr = Node_T *;
     using const_node_ptr = const Node_T *;
     
     class Control_Node
     {
-        Node_Base head_{};
+        base_node_type head_{};
 
     public:
 
@@ -113,7 +126,7 @@ protected:
 public:
 
     using node_type = Node_T;
-    using key_type = typename Node_T::key_type;
+    using key_type = typename node_type::key_type;
     using key_compare = Compare;
     using value_type = key_type;
     using value_compare = Compare;
@@ -123,7 +136,7 @@ public:
     using const_reference = const value_type &;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using iterator = tree_iterator<node_type, Node_Base>;
+    using iterator = tree_iterator<node_type, base_node_type>;
     using const_iterator = iterator;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = reverse_iterator;
@@ -223,7 +236,7 @@ public:
     // Modifiers
 
     void swap (Search_Tree &other) noexcept (std::is_nothrow_swappable_v<key_compare> &&
-                                             std::is_nothrow_swappable_v<Node_Base>)
+                                             std::is_nothrow_swappable_v<base_node_type>)
     {
         std::swap (control_node_, other.control_node_);
         std::swap (comp_, other.comp_);

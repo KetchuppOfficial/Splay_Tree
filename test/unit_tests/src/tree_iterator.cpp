@@ -3,10 +3,8 @@
 #include "search_tree.hpp"
 #include "splay_node.hpp"
 
-using node_type = yLab::Splay_Node<int>;
-
 template<typename Key_T>
-using tree_type = yLab::Search_Tree<yLab::Splay_Node<Key_T>>;
+using tree_type = yLab::Search_Tree<yLab::Splay_Node<Key_T>, yLab::Node_Base>;
 
 TEST (Iterator, Check_Iterator_Concept)
 {

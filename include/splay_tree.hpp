@@ -15,9 +15,9 @@ namespace yLab
 {
 
 template<typename Key_T, typename Compare = std::less<Key_T>>
-class Splay_Tree : public Search_Tree<Splay_Node<Key_T>, Compare>
+class Splay_Tree : public Search_Tree<Splay_Node<Key_T>, Node_Base, Compare>
 {
-    using base_tree = Search_Tree<Splay_Node<Key_T>, Compare>;
+    using base_tree = Search_Tree<Splay_Node<Key_T>, Node_Base, Compare>;
     using typename base_tree::base_node_ptr;
     using typename base_tree::const_base_node_ptr;
     using typename base_tree::node_ptr;
