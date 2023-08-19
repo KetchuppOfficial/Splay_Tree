@@ -26,7 +26,7 @@ TEST (Search_Tree, Comparator_Constructor)
     using custom_comparator = std::greater<key_type>;
 
     yLab::Search_Tree<node_type, yLab::Node_Base, custom_comparator> empty_tree{custom_comparator{}};
-    
+
     EXPECT_EQ (empty_tree.size(), 0);
     EXPECT_TRUE (empty_tree.empty());
     EXPECT_EQ (empty_tree.begin(), empty_tree.end());
@@ -38,7 +38,7 @@ TEST (Search_Tree, Initializer_List_Constructor)
 
     EXPECT_EQ (tree.size(), 5);
     EXPECT_FALSE (tree.empty());
-    
+
     std::vector<key_type> vec;
     vec.resize (tree.size());
     std::iota (vec.begin(), vec.end(), 1);
@@ -50,7 +50,7 @@ TEST (Search_Tree, Iterator_Constructor)
 {
     std::vector from{1, 2, 3, 2, 4, 1, 5};
     std::vector vec{1, 2, 3, 4, 5};
-    
+
     tree_type tree (from.begin(), from.end());
 
     EXPECT_EQ (tree.size(), 5);
@@ -250,7 +250,7 @@ TEST (Search_Tree, Erase_By_Key)
     {
         tree_type tree{vec.begin(), vec.end()};
         std::set<key_type> model{vec.begin(), vec.end()};
-        
+
         auto is_erased = tree.erase (key);
         EXPECT_EQ (is_erased, 1);
 

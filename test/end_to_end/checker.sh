@@ -19,7 +19,7 @@ ans_generator="ans_generator"
 function build_from_sources
 {
     local basic_options="-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11"
-    
+
     cmake ${top_dir} -B ${build_dir} ${basic_options}
 
     echo -en "\n"

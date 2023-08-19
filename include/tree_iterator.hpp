@@ -13,7 +13,7 @@ template <typename Node_T, typename Base_Node_T>
 requires std::derived_from<Node_T, Base_Node_T>
 class tree_iterator final
 {
-    using const_node_ptr = const Node_T *; 
+    using const_node_ptr = const Node_T *;
     using const_base_node_ptr = const Base_Node_T *;
 
     const_base_node_ptr node_;
@@ -37,7 +37,7 @@ public:
         node_ = node_->successor();
         return *this;
     }
-    
+
     tree_iterator operator++ (int) noexcept
     {
         auto tmp = *this;

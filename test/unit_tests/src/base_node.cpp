@@ -24,7 +24,7 @@ TEST (Node_Base, Constructor)
     EXPECT_EQ (node_2.get_parent(), nullptr);
 
     yLab::Node_Base node_3{&node_0, &node_1, &node_2};
-    
+
     EXPECT_EQ (node_3.get_left(), &node_0);
     EXPECT_EQ (node_3.get_right(), &node_1);
     EXPECT_EQ (node_3.get_parent(), &node_2);
@@ -70,7 +70,7 @@ TEST (Node_Base, Basic_Queries)
     yLab::Node_Base end_node{&node_4};
     node_4.set_parent (&end_node);
 
-    // Minimum and maximum  
+    // Minimum and maximum
 
     EXPECT_EQ (node_1.minimum(), &node_1);
     EXPECT_EQ (node_1.maximum(), &node_1);

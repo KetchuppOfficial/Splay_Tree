@@ -45,7 +45,7 @@ protected:
     using const_base_node_ptr = const base_node_type *;
     using node_ptr = Node_T *;
     using const_node_ptr = const Node_T *;
-    
+
     class Control_Node
     {
         base_node_type head_{};
@@ -66,7 +66,7 @@ protected:
 
             set_leftmost_or_parent_of_root();
             rhs.set_defaults();
-            
+
             return *this;
         }
 
@@ -151,7 +151,7 @@ public:
         insert (first, last);
     }
 
-    Search_Tree (std::initializer_list<value_type> ilist, const key_compare &comp = key_compare{}) 
+    Search_Tree (std::initializer_list<value_type> ilist, const key_compare &comp = key_compare{})
                 : comp_{comp}
     {
         insert (ilist);
@@ -255,7 +255,7 @@ public:
     std::pair<iterator, bool> insert (const key_type &key)
     {
         auto [node, parent] = find_with_parent (key);
-    
+
         if (node == nullptr)
         {
             auto new_node = insert_impl (key, const_cast<base_node_ptr>(parent));
@@ -315,7 +315,7 @@ public:
     }
 
     #ifdef DEBUG
-    
+
     void graphic_dump (std::ostream &os = std::cout) const
     {
         if (empty())
@@ -382,9 +382,9 @@ protected:
 
         return std::pair{node, parent};
     }
-    
+
     virtual const_base_node_ptr lower_bound_impl (const key_type &key) const
-    {    
+    {
         auto node = control_node_.get_root();
         const_base_node_ptr lower_bound = control_node_.get_end_node();
 
@@ -403,7 +403,7 @@ protected:
     {
         auto node = control_node_.get_root();
         const_base_node_ptr upper_bound = control_node_.get_end_node();
-        
+
         while (node)
         {
             if (comp_(key, node->get_key())) // key < node->get_key()
@@ -439,7 +439,7 @@ protected:
     void insert_unique (const key_type &key)
     {
         auto [node, parent] = find_with_parent (key);
-    
+
         if (node == nullptr)
         {
             auto new_node = insert_impl (key, const_cast<base_node_ptr>(parent));
@@ -485,7 +485,7 @@ protected:
     void transplant (base_node_ptr u, base_node_ptr v)
     {
         assert (u);
-        
+
         if (u == control_node_.get_root())
             control_node_.set_root (v);
         else if (u->is_left_child())
@@ -518,7 +518,7 @@ protected:
     static void arrow_dump (std::ostream &os, const_base_node_ptr node)
     {
         assert (node);
-            
+
         os << "    node_" << node << " -> ";
         if (node->get_left())
             os << "node_" << node->get_left();
@@ -532,7 +532,7 @@ protected:
         else
             os << "right_nil_node_" << node;
         os << " [color = \"gold\"];\n";
-            
+
         os << "    node_" << node << " -> "
             << "node_" << node->get_parent() << " [color = \"dimgray\"];\n";
     }

@@ -70,7 +70,7 @@ std::vector<std::pair<Key_T, Key_T>> get_queries ()
 int main ()
 {
     using key_type = int;
-    
+
     auto keys = yLab::get_keys<key_type>();
     auto queries = yLab::get_queries<key_type>();
 

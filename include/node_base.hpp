@@ -156,7 +156,7 @@ protected:
     void right_rotate_impl () noexcept
     {
         assert (left_);
-        
+
         auto y = left_;
         auto b = y->right_;
 

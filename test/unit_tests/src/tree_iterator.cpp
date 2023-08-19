@@ -76,5 +76,5 @@ TEST (Iterator, Arrow)
     {
         EXPECT_EQ (it->first, elem);
         EXPECT_EQ (it->second, -elem);
-    }  
+    }
 }

@@ -12,9 +12,9 @@ using tree_type = yLab::Splay_Tree<key_type>;
 // Constructors and operator=
 
 bool subtree_sizes_verifier (tree_type::iterator first, tree_type::iterator last)
-{    
+{
     using node_type = typename tree_type::node_type;
-    
+
     for (; first != last; ++first)
     {
         auto node = static_cast<const node_type *>(first.base());
@@ -41,7 +41,7 @@ TEST (Splay_Tree, Comparator_Constructor)
     using custom_comparator = std::greater<key_type>;
 
     yLab::Splay_Tree<key_type, custom_comparator> empty_tree{custom_comparator{}};
-    
+
     EXPECT_EQ (empty_tree.size(), 0);
     EXPECT_TRUE (empty_tree.empty());
     EXPECT_EQ (empty_tree.begin(), empty_tree.end());
@@ -53,7 +53,7 @@ TEST (Splay_Tree, Initializer_List_Constructor)
 
     EXPECT_EQ (tree.size(), 5);
     EXPECT_FALSE (tree.empty());
-    
+
     std::vector<key_type> vec;
     vec.resize (tree.size());
     std::iota (vec.begin(), vec.end(), 1);
@@ -66,7 +66,7 @@ TEST (Splay_Tree, Iterator_Constructor)
 {
     std::vector from{1, 2, 3, 2, 4, 1, 5};
     std::vector vec{1, 2, 3, 4, 5};
-    
+
     tree_type tree (from.begin(), from.end());
 
     EXPECT_EQ (tree.size(), 5);
@@ -189,7 +189,7 @@ TEST (Splay_Tree, Upper_Bound)
 
     EXPECT_EQ (tree.upper_bound (3), tree.end());
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
-    
+
     EXPECT_EQ (tree.upper_bound (4), tree.end());
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
 
@@ -297,7 +297,7 @@ TEST (Splay_Tree, Erase_By_Key)
     {
         tree_type tree{vec.begin(), vec.end()};
         std::set<key_type> model{vec.begin(), vec.end()};
-        
+
         auto is_erased = tree.erase (key);
         EXPECT_EQ (is_erased, 1);
 

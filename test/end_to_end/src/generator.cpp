@@ -75,7 +75,7 @@ int main (int argc, char *argv[])
 
     std::uniform_int_distribution<key_type> key{};
     auto [mean, stddef] = yLab::generate_keys<key_type> (n_keys, key, gen);
-    
+
     std::normal_distribution query{static_cast<double>(mean), static_cast<double>(stddef)};
     yLab::generate_queries<key_type> (n_queries, query, gen);
 

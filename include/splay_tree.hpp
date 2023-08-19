@@ -158,7 +158,7 @@ protected:
     static void increment_size (base_node_ptr from, base_node_ptr to)
     {
         assert (from);
-        
+
         for (; from != to; from = from->get_parent())
             static_cast<node_ptr>(from)->size_++;
     }
@@ -166,7 +166,7 @@ protected:
     void erase_impl (node_ptr node) override
     {
         assert (node);
-        
+
         splay (node);
 
         if (node->get_left() == nullptr)
@@ -198,7 +198,7 @@ protected:
     void splay (node_ptr node) const
     {
         assert (node);
-        
+
         while (node != this->control_node_.get_root())
         {
             auto parent = node->get_parent();
