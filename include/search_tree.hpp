@@ -258,9 +258,8 @@ public:
 
     void clear ()
     {
-        control_node_.clean_up ();
-        control_node_.set_leftmost (control_node_.get_end_node());
-        control_node_.set_root (nullptr);
+        control_node_.clean_up();
+        control_node_.reset();
 
         size_ = 0;
     }
