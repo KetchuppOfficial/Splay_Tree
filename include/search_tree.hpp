@@ -477,7 +477,7 @@ protected:
         else
         {
             auto successor = node->get_right()->minimum();
-            // successor->left_ == nullptr because successor follows node
+            assert (successor->left_ == nullptr);
 
             if (successor->get_parent() != node)
             {
