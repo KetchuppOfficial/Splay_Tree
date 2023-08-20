@@ -458,7 +458,7 @@ protected:
             if (size_ == 0 ||
                 (size_ > 0 && comp_(key, control_node_.get_leftmost_unsafe()->get_key())))
             {
-                control_node_.set_leftmost (const_cast<node_ptr>(new_node));
+                control_node_.set_leftmost (const_cast<node_ptr>(node));
             }
             size_++;
         }
