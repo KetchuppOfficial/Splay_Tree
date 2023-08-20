@@ -249,7 +249,7 @@ public:
     // Modifiers
 
     void swap (Search_Tree &other) noexcept (std::is_nothrow_swappable_v<key_compare> &&
-                                             std::is_nothrow_swappable_v<base_node_type>)
+                                             std::is_nothrow_swappable_v<Control_Node>)
     {
         std::swap (control_node_, other.control_node_);
         std::swap (comp_, other.comp_);
