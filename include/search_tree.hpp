@@ -48,6 +48,8 @@ protected:
 
     class Control_Node final
     {
+        // left child of head_ is the root of the tree
+        // parent of head_ is the leftmost element of the tree
         base_node_type head_{};
 
     public:
