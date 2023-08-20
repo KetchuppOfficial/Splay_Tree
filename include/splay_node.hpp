@@ -23,14 +23,16 @@ public:
 
     size_type size_;
 
-    Splay_Node (const key_type &key, node_ptr left = nullptr,
-                node_ptr right = nullptr, node_ptr parent = nullptr)
-               : Node_Base{left, right, parent}, key_{key},
+    Splay_Node (const key_type &key,
+                node_ptr left = nullptr, node_ptr right = nullptr, node_ptr parent = nullptr)
+               : Node_Base{left, right, parent},
+                 key_{key},
                  size_{1 + size (left) + size (right)} {}
 
-    Splay_Node (key_type &&key, node_ptr left = nullptr,
-                node_ptr right = nullptr, node_ptr parent = nullptr)
-               : Node_Base{left, right, parent}, key_{std::move (key)},
+    Splay_Node (key_type &&key,
+                node_ptr left = nullptr, node_ptr right = nullptr, node_ptr parent = nullptr)
+               : Node_Base{left, right, parent},
+                 key_{std::move (key)},
                  size_{1 + size (left) + size (right)} {}
 
     node_ptr get_left () { return static_cast<node_ptr>(this->left_); }
