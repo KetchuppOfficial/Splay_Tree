@@ -434,8 +434,7 @@ protected:
 
     node_ptr bst_insert (const key_type &key, base_node_ptr parent)
     {
-        auto new_node = new node_type{key};
-        new_node->set_parent (parent);
+        auto new_node = new node_type{key, nullptr, nullptr, parent};
 
         if (parent == control_node_.get_end_node() ||
             comp_(key, static_cast<node_ptr>(parent)->get_key()))
