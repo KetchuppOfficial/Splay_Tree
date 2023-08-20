@@ -21,18 +21,6 @@
 namespace yLab
 {
 
-template<typename T>
-concept BT_Node = requires (const T &cnode, T &node)
-{
-    { node->get_left() } -> std::same_as<T *>;
-    { node->get_right() } -> std::same_as<T *>;
-    { node->get_parent() } -> std::same_as<T *>;
-
-    { cnode->get_left() } -> std::same_as<const T *>;
-    { cnode->get_right() } -> std::same_as<const T *>;
-    { cnode->get_parent() } -> std::same_as<const T *>;
-};
-
 template<typename Node_T, typename Base_Node_T,
          typename Compare = std::less<typename Node_T::key_type>>
 requires std::derived_from<Node_T, Base_Node_T>
