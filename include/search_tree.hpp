@@ -81,7 +81,10 @@ protected:
         const_base_node_ptr get_end_node () const noexcept { return std::addressof (head_); }
 
         node_ptr get_root () noexcept { return static_cast<node_ptr>(head_.get_left()); }
-        const_node_ptr get_root () const noexcept { return static_cast<const_node_ptr>(head_.get_left()); }
+        const_node_ptr get_root () const noexcept
+        {
+            return static_cast<const_node_ptr>(head_.get_left());
+        }
         void set_root (base_node_ptr root) noexcept { head_.set_left (root); }
 
         base_node_ptr get_leftmost () noexcept { return head_.get_parent(); }
@@ -89,7 +92,10 @@ protected:
         void set_leftmost (base_node_ptr leftmost) noexcept { head_.set_parent (leftmost); }
 
         node_ptr get_leftmost_unsafe () noexcept { return static_cast<node_ptr>(get_leftmost()); }
-        const_node_ptr get_leftmost_unsafe () const noexcept { return static_cast<const_node_ptr>(get_leftmost()); }
+        const_node_ptr get_leftmost_unsafe () const noexcept
+        {
+            return static_cast<const_node_ptr>(get_leftmost());
+        }
 
         void clean_up ()
         {
@@ -508,8 +514,9 @@ protected:
     {
         assert (node);
 
-        os << "    node_" << node << " [shape = record, color = black, style = filled, "
-              "fillcolor = red, fontcolor = black, label = \"" << static_cast<const_node_ptr>(node)->get_key() << "\"];\n";
+        os << "    node_" << node
+           << " [shape = record, color = black, style = filled, fillcolor = red, fontcolor = black,"
+              " label = \"" << static_cast<const_node_ptr>(node)->get_key() << "\"];\n";
 
         if (node->get_left() == nullptr)
             os << "    left_nil_node_" << node << " [shape = record, color = red, "

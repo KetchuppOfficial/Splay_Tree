@@ -23,9 +23,9 @@ TEST (Search_Tree, Constructors)
 
 TEST (Search_Tree, Comparator_Constructor)
 {
-    using custom_comparator = std::greater<key_type>;
+    using custom_comp = std::greater<key_type>;
 
-    yLab::Search_Tree<node_type, yLab::Node_Base, custom_comparator> empty_tree{custom_comparator{}};
+    yLab::Search_Tree<node_type, yLab::Node_Base, custom_comp> empty_tree{custom_comp{}};
 
     EXPECT_EQ (empty_tree.size(), 0);
     EXPECT_TRUE (empty_tree.empty());

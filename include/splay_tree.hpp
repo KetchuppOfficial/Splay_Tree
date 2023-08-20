@@ -248,7 +248,8 @@ Splay_Tree (It begin, It end, const Compare &comp)
 -> Splay_Tree<typename std::iterator_traits<It>::value_type, Compare>;
 
 template<typename T, typename... U>
-Splay_Tree (T, U...) -> Splay_Tree<std::enable_if_t<(std::is_same_v<T, U> && ...), T>, std::less<T>>;
+Splay_Tree (T, U...) -> Splay_Tree<std::enable_if_t<(std::is_same_v<T, U> && ...), T>,
+                                   std::less<T>>;
 
 } // namespace yLab
 

@@ -83,8 +83,11 @@ int main ()
     auto start = std::chrono::high_resolution_clock::now();
 
     std::for_each (queries.begin(), queries.end(),
-                   [&tree](auto &&pair){ std::cout << std::distance (tree.lower_bound (pair.first),
-                                                                     tree.upper_bound (pair.second)) << " "; });
+                   [&tree](auto &&pair)
+                   {
+                        std::cout << std::distance (tree.lower_bound (pair.first),
+                                                    tree.upper_bound (pair.second)) << " ";
+                   });
 
     std::cout << std::endl;
 
@@ -96,7 +99,8 @@ int main ()
     std::ofstream file{"std_set.info"};
     #endif
 
-    file << std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count() << std::endl;
+    file << std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count()
+         << std::endl;
 
     return 0;
 }

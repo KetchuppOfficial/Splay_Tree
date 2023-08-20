@@ -59,7 +59,8 @@ function generate_answer
     local n_queries=$2
 
     echo "Generating answer..."
-    ${bin_dir}${ans_generator} < "${data}${n_keys}_${n_queries}.test" > "${data}${n_keys}_${n_queries}.ans"
+    ${bin_dir}${ans_generator} < "${data}${n_keys}_${n_queries}.test" \
+                               > "${data}${n_keys}_${n_queries}.ans"
     echo -en "\n"
 }
 
@@ -69,7 +70,8 @@ function run_test
     local n_queries=$2
 
     echo "Running test..."
-    ${bin_dir}${test_driver} < "${data}${n_keys}_${n_queries}.test" > "${data}${n_keys}_${n_queries}.res"
+    ${bin_dir}${test_driver} < "${data}${n_keys}_${n_queries}.test" \
+                             > "${data}${n_keys}_${n_queries}.res"
     echo -en "\n"
 
     echo -en "Result: "
