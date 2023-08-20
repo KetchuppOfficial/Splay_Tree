@@ -53,16 +53,16 @@ public:
     {
         this->left_rotate_impl();
 
-        size_ = 1 + size (this->get_left()) + size (this->get_right());
-        this->get_parent()->size_ = 1 + size (this) + size (this->get_parent()->get_right());
+        size_ = 1 + size (get_left()) + size (get_right());
+        get_parent()->size_ = 1 + size (this) + size (get_parent()->get_right());
     }
 
     void right_rotate () noexcept override
     {
         this->right_rotate_impl();
 
-        size_ = 1 + size (this->get_left()) + size (this->get_right());
-        this->get_parent()->size_ = 1 + size (this) + size (this->get_parent()->get_left());
+        size_ = 1 + size (get_left()) + size (get_right());
+        get_parent()->size_ = 1 + size (this) + size (get_parent()->get_left());
     }
 };
 
