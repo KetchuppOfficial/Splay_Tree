@@ -46,7 +46,7 @@ protected:
     using node_ptr = Node_T *;
     using const_node_ptr = const Node_T *;
 
-    class Control_Node
+    class Control_Node final
     {
         base_node_type head_{};
 
