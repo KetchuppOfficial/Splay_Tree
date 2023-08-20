@@ -62,7 +62,7 @@ protected:
         Control_Node (Control_Node &&rhs) : head_{std::move (rhs.head_)}
         {
             reset_leftmost_or_parent_of_root();
-            rhs.set_defaults();
+            rhs.reset();
         }
 
         Control_Node &operator= (Control_Node &&rhs)
@@ -70,7 +70,7 @@ protected:
             head_ = std::move (rhs.head_);
 
             reset_leftmost_or_parent_of_root();
-            rhs.set_defaults();
+            rhs.reset();
 
             return *this;
         }
@@ -117,7 +117,7 @@ protected:
                 set_leftmost (get_end_node());
         }
 
-        void set_defaults ()
+        void reset ()
         {
             set_root (nullptr);
             set_leftmost (get_end_node());
