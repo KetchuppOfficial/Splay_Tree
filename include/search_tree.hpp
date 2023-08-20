@@ -270,16 +270,16 @@ public:
 
         if (node == nullptr)
         {
-            auto new_node = insert_impl (key, const_cast<base_node_ptr>(parent));
+            node = insert_impl (key, const_cast<base_node_ptr>(parent));
 
             if (size_ == 0 ||
                 (size_ > 0 && comp_(key, control_node_.get_leftmost_unsafe()->get_key())))
             {
-                control_node_.set_leftmost (new_node);
+                control_node_.set_leftmost (node);
             }
             size_++;
 
-            return std::pair{iterator{new_node}, true};
+            return std::pair{iterator{node}, true};
         }
         else
             return std::pair{iterator{node}, false};
