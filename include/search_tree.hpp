@@ -101,7 +101,7 @@ protected:
 
         void clean_up ()
         {
-            for (base_node_ptr node = get_root(), save{}; node != nullptr; node = save)
+            for (base_node_ptr node = get_root(), save; node != nullptr; node = save)
             {
                 if (node->get_left() == nullptr)
                 {
