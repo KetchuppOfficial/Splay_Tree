@@ -91,6 +91,8 @@ protected:
         const_base_node_ptr get_leftmost () const noexcept { return head_.get_parent(); }
         void set_leftmost (base_node_ptr leftmost) noexcept { head_.set_parent (leftmost); }
 
+        // Use _unsafe getters only if you are sure that dynamic type of *head_.parent_ is Node_T.
+        // Using _unsafe getters in other cases leads to UB
         node_ptr get_leftmost_unsafe () noexcept { return static_cast<node_ptr>(get_leftmost()); }
         const_node_ptr get_leftmost_unsafe () const noexcept
         {
