@@ -398,7 +398,7 @@ protected:
     virtual const_base_node_ptr lower_bound_impl (const key_type &key) const
     {
         auto node = control_node_.get_root();
-        const_base_node_ptr lower_bound = control_node_.get_end_node();
+        auto lower_bound = control_node_.get_end_node();
 
         while (node)
         {
@@ -414,7 +414,7 @@ protected:
     virtual const_base_node_ptr upper_bound_impl (const key_type &key) const
     {
         auto node = control_node_.get_root();
-        const_base_node_ptr upper_bound = control_node_.get_end_node();
+        auto upper_bound = control_node_.get_end_node();
 
         while (node)
         {
