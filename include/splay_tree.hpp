@@ -73,6 +73,8 @@ public:
     Splay_Tree (Splay_Tree &&rhs) = default;
     Splay_Tree &operator= (Splay_Tree &&rhs) = default;
 
+    ~Splay_Tree () override = default;
+
 protected:
 
     // Lookup

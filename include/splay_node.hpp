@@ -35,6 +35,8 @@ public:
                  key_{std::move (key)},
                  size_{1 + size (left) + size (right)} {}
 
+    ~Splay_Node () override = default;
+
     node_ptr get_left () { return static_cast<node_ptr>(this->left_); }
     const_node_ptr get_left () const { return static_cast<const_node_ptr>(this->left_); }
 
