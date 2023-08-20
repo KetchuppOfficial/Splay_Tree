@@ -54,6 +54,9 @@ protected:
 
         Control_Node () { set_leftmost (get_end_node()); }
 
+        Control_Node (const Control_Node &rhs) = delete;
+        Control_Node &operator= (const Control_Node &rhs) = delete;
+
         Control_Node (Control_Node &&rhs) : head_{std::move (rhs.head_)}
         {
             set_leftmost_or_parent_of_root();
