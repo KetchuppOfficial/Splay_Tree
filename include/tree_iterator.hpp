@@ -29,8 +29,8 @@ public:
     tree_iterator () = default;
     explicit tree_iterator (const_base_node_ptr node) noexcept : node_{node} {}
 
-    reference operator* () const { return static_cast<const_node_ptr>(node_)->get_key(); }
-    pointer operator-> () const { return &static_cast<const_node_ptr>(node_)->get_key(); }
+    reference operator* () const { return get_key(); }
+    pointer operator-> () const { return std::addressof(get_key()); }
 
     tree_iterator &operator++ () noexcept
     {
@@ -61,6 +61,10 @@ public:
     bool operator== (const tree_iterator &rhs) const noexcept { return node_ == rhs.node_; }
 
     const_base_node_ptr base () const { return node_; }
+
+private:
+
+    reference get_key() const { return static_cast<const_node_ptr>(node_)->get_key(); }
 };
 
 } // namespace yLab
