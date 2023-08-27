@@ -160,8 +160,7 @@ public:
 
     Search_Tree (const Search_Tree &rhs) : comp_{rhs.comp_}
     {
-        for (auto &&key : rhs)
-            insert_unique (key);
+        insert (rhs.begin(), rhs.end());
     }
 
     Search_Tree &operator= (const Search_Tree &rhs)
