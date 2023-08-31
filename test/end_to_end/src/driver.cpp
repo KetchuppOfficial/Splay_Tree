@@ -80,18 +80,21 @@ int main ()
     std::set<key_type> tree (keys.begin(), keys.end());
     #endif
 
+    std::vector<std::size_t> answers;
+    answers.reserve(queries.size());
+
+    auto counter = [&tree, &answers](auto &&pair) mutable
+    {
+        answers.push_back (std::distance (tree.lower_bound (pair.first),
+                                          tree.upper_bound (pair.second)));
+    };
+
     auto start = std::chrono::high_resolution_clock::now();
-
-    std::for_each (queries.begin(), queries.end(),
-                   [&tree](auto &&pair)
-                   {
-                        std::cout << std::distance (tree.lower_bound (pair.first),
-                                                    tree.upper_bound (pair.second)) << " ";
-                   });
-
-    std::cout << std::endl;
-
+    std::for_each (queries.begin(), queries.end(), counter);
     auto finish = std::chrono::high_resolution_clock::now();
+
+    std::copy (answers.begin(), answers.end(), std::ostream_iterator<std::size_t>{std::cout, " "});
+    std::cout << std::endl;
 
     #ifdef SPLAY_TREE
     std::ofstream file{"splay_tree.info"};
