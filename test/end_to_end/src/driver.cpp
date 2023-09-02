@@ -35,7 +35,7 @@ std::vector<Key_T> get_keys ()
         if (!std::cin.good())
             throw std::runtime_error{"Error while reading keys"};
 
-        keys.emplace_back (key);
+        keys.push_back (key);
     }
 
     return keys;
