@@ -7,17 +7,32 @@
 #include <initializer_list>
 #include <type_traits>
 #include <cassert>
+#include <concepts>
 
 #include "search_tree.hpp"
+#include "subtree_sizes.hpp"
+
+#ifdef SUBTREE_SIZES
+#include "augmented_splay_node.hpp"
+#else
 #include "splay_node.hpp"
+#endif
 
 namespace yLab
 {
 
+#ifdef SUBTREE_SIZES
+template<typename Key_T>
+using Derived_Node = Augmented_Splay_Node<Key_T>;
+#else
+template<typename Key_T>
+using Derived_Node = Splay_Node<Key_T>;
+#endif
+
 template<typename Key_T, typename Compare = std::less<Key_T>>
-class Splay_Tree : public Search_Tree<Splay_Node<Key_T>, Node_Base, Compare>
+class Splay_Tree : public Search_Tree<Derived_Node<Key_T>, Node_Base, Compare>
 {
-    using base_tree = Search_Tree<Splay_Node<Key_T>, Node_Base, Compare>;
+    using base_tree = Search_Tree<Derived_Node<Key_T>, Node_Base, Compare>;
     using typename base_tree::base_node_ptr;
     using typename base_tree::const_base_node_ptr;
     using typename base_tree::node_ptr;
@@ -74,6 +89,24 @@ public:
     Splay_Tree &operator= (Splay_Tree &&rhs) = default;
 
     ~Splay_Tree () override = default;
+
+    size_type n_less_than (const key_type &key) const
+    requires contains_subtree_size<node_type>
+    {
+        if (this->empty())
+            return 0;
+        else
+            return n_less_than_node (this->lower_bound (key));
+    }
+
+    size_type n_less_or_equal_to (const key_type &key) const
+    requires contains_subtree_size<node_type>
+    {
+        if (this->empty())
+            return 0;
+        else
+            return n_less_than_node (this->upper_bound (key));
+    }
 
 protected:
 
@@ -146,23 +179,23 @@ protected:
         }
     }
 
+    size_type n_less_than_node (const_iterator it) const
+    requires contains_subtree_size<node_type>
+    {
+        if (it == this->end())
+            return this->size();
+        else
+            return node_type::size (static_cast<const_node_ptr>(it.base())->get_left());
+    }
+
     // Modifiers
 
     node_ptr insert_impl (const key_type &key, base_node_ptr parent) override
     {
         auto new_node = this->bst_insert (key, parent);
-        Splay_Tree::increment_size (parent, this->control_node_.get_end_node());
         splay (new_node);
 
         return new_node;
-    }
-
-    static void increment_size (base_node_ptr from, base_node_ptr to)
-    {
-        assert (from);
-
-        for (; from != to; from = from->get_parent())
-            static_cast<node_ptr>(from)->size_++;
     }
 
     void erase_impl (node_ptr node) override
@@ -181,8 +214,7 @@ protected:
 
     void join (node_ptr left_subtree, node_ptr right_subtree)
     {
-        assert (left_subtree);
-        assert (right_subtree);
+        assert (this->control_node_.get_root());
         assert (left_subtree == this->control_node_.get_root()->get_left());
         assert (right_subtree == this->control_node_.get_root()->get_right());
 
@@ -194,7 +226,6 @@ protected:
         splay (left_max);
         left_max->set_right (right_subtree);
         right_subtree->set_parent (left_max);
-        left_max->size_ += right_subtree->size_;
     }
 
     void splay (node_ptr node) const
