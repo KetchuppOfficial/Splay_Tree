@@ -9,7 +9,10 @@ target_compile_options(driver
                        PRIVATE -DSPLAY_TREE)
 
 target_include_directories(generator
-                           PRIVATE ./include)
+                           PRIVATE ${INCLUDE_DIR})
+
+target_include_directories(ans_generator
+                           PRIVATE ${INCLUDE_DIR})
 
 install(TARGETS driver generator ans_generator
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
