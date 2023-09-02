@@ -34,11 +34,11 @@ public:
 
     node_ptr get_left () { return left_; }
     const_node_ptr get_left () const { return left_; }
-    void set_left (node_ptr left) { left_ = left; }
+    virtual void set_left (node_ptr left) { left_ = left; }
 
     node_ptr get_right () { return right_; }
     const_node_ptr get_right () const { return right_; }
-    void set_right (node_ptr right) { right_ = right; }
+    virtual void set_right (node_ptr right) { right_ = right; }
 
     node_ptr get_parent () { return parent_; }
     const_node_ptr get_parent () const { return parent_; }
@@ -111,11 +111,6 @@ public:
         return const_cast<node_ptr>(static_cast<const_node_ptr>(this)->predecessor());
     }
 
-    virtual void left_rotate () noexcept { left_rotate_impl(); }
-    virtual void right_rotate () noexcept { right_rotate_impl(); }
-
-protected:
-
     /*
      *   |               |
      *   x = this        y
@@ -124,23 +119,24 @@ protected:
      *    / \         / \
      *   b   c       a   b
      */
-    void left_rotate_impl () noexcept
+    void left_rotate () noexcept
     {
         assert (right_);
 
         auto y = right_;
         auto b = y->left_;
 
-        right_ = b;
-        y->left_ = this;
+        set_right (b);
         if (b)
             b->parent_ = this;
 
+        y->set_left (this);
+
         y->parent_ = parent_;
         if (is_left_child())
-            parent_->left_ = y;
+            parent_->set_left (y);
         else
-            parent_->right_ = y;
+            parent_->set_right (y);
 
         parent_ = y;
     }
@@ -153,23 +149,24 @@ protected:
      *    / \         / \
      *   b   c       a   b
      */
-    void right_rotate_impl () noexcept
+    void right_rotate () noexcept
     {
         assert (left_);
 
         auto y = left_;
         auto b = y->right_;
 
-        left_ = b;
-        y->right_ = this;
+        set_left (b);
         if (b)
             b->parent_ = this;
 
+        y->set_right (this);
+
         y->parent_ = parent_;
         if (is_left_child())
-            parent_->left_ = y;
+            parent_->set_left (y);
         else
-            parent_->right_ = y;
+            parent_->set_right (y);
 
         parent_ = y;
     }
