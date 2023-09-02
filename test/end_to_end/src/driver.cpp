@@ -12,7 +12,9 @@
 #include <set>
 #endif
 
-namespace yLab
+#include "subtree_sizes.hpp"
+
+namespace
 {
 
 template<typename Key_T>
@@ -65,42 +67,50 @@ std::vector<std::pair<Key_T, Key_T>> get_queries ()
     return queries;
 }
 
-} // namespace yLab
+template<typename Tree_T, std::forward_iterator It>
+std::vector<std::size_t> run_test (const Tree_T &tree, It from, It to)
+{
+    std::vector<std::size_t> answers;
+    answers.reserve (std::distance (from, to));
+
+    std::for_each (from, to, [&tree, &answers](auto &&pair)
+    {
+        std::size_t n_elems;
+
+        if constexpr (yLab::contains_subtree_size<typename Tree_T::node_type>)
+            n_elems = tree.n_less_or_equal_to (pair.second) - tree.n_less_than (pair.first);
+        else
+            n_elems = std::distance (tree.lower_bound (pair.first), tree.upper_bound (pair.second));
+
+        answers.push_back (n_elems);
+    });
+
+    return answers;
+}
+
+} // unnamed namespace
 
 int main ()
 {
     using key_type = int;
 
-    auto keys = yLab::get_keys<key_type>();
-    auto queries = yLab::get_queries<key_type>();
+    auto keys = get_keys<key_type>();
+    auto queries = get_queries<key_type>();
 
     #ifdef SPLAY_TREE
     yLab::Splay_Tree<key_type> tree (keys.begin(), keys.end());
+    std::ofstream file{"splay_tree.info"};
     #else
     std::set<key_type> tree (keys.begin(), keys.end());
+    std::ofstream file{"std_set.info"};
     #endif
 
-    std::vector<std::size_t> answers;
-    answers.reserve(queries.size());
-
-    auto counter = [&tree, &answers](auto &&pair) mutable
-    {
-        answers.push_back (std::distance (tree.lower_bound (pair.first),
-                                          tree.upper_bound (pair.second)));
-    };
-
     auto start = std::chrono::high_resolution_clock::now();
-    std::for_each (queries.begin(), queries.end(), counter);
+    auto answers = run_test (tree, queries.begin(), queries.end());
     auto finish = std::chrono::high_resolution_clock::now();
 
     std::copy (answers.begin(), answers.end(), std::ostream_iterator<std::size_t>{std::cout, " "});
     std::cout << std::endl;
-
-    #ifdef SPLAY_TREE
-    std::ofstream file{"splay_tree.info"};
-    #else
-    std::ofstream file{"std_set.info"};
-    #endif
 
     file << std::chrono::duration_cast<std::chrono::milliseconds>(finish - start).count()
          << std::endl;
