@@ -464,7 +464,7 @@ protected:
         else
         {
             auto successor = node->get_right()->minimum();
-            assert (successor->left_ == nullptr);
+            assert (successor->get_left() == nullptr);
 
             if (successor->get_parent() != node)
             {
