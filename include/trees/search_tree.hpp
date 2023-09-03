@@ -16,7 +16,7 @@
 #include <iostream>
 #endif // DEBUG
 
-#include "tree_iterator.hpp"
+#include "../tree_iterator.hpp"
 
 namespace yLab
 {

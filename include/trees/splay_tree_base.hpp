@@ -10,7 +10,7 @@
 #include <concepts>
 
 #include "search_tree.hpp"
-#include "subtree_sizes.hpp"
+#include "../subtree_sizes.hpp"
 
 namespace yLab
 {

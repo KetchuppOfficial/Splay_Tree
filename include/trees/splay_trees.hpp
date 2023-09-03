@@ -3,9 +3,9 @@
 
 #include <functional>
 
-#include "node_base.hpp"
-#include "splay_node.hpp"
-#include "augmented_splay_node.hpp"
+#include "../nodes/node_base.hpp"
+#include "../nodes/splay_node.hpp"
+#include "../nodes/augmented_splay_node.hpp"
 #include "splay_tree_base.hpp"
 
 namespace yLab
