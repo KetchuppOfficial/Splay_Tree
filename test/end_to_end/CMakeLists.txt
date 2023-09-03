@@ -5,8 +5,8 @@ add_executable(ans_generator ./src/driver.cpp)
 target_include_directories(driver
                            PRIVATE ${INCLUDE_DIR})
 
-target_compile_options(driver
-                       PRIVATE -DSPLAY_TREE)
+target_compile_definitions(driver
+                           PRIVATE SPLAY_TREE)
 
 target_include_directories(generator
                            PRIVATE ${INCLUDE_DIR})
