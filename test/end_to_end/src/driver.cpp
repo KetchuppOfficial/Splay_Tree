@@ -6,8 +6,8 @@
 #include <chrono>
 #include <fstream>
 
-#ifdef SPLAY_TREE
-#include "splay_tree.hpp"
+#if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
+#include "splay_trees.hpp"
 #else
 #include <set>
 #endif
@@ -97,9 +97,12 @@ int main ()
     auto keys = get_keys<key_type>();
     auto queries = get_queries<key_type>();
 
-    #ifdef SPLAY_TREE
+    #if defined(SPLAY_TREE)
     yLab::Splay_Tree<key_type> tree (keys.begin(), keys.end());
     std::ofstream file{"splay_tree.info"};
+    #elif defined(AUGMENTED_SPLAY_TREE)
+    yLab::Augmented_Splay_Tree<key_type> tree (keys.begin(), keys.end());
+    std::ofstream file{"augmented_splay_tree.info"};
     #else
     std::set<key_type> tree (keys.begin(), keys.end());
     std::ofstream file{"std_set.info"};

@@ -12,27 +12,14 @@
 #include "search_tree.hpp"
 #include "subtree_sizes.hpp"
 
-#ifdef SUBTREE_SIZES
-#include "augmented_splay_node.hpp"
-#else
-#include "splay_node.hpp"
-#endif
-
 namespace yLab
 {
 
-#ifdef SUBTREE_SIZES
-template<typename Key_T>
-using Derived_Node = Augmented_Splay_Node<Key_T>;
-#else
-template<typename Key_T>
-using Derived_Node = Splay_Node<Key_T>;
-#endif
-
-template<typename Key_T, typename Compare = std::less<Key_T>>
-class Splay_Tree : public Search_Tree<Derived_Node<Key_T>, Node_Base, Compare>
+template<typename Node_T, typename Base_Node_T,
+         typename Compare = std::less<typename Node_T::key_type>>
+class Splay_Tree_Base : public Search_Tree<Node_T, Base_Node_T, Compare>
 {
-    using base_tree = Search_Tree<Derived_Node<Key_T>, Node_Base, Compare>;
+    using base_tree = Search_Tree<Node_T, Base_Node_T, Compare>;
     using typename base_tree::base_node_ptr;
     using typename base_tree::const_base_node_ptr;
     using typename base_tree::node_ptr;
@@ -56,28 +43,28 @@ public:
     using typename base_tree::reverse_iterator;
     using typename base_tree::const_reverse_iterator;
 
-    Splay_Tree () : Splay_Tree{key_compare{}} {}
+    Splay_Tree_Base () : Splay_Tree_Base{key_compare{}} {}
 
-    explicit Splay_Tree (const key_compare &comp) : base_tree{comp} {}
+    explicit Splay_Tree_Base (const key_compare &comp) : base_tree{comp} {}
 
     template<std::input_iterator it>
-    Splay_Tree (it first, it second, const key_compare &comp = key_compare{}) : base_tree{comp}
+    Splay_Tree_Base (it first, it second, const key_compare &comp = key_compare{}) : base_tree{comp}
     {
         this->insert (first, second);
     }
 
-    Splay_Tree (std::initializer_list<value_type> ilist, const key_compare &comp = key_compare{})
-               : base_tree{comp}
+    Splay_Tree_Base (std::initializer_list<value_type> ilist,
+                     const key_compare &comp = key_compare{}) : base_tree{comp}
     {
         this->insert (ilist);
     }
 
-    Splay_Tree (const Splay_Tree &rhs) : base_tree{rhs.comp_}
+    Splay_Tree_Base (const Splay_Tree_Base &rhs) : base_tree{rhs.comp_}
     {
         this->insert (rhs.begin(), rhs.end());
     }
 
-    Splay_Tree &operator= (const Splay_Tree &rhs)
+    Splay_Tree_Base &operator= (const Splay_Tree_Base &rhs)
     {
         auto tmp_tree{rhs};
         std::swap (*this, tmp_tree);
@@ -85,10 +72,10 @@ public:
         return *this;
     }
 
-    Splay_Tree (Splay_Tree &&rhs) = default;
-    Splay_Tree &operator= (Splay_Tree &&rhs) = default;
+    Splay_Tree_Base (Splay_Tree_Base &&rhs) = default;
+    Splay_Tree_Base &operator= (Splay_Tree_Base &&rhs) = default;
 
-    ~Splay_Tree () override = default;
+    ~Splay_Tree_Base () override = default;
 
     size_type n_less_than (const key_type &key) const
     requires contains_subtree_size<node_type>
@@ -274,13 +261,15 @@ protected:
     }
 };
 
+#if 0
 template<typename It, typename Compare>
-Splay_Tree (It begin, It end, const Compare &comp)
--> Splay_Tree<typename std::iterator_traits<It>::value_type, Compare>;
+Splay_Tree_Base (It begin, It end, const Compare &comp)
+-> Splay_Tree_Base<typename std::iterator_traits<It>::value_type, Compare>;
 
 template<typename T, typename... U>
-Splay_Tree (T, U...) -> Splay_Tree<std::enable_if_t<(std::is_same_v<T, U> && ...), T>,
+Splay_Tree_Base (T, U...) -> Splay_Tree_Base<std::enable_if_t<(std::is_same_v<T, U> && ...), T>,
                                    std::less<T>>;
+#endif
 
 } // namespace yLab
 

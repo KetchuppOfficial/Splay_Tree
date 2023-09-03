@@ -4,14 +4,14 @@
 #include <numeric>
 #include <algorithm>
 
-#include "splay_tree.hpp"
+#include "splay_trees.hpp"
 
 using key_type = int;
-using tree_type = yLab::Splay_Tree<key_type>;
+using tree_type = yLab::Augmented_Splay_Tree<key_type>;
 
 // Constructors and operator=
 
-bool subtree_sizes_verifier (tree_type::iterator first, tree_type::iterator last)
+bool subtree_sizes_verifier (typename tree_type::iterator first, typename tree_type::iterator last)
 {
     using node_type = typename tree_type::node_type;
 
@@ -28,7 +28,7 @@ bool subtree_sizes_verifier (tree_type::iterator first, tree_type::iterator last
     return true;
 }
 
-TEST (Splay_Tree, Constructors)
+TEST (Augmented_Splay_Tree, Constructors)
 {
     tree_type empty_tree;
     EXPECT_EQ (empty_tree.size(), 0);
@@ -36,18 +36,18 @@ TEST (Splay_Tree, Constructors)
     EXPECT_EQ (empty_tree.begin(), empty_tree.end());
 }
 
-TEST (Splay_Tree, Comparator_Constructor)
+TEST (Augmented_Splay_Tree, Comparator_Constructor)
 {
     using custom_comparator = std::greater<key_type>;
 
-    yLab::Splay_Tree<key_type, custom_comparator> empty_tree{custom_comparator{}};
+    yLab::Augmented_Splay_Tree<key_type, custom_comparator> empty_tree{custom_comparator{}};
 
     EXPECT_EQ (empty_tree.size(), 0);
     EXPECT_TRUE (empty_tree.empty());
     EXPECT_EQ (empty_tree.begin(), empty_tree.end());
 }
 
-TEST (Splay_Tree, Initializer_List_Constructor)
+TEST (Augmented_Splay_Tree, Initializer_List_Constructor)
 {
     tree_type tree{1, 2, 3, 2, 4, 1, 5};
 
@@ -62,7 +62,7 @@ TEST (Splay_Tree, Initializer_List_Constructor)
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
 }
 
-TEST (Splay_Tree, Iterator_Constructor)
+TEST (Augmented_Splay_Tree, Iterator_Constructor)
 {
     std::vector from{1, 2, 3, 2, 4, 1, 5};
     std::vector vec{1, 2, 3, 4, 5};
@@ -76,7 +76,7 @@ TEST (Splay_Tree, Iterator_Constructor)
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
 }
 
-TEST (Splay_Tree, Copy_Constructor)
+TEST (Augmented_Splay_Tree, Copy_Constructor)
 {
     tree_type tree{5, 2, 4, 1, 3, 7, 11};
 
@@ -86,7 +86,7 @@ TEST (Splay_Tree, Copy_Constructor)
     EXPECT_TRUE (subtree_sizes_verifier (copy.begin(), copy.end()));
 }
 
-TEST (Splay_Tree, Move_Constructor)
+TEST (Augmented_Splay_Tree, Move_Constructor)
 {
     tree_type moved_from{3, 2, 1, 4, 5};
     auto moved_from_copy{moved_from};
@@ -99,7 +99,7 @@ TEST (Splay_Tree, Move_Constructor)
     EXPECT_EQ (moved_from.begin(), moved_from.end());
 }
 
-TEST (Splay_Tree, Move_Assignment)
+TEST (Augmented_Splay_Tree, Move_Assignment)
 {
     tree_type moved_from{1, 2, 3, 4, 5}, moved_to{6, 7, 8};
     auto moved_from_copy{moved_from};
@@ -110,7 +110,7 @@ TEST (Splay_Tree, Move_Assignment)
     EXPECT_TRUE (subtree_sizes_verifier (moved_to.begin(), moved_to.end()));
 }
 
-TEST (Splay_Tree, Copy_Assignment)
+TEST (Augmented_Splay_Tree, Copy_Assignment)
 {
     tree_type tree{5, 2, 4, 1, 3, 7, 11};
     tree_type copy;
@@ -123,7 +123,7 @@ TEST (Splay_Tree, Copy_Assignment)
 
 // Lookup
 
-TEST (Splay_Tree, Find)
+TEST (Augmented_Splay_Tree, Find)
 {
     tree_type tree{1, 2, 3, 4, 5, 6};
 
@@ -138,7 +138,7 @@ TEST (Splay_Tree, Find)
     EXPECT_EQ (empty_tree.find (0), empty_tree.end());
 }
 
-TEST (Splay_Tree, Contains)
+TEST (Augmented_Splay_Tree, Contains)
 {
     tree_type tree = {1, 2, 3, 4, 5, 6};
 
@@ -151,7 +151,7 @@ TEST (Splay_Tree, Contains)
     EXPECT_FALSE (empty_tree.contains (0));
 }
 
-TEST (Splay_Tree, Lower_Bound)
+TEST (Augmented_Splay_Tree, Lower_Bound)
 {
     tree_type tree = {1, 3};
 
@@ -174,7 +174,7 @@ TEST (Splay_Tree, Lower_Bound)
     EXPECT_EQ (empty_tree.lower_bound (0), empty_tree.end());
 }
 
-TEST (Splay_Tree, Upper_Bound)
+TEST (Augmented_Splay_Tree, Upper_Bound)
 {
     tree_type tree = {1, 3};
 
@@ -197,9 +197,7 @@ TEST (Splay_Tree, Upper_Bound)
     EXPECT_EQ (empty_tree.upper_bound (0), empty_tree.end());
 }
 
-// Splay_Tree
-
-TEST (Splay_Tree, Swap)
+TEST (Augmented_Splay_Tree, Swap)
 {
     tree_type tree_1{1, 2, 3, 4}, tree_2{5, 6, 7};
     auto copy_1{tree_1}, copy_2{tree_2};
@@ -210,7 +208,7 @@ TEST (Splay_Tree, Swap)
     EXPECT_EQ (tree_2, copy_1);
 }
 
-TEST (Splay_Tree, Clear)
+TEST (Augmented_Splay_Tree, Clear)
 {
     tree_type tree{1, 2, 3, 4, 5, 6}, empty_tree;
 
@@ -219,7 +217,7 @@ TEST (Splay_Tree, Clear)
     EXPECT_EQ (tree, empty_tree);
 }
 
-TEST (Splay_Tree, Insert_By_Key)
+TEST (Augmented_Splay_Tree, Insert_By_Key)
 {
     tree_type tree;
 
@@ -250,7 +248,7 @@ TEST (Splay_Tree, Insert_By_Key)
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
 }
 
-TEST (Splay_Tree, Insert_Range)
+TEST (Augmented_Splay_Tree, Insert_Range)
 {
     std::set model{1, 6, 3, 7, 1, 8, 5, 3, 8, 35162, -46, 35};
 
@@ -261,7 +259,7 @@ TEST (Splay_Tree, Insert_Range)
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
 }
 
-TEST (Splay_Tree, Insert_By_Initializer_List)
+TEST (Augmented_Splay_Tree, Insert_By_Initializer_List)
 {
     auto ilist = {1, 6, 3, 7, 1, 8, 5, 3, 8, 35162, -46, 35};
 
@@ -275,7 +273,7 @@ TEST (Splay_Tree, Insert_By_Initializer_List)
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
 }
 
-TEST (Splay_Tree, Erase_By_Iterator)
+TEST (Augmented_Splay_Tree, Erase_By_Iterator)
 {
     std::set<int> model{15, 2, 1, 8, 3, 5, 7, 9, 4, 11};
     tree_type tree{model.begin(), model.end()};
@@ -288,7 +286,7 @@ TEST (Splay_Tree, Erase_By_Iterator)
     EXPECT_TRUE (subtree_sizes_verifier (tree.begin(), tree.end()));
 }
 
-TEST (Splay_Tree, Erase_By_Key)
+TEST (Augmented_Splay_Tree, Erase_By_Key)
 {
     std::vector<key_type> vec(1000);
     std::iota (vec.begin(), vec.end(), 1);
@@ -316,7 +314,7 @@ TEST (Splay_Tree, Erase_By_Key)
     EXPECT_EQ (tree_2, empty_tree);
 }
 
-TEST (Splay_Tree, Equality)
+TEST (Augmented_Splay_Tree, Equality)
 {
     tree_type tree_1{1, 2, 3, 4, 5, 6};
     tree_type tree_2{1, 2, 3, 4, 5};
@@ -335,7 +333,7 @@ TEST (Splay_Tree, Equality)
     EXPECT_NE (tree_1, tree_3);
 }
 
-TEST (Splay_Tree, Ordering)
+TEST (Augmented_Splay_Tree, Ordering)
 {
     tree_type tree_1{1, 2, 3, 4, 5};
     tree_type tree_2{1, 2, 3, 4, 5, 6};
