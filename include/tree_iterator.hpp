@@ -3,8 +3,7 @@
 
 #include <iterator>
 #include <concepts>
-
-#include "node_base.hpp"
+#include <memory>
 
 namespace yLab
 {
