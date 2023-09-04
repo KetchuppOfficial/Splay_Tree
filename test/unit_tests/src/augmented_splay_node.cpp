@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "augmented_splay_node.hpp"
+#include "subtree_sizes.hpp"
 
 TEST (Augmented_Splay_Node, Constructors)
 {
@@ -19,6 +20,8 @@ TEST (Augmented_Splay_Node, Constructors)
 TEST (Augmented_Splay_Node, Size)
 {
     using node_type = yLab::Augmented_Splay_Node<int>;
+
+    static_assert(yLab::contains_subtree_size<node_type>);
 
     node_type left{1}, right{3};
     node_type node{2, &left, &right};
