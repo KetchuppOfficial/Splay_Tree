@@ -328,11 +328,10 @@ public:
         auto begin_node = begin().base();
         auto end_node = end().base();
 
-        os << "    node_" << end_node
-           << " [color = black, style = filled, fillcolor = yellow, label = \"end node\"];\n";
+        end_node->dot_dump (os);
 
         for (auto node = begin_node; node != end_node; node = node->successor())
-            Search_Tree::node_dump (os, node);
+            node->dot_dump (os);
 
         os << std::endl;
 
@@ -497,6 +496,7 @@ protected:
 
     #ifdef DEBUG
 
+    #if 0
     static void node_dump (std::ostream &os, const_base_node_ptr node)
     {
         assert (node);
@@ -513,6 +513,7 @@ protected:
             os << "    right_nil_node_" << node << " [shape = record, color = red, "
                   "style = filled, fillcolor = black, fontcolor = white, label = \"nil\"];\n";
     }
+    #endif
 
     static void arrow_dump (std::ostream &os, const_base_node_ptr node)
     {
