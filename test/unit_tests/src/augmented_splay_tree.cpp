@@ -1,3 +1,8 @@
+/*
+ * Tests for ordinary splay tree are not provided as they are just copies of the following tests
+ * without verifying sizes of subtrees
+ */
+
 #include <gtest/gtest.h>
 #include <vector>
 #include <set>
