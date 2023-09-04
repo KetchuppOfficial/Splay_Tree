@@ -496,25 +496,6 @@ protected:
 
     #ifdef DEBUG
 
-    #if 0
-    static void node_dump (std::ostream &os, const_base_node_ptr node)
-    {
-        assert (node);
-
-        os << "    node_" << node
-           << " [shape = record, color = black, style = filled, fillcolor = red, fontcolor = black,"
-              " label = \"" << static_cast<const_node_ptr>(node)->get_key() << "\"];\n";
-
-        if (node->get_left() == nullptr)
-            os << "    left_nil_node_" << node << " [shape = record, color = red, "
-                  "style = filled, fillcolor = black, fontcolor = white, label = \"nil\"];\n";
-
-        if (node->get_right() == nullptr)
-            os << "    right_nil_node_" << node << " [shape = record, color = red, "
-                  "style = filled, fillcolor = black, fontcolor = white, label = \"nil\"];\n";
-    }
-    #endif
-
     static void arrow_dump (std::ostream &os, const_base_node_ptr node)
     {
         assert (node);
