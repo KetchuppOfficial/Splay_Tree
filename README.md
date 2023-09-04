@@ -30,4 +30,8 @@ ctest --test-dir build
 
 # Behold... Splay tree
 
-![dump](/images/dump_example.png)
+![dump](/images/splay_tree.png)
+
+# And its big bro containing subtree sizes
+
+![dump](/images/augmented_splay_tree.png)
