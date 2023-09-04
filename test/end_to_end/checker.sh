@@ -13,11 +13,19 @@ data="data/"
 bin_dir="bin/"
 
 test_generator="generator"
-test_driver="driver"
 ans_generator="ans_generator"
 
 function build_from_sources
 {
+    local tree=$1
+
+    if [ $tree = "splay" ]
+    then
+        test_driver="driver"
+    else
+        test_driver="augmented_driver"
+    fi
+
     local basic_options="-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11"
 
     cmake ${top_dir} -B ${build_dir} ${basic_options}
@@ -83,26 +91,33 @@ function run_test
     fi
 }
 
-if [ $# -ne 2 ]
+if [ $# -ne 3 ]
 then
-    echo "Testing script requires exactly 2 arguments"
+    echo "Testing script requires exactly 3 arguments"
 else
-    n_keys=$1
+    tree=$1
 
-    if [ $n_keys -le 0 ]
+    if [ $tree = "splay" ] || [ $tree = "splay+" ]
     then
-        echo "The number of keys has to be a positive integer number"
-    else
-        n_queries=$2
+        n_keys=$2
 
-        if [ $n_queries -le 0 ]
+        if [ $n_keys -le 0 ]
         then
-            echo "The number of queries has to be a positive integer number"
+            echo "The number of keys has to be a positive integer number"
         else
-            build_from_sources
-            generate_test $n_keys $n_queries
-            generate_answer $n_keys $n_queries
-            run_test $n_keys $n_queries
+            n_queries=$3
+
+            if [ $n_queries -le 0 ]
+            then
+                echo "The number of queries has to be a positive integer number"
+            else
+                build_from_sources $tree
+                generate_test $n_keys $n_queries
+                generate_answer $n_keys $n_queries
+                run_test $n_keys $n_queries
+            fi
         fi
+    else
+        echo "There is no testing mode with name $tree"
     fi
 fi
