@@ -75,14 +75,20 @@ std::vector<std::size_t> run_test (const Tree_T &tree, It from, It to)
 
     std::for_each (from, to, [&tree, &answers](auto &&pair)
     {
-        std::size_t n_elems;
+        if (pair.first <= pair.second)
+        {
+            std::size_t n_elems;
 
-        if constexpr (yLab::contains_subtree_size<typename Tree_T::node_type>)
-            n_elems = tree.n_less_or_equal_to (pair.second) - tree.n_less_than (pair.first);
+            if constexpr (yLab::contains_subtree_size<typename Tree_T::node_type>)
+                n_elems = tree.n_less_or_equal_to (pair.second) - tree.n_less_than (pair.first);
+            else
+                n_elems = std::distance (tree.lower_bound (pair.first),
+                                         tree.upper_bound (pair.second));
+
+            answers.push_back (n_elems);
+        }
         else
-            n_elems = std::distance (tree.lower_bound (pair.first), tree.upper_bound (pair.second));
-
-        answers.push_back (n_elems);
+            answers.push_back (0);
     });
 
     return answers;
