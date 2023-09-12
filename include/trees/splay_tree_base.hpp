@@ -20,6 +20,8 @@ template<typename Node_T, typename Base_Node_T,
 class Splay_Tree_Base : public Search_Tree<Node_T, Base_Node_T, Compare>
 {
     using base_tree = Search_Tree<Node_T, Base_Node_T, Compare>;
+    using base_tree::control_node_;
+    using base_tree::comp_;
     using typename base_tree::base_node_ptr;
     using typename base_tree::const_base_node_ptr;
     using typename base_tree::node_ptr;
@@ -43,6 +45,13 @@ public:
     using typename base_tree::reverse_iterator;
     using typename base_tree::const_reverse_iterator;
 
+    using base_tree::end;
+    using base_tree::size;
+    using base_tree::empty;
+    using base_tree::insert;
+    using base_tree::lower_bound;
+    using base_tree::upper_bound;
+
     Splay_Tree_Base () : Splay_Tree_Base{key_compare{}} {}
 
     explicit Splay_Tree_Base (const key_compare &comp) : base_tree{comp} {}
@@ -50,18 +59,18 @@ public:
     template<std::input_iterator it>
     Splay_Tree_Base (it first, it second, const key_compare &comp = key_compare{}) : base_tree{comp}
     {
-        this->insert (first, second);
+        insert (first, second);
     }
 
     Splay_Tree_Base (std::initializer_list<value_type> ilist,
                      const key_compare &comp = key_compare{}) : base_tree{comp}
     {
-        this->insert (ilist);
+        insert (ilist);
     }
 
     Splay_Tree_Base (const Splay_Tree_Base &rhs) : base_tree{rhs.comp_}
     {
-        this->insert (rhs.begin(), rhs.end());
+        insert (rhs.begin(), rhs.end());
     }
 
     Splay_Tree_Base &operator= (const Splay_Tree_Base &rhs)
@@ -80,28 +89,32 @@ public:
     size_type n_less_than (const key_type &key) const
     requires contains_subtree_size<node_type>
     {
-        if (this->empty())
+        if (empty())
             return 0;
         else
-            return n_less_than_node (this->lower_bound (key));
+            return n_less_than_node (lower_bound (key));
     }
 
     size_type n_less_or_equal_to (const key_type &key) const
     requires contains_subtree_size<node_type>
     {
-        if (this->empty())
+        if (empty())
             return 0;
         else
-            return n_less_than_node (this->upper_bound (key));
+            return n_less_than_node (upper_bound (key));
     }
 
 protected:
+
+    using base_tree::find_with_parent;
+    using base_tree::transplant;
+    using base_tree::bst_insert;
 
     // Lookup
 
     const_base_node_ptr find_impl (const key_type &key) const override
     {
-        auto [node, parent] = this->find_with_parent (key);
+        auto [node, parent] = find_with_parent (key);
         auto result = lookup_splay (node, parent);
 
         return result;
@@ -109,15 +122,15 @@ protected:
 
     const_base_node_ptr lower_bound_impl (const key_type &key) const override
     {
-        auto parent = this->control_node_.get_end_node();
+        auto parent = control_node_.get_end_node();
         const_base_node_ptr lower_bound = nullptr;
 
-        auto node = this->control_node_.get_root();
+        auto node = control_node_.get_root();
         while (node)
         {
             parent = node;
 
-            if (!this->comp_(node->get_key(), key)) // key <= node->get_key()
+            if (!comp_(node->get_key(), key)) // key <= node->get_key()
                 lower_bound = std::exchange (node, node->get_left());
             else
                 node = node->get_right();
@@ -130,15 +143,15 @@ protected:
 
     const_base_node_ptr upper_bound_impl (const key_type &key) const override
     {
-        auto parent = this->control_node_.get_end_node();
+        auto parent = control_node_.get_end_node();
         const_base_node_ptr upper_bound = nullptr;
 
-        auto node = this->control_node_.get_root();
+        auto node = control_node_.get_root();
         while (node)
         {
             parent = node;
 
-            if (this->comp_(key, node->get_key())) // key < node->get_key()
+            if (comp_(key, node->get_key())) // key < node->get_key()
                 upper_bound = std::exchange (node, node->get_left());
             else
                 node = node->get_right();
@@ -158,7 +171,7 @@ protected:
         }
         else
         {
-            auto end_node = this->control_node_.get_end_node();
+            auto end_node = control_node_.get_end_node();
             if (parent != end_node)
                 splay (static_cast<node_ptr>(const_cast<base_node_ptr>(parent)));
 
@@ -169,8 +182,8 @@ protected:
     size_type n_less_than_node (const_iterator it) const
     requires contains_subtree_size<node_type>
     {
-        if (it == this->end())
-            return this->size();
+        if (it == end())
+            return size();
         else
             return node_type::size (static_cast<const_node_ptr>(it.base())->get_left());
     }
@@ -179,7 +192,7 @@ protected:
 
     node_ptr insert_impl (const key_type &key, base_node_ptr parent) override
     {
-        auto new_node = this->bst_insert (key, parent);
+        auto new_node = bst_insert (key, parent);
         splay (new_node);
 
         return new_node;
@@ -192,21 +205,21 @@ protected:
         splay (node);
 
         if (node->get_left() == nullptr)
-            this->transplant (node, node->get_right());
+            transplant (node, node->get_right());
         else if (node->get_right() == nullptr)
-            this->transplant (node, node->get_left());
+            transplant (node, node->get_left());
         else
             join (node->get_left(), node->get_right());
     }
 
     void join (node_ptr left_subtree, node_ptr right_subtree)
     {
-        assert (this->control_node_.get_root());
-        assert (left_subtree == this->control_node_.get_root()->get_left());
-        assert (right_subtree == this->control_node_.get_root()->get_right());
+        assert (control_node_.get_root());
+        assert (left_subtree == control_node_.get_root()->get_left());
+        assert (right_subtree == control_node_.get_root()->get_right());
 
-        this->control_node_.set_root (left_subtree);
-        left_subtree->set_parent (this->control_node_.get_end_node());
+        control_node_.set_root (left_subtree);
+        left_subtree->set_parent (control_node_.get_end_node());
 
         auto left_max = static_cast<node_ptr>(left_subtree->maximum());
 
@@ -219,12 +232,12 @@ protected:
     {
         assert (node);
 
-        while (node != this->control_node_.get_root())
+        while (node != control_node_.get_root())
         {
             auto parent = node->get_parent();
             auto node_is_left_child = node->is_left_child();
 
-            if (parent == this->control_node_.get_root())
+            if (parent == control_node_.get_root())
             {
                 if (node_is_left_child)
                     parent->right_rotate();

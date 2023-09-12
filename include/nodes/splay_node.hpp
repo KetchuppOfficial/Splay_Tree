@@ -17,6 +17,10 @@ class Splay_Node : public Node_Base
 
 protected:
 
+    using Node_Base::left_;
+    using Node_Base::right_;
+    using Node_Base::parent_;
+
     Key_T key_;
 
 public:
@@ -33,14 +37,14 @@ public:
 
     ~Splay_Node () override = default;
 
-    node_ptr get_left () { return static_cast<node_ptr>(this->left_); }
-    const_node_ptr get_left () const { return static_cast<const_node_ptr>(this->left_); }
+    node_ptr get_left () { return static_cast<node_ptr>(left_); }
+    const_node_ptr get_left () const { return static_cast<const_node_ptr>(left_); }
 
-    node_ptr get_right () { return static_cast<node_ptr>(this->right_); }
-    const_node_ptr get_right () const { return static_cast<const_node_ptr>(this->right_); }
+    node_ptr get_right () { return static_cast<node_ptr>(right_); }
+    const_node_ptr get_right () const { return static_cast<const_node_ptr>(right_); }
 
-    node_ptr get_parent () { return static_cast<node_ptr>(this->parent_); }
-    const_node_ptr get_parent () const { return static_cast<const_node_ptr>(this->parent_); }
+    node_ptr get_parent () { return static_cast<node_ptr>(parent_); }
+    const_node_ptr get_parent () const { return static_cast<const_node_ptr>(parent_); }
 
     const key_type &get_key () const { return key_; }
 
