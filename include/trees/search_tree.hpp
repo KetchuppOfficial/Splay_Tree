@@ -11,10 +11,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <compare>
-
-#ifdef DEBUG
 #include <iostream>
-#endif // DEBUG
 
 #include "../tree_iterator.hpp"
 
@@ -313,8 +310,6 @@ public:
         }
     }
 
-    #ifdef DEBUG
-
     void graphic_dump (std::ostream &os = std::cout) const
     {
         if (empty())
@@ -328,10 +323,10 @@ public:
         auto begin_node = begin().base();
         auto end_node = end().base();
 
-        end_node->dot_dump (os);
+        dot_dump (os, end_node);
 
         for (auto node = begin_node; node != end_node; node = node->successor())
-            node->dot_dump (os);
+            dot_dump (os, static_cast<const_node_ptr>(node));
 
         os << std::endl;
 
@@ -341,8 +336,6 @@ public:
         os << "    node_" << end_node << " -> node_"
            << end_node->get_left() << " [color = \"blue\"];\n}\n";
     }
-
-    #endif // DEBUG
 
 protected:
 
@@ -494,8 +487,6 @@ protected:
             v->set_parent (u->get_parent());
     }
 
-    #ifdef DEBUG
-
     static void arrow_dump (std::ostream &os, const_base_node_ptr node)
     {
         assert (node);
@@ -517,8 +508,6 @@ protected:
         os << "    node_" << node << " -> "
             << "node_" << node->get_parent() << " [color = \"dimgray\"];\n";
     }
-
-    #endif // DEBUG
 };
 
 template<typename Node_T, typename Compare>

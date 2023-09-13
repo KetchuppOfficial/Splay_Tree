@@ -2,6 +2,7 @@
 #define INCLUDE_AUGMENTED_SPLAY_NODE_HPP
 
 #include <utility>
+#include <ostream>
 
 #include "node_base.hpp"
 
@@ -64,25 +65,24 @@ public:
 
     static size_type size (const_node_ptr node) noexcept { return node ? node->size_ : 0; }
     const key_type &get_key () const { return key_; }
-
-    #ifdef DEBUG
-    void dot_dump (std::ostream &os) const override
-    {
-        static const char *nil_properties = " [shape = record, color = blue, style = filled,"
-                                            " fillcolor = black, fontcolor = white,"
-                                            " label = \"nil\"];\n";
-        os << "    node_" << this << " [shape = record, color = blue, style = filled,"
-                                     " fillcolor = 	chartreuse, fontcolor = black, label = \"key: "
-           << key_ << "| size: " << size_ << "\"];\n";
-
-        if (get_left() == nullptr)
-            os << "    left_nil_node_" << this << nil_properties;
-
-        if (get_right() == nullptr)
-            os << "    right_nil_node_" << this << nil_properties;
-    }
-    #endif // DEBUG
 };
+
+template<typename Key_T>
+void dot_dump (std::ostream &os, const Augmented_Splay_Node<Key_T> *node)
+{
+    static const char *nil_properties = " [shape = record, color = blue, style = filled,"
+                                        " fillcolor = black, fontcolor = white,"
+                                        " label = \"nil\"];\n";
+    os << "    node_" << node << " [shape = record, color = blue, style = filled,"
+                                    " fillcolor = 	chartreuse, fontcolor = black, label = \"key: "
+       << node->get_key() << "| size: " << Augmented_Splay_Node<Key_T>::size (node) << "\"];\n";
+
+    if (node->get_left() == nullptr)
+        os << "    left_nil_node_" << node << nil_properties;
+
+    if (node->get_right() == nullptr)
+        os << "    right_nil_node_" << node << nil_properties;
+}
 
 } // namespace yLab
 

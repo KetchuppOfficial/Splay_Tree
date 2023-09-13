@@ -2,10 +2,7 @@
 #define INCLUDE_NODE_BASE_HPP
 
 #include <cassert>
-
-#ifdef DEBUG
 #include <ostream>
-#endif // DEBUG
 
 namespace yLab
 {
@@ -174,16 +171,13 @@ public:
 
         parent_ = y;
     }
-
-    #ifdef DEBUG
-    virtual void dot_dump (std::ostream &os) const
-    {
-        os << "    node_" << this
-           << " [color = black, style = filled, fillcolor = olivedrab,"
-              " label = \"end node\"];\n";
-    }
-    #endif // DEBUG
 };
+
+inline void dot_dump (std::ostream &os, const Node_Base *node)
+{
+    os << "    node_" << node << " [color = black, style = filled, fillcolor = olivedrab,"
+          " label = \"end node\"];\n";
+}
 
 } // namespace yLab
 
