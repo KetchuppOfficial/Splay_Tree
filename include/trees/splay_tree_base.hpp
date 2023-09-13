@@ -274,16 +274,6 @@ protected:
     }
 };
 
-#if 0
-template<typename It, typename Compare>
-Splay_Tree_Base (It begin, It end, const Compare &comp)
--> Splay_Tree_Base<typename std::iterator_traits<It>::value_type, Compare>;
-
-template<typename T, typename... U>
-Splay_Tree_Base (T, U...) -> Splay_Tree_Base<std::enable_if_t<(std::is_same_v<T, U> && ...), T>,
-                                   std::less<T>>;
-#endif
-
 } // namespace yLab
 
 #endif // INCLUDE_SPLAY_TREE_HPP
