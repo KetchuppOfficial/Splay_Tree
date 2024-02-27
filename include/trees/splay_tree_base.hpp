@@ -23,6 +23,7 @@ class Splay_Tree_Base : public Search_Tree<Node_T, Base_Node_T, Compare>
     using base_tree = Search_Tree<Node_T, Base_Node_T, Compare>;
     using base_tree::control_node_;
     using base_tree::comp_;
+    using base_tree::size_;
     using typename base_tree::base_node_ptr;
     using typename base_tree::const_base_node_ptr;
     using typename base_tree::node_ptr;
@@ -50,7 +51,6 @@ public:
     using base_tree::end;
     using base_tree::swap;
     using base_tree::size;
-    using base_tree::size_;
     using base_tree::empty;
     using base_tree::insert;
     using base_tree::lower_bound;
