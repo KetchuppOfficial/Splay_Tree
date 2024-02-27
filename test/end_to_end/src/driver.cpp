@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <iterator>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
 #include "splay_trees.hpp"
