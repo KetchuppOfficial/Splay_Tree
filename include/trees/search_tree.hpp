@@ -35,7 +35,7 @@ protected:
     {
         // left child of head_ is the root of the tree
         // parent of head_ is the leftmost element of the tree
-        base_node_type head_{};
+        base_node_type head_;
 
     public:
 
@@ -117,9 +117,9 @@ protected:
         }
     };
 
-    Control_Node control_node_{};
+    Control_Node control_node_;
     Compare comp_;
-    std::size_t size_{};
+    std::size_t size_ = 0;
 
 public:
 
@@ -143,27 +143,21 @@ public:
 
     explicit Search_Tree(const key_compare &comp) : comp_{comp} {}
 
-    template<std::input_iterator it>
-    Search_Tree(it first, it last, const key_compare &comp = key_compare{}) : comp_{comp}
+    template<std::input_iterator It>
+    Search_Tree(It first, It last, const key_compare &comp = key_compare{}) : comp_{comp}
     {
         insert(first, last);
     }
 
     Search_Tree(std::initializer_list<value_type> ilist, const key_compare &comp = key_compare{})
-               : comp_{comp}
-    {
-        insert(ilist);
-    }
+               : Search_Tree{ilist.begin(), ilist.end(), comp} {}
 
-    Search_Tree(const Search_Tree &rhs) : comp_{rhs.comp_}
-    {
-        insert(rhs.begin(), rhs.end());
-    }
+    Search_Tree(const Search_Tree &rhs) : Search_Tree{rhs.begin(), rhs.end(), rhs.comp_} {}
 
     Search_Tree &operator=(const Search_Tree &rhs)
     {
         auto tmp_tree{rhs};
-        std::swap(*this, tmp_tree);
+        swap(tmp_tree);
 
         return *this;
     }
@@ -183,8 +177,8 @@ public:
 
     // Observers
 
-    const key_compare &key_comp() const { return comp_; }
-    const value_compare &value_comp() const { return key_comp(); }
+    key_compare key_comp() const { return comp_; }
+    value_compare value_comp() const { return key_comp(); }
 
     // Capacity
 
@@ -255,11 +249,9 @@ public:
         {
             node = insert_impl(key, const_cast<base_node_ptr>(parent));
 
-            if (size_ == 0 ||
-                (size_ > 0 && comp_(key, control_node_.get_leftmost_unsafe()->get_key())))
-            {
+            if (size_ == 0 || (size_ > 0 && comp_(key, *begin())))
                 control_node_.set_leftmost(const_cast<node_ptr>(node));
-            }
+
             size_++;
 
             return std::pair{iterator{node}, true};
@@ -268,18 +260,14 @@ public:
             return std::pair{iterator{node}, false};
     }
 
-    template<std::input_iterator it>
-    void insert(it first, it last)
+    template<std::input_iterator It>
+    void insert(It first, It last)
     {
         for (; first != last; ++first)
             insert_unique(*first);
     }
 
-    void insert (std::initializer_list<value_type> ilist)
-    {
-        for (auto &&key : ilist)
-            insert_unique(key);
-    }
+    void insert(std::initializer_list<value_type> ilist) { insert(ilist.begin(), ilist.end()); }
 
     iterator erase(iterator pos)
     {
@@ -299,8 +287,7 @@ public:
 
     size_type erase(const key_type &key)
     {
-        auto it = find(key);
-        if (it == end())
+        if (auto it = find(key); it == end())
             return 0;
         else
         {
@@ -433,11 +420,9 @@ protected:
         {
             node = insert_impl(key, const_cast<base_node_ptr>(parent));
 
-            if (size_ == 0 ||
-                (size_ > 0 && comp_(key, control_node_.get_leftmost_unsafe()->get_key())))
-            {
+            if (size_ == 0 || (size_ > 0 && comp_(key, *begin())))
                 control_node_.set_leftmost(const_cast<node_ptr>(node));
-            }
+
             size_++;
         }
     }
