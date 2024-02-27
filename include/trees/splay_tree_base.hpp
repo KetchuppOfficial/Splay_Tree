@@ -45,7 +45,6 @@ public:
     using typename base_tree::reverse_iterator;
     using typename base_tree::const_reverse_iterator;
 
-    using base_tree::begin;
     using base_tree::end;
     using base_tree::swap;
     using base_tree::size;
