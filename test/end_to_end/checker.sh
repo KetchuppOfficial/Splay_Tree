@@ -7,10 +7,11 @@ green="\033[1;32m"
 red="\033[1;31m"
 default="\033[0m"
 
-top_dir="../../"
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+top_dir="${script_dir}/../../"
 build_dir="${top_dir}build/"
-data="data/"
-bin_dir="bin/"
+data="${script_dir}/data/"
+bin_dir="${script_dir}/bin/"
 
 test_generator="generator"
 ans_generator="ans_generator"
@@ -31,20 +32,19 @@ function build_from_sources
     cmake ${top_dir} -B ${build_dir} ${basic_options}
 
     echo -en "\n"
-    echo "Building test generator..."
+    echo -e "${green}Building test generator...${default}"
     cmake --build ${build_dir} --target ${test_generator}
     echo -en "\n"
 
-    echo "Building test driver..."
+    echo -e "${green}Building test driver...${default}"
     cmake --build ${build_dir} --target ${test_driver}
     echo -en "\n"
 
-    echo "Building generator of answers..."
-    echo -en "\n"
+    echo -e "${green}Building generator of answers...${default}"
     cmake --build ${build_dir} --target ${ans_generator}
     echo -en "\n"
 
-    echo "Installing..."
+    echo -e "${green}Installing...${default}"
     cmake --install ${build_dir}
     echo -en "\n"
 }
@@ -56,7 +56,7 @@ function generate_test
 
     mkdir -p ${data}
 
-    echo "Generating test..."
+    echo -e "${green}Generating test...${default}"
     ${bin_dir}${test_generator} ${n_keys} ${n_queries} > "${data}${n_keys}_${n_queries}.test"
     echo -en "\n"
 }
@@ -66,7 +66,7 @@ function generate_answer
     local n_keys=$1
     local n_queries=$2
 
-    echo "Generating answer..."
+    echo -e "${green}Generating answer...${default}"
     ${bin_dir}${ans_generator} < "${data}${n_keys}_${n_queries}.test" \
                                > "${data}${n_keys}_${n_queries}.ans"
     echo -en "\n"
@@ -77,39 +77,41 @@ function run_test
     local n_keys=$1
     local n_queries=$2
 
-    echo "Running test..."
+    echo -e "${green}Running test...${default}"
     ${bin_dir}${test_driver} < "${data}${n_keys}_${n_queries}.test" \
                              > "${data}${n_keys}_${n_queries}.res"
     echo -en "\n"
 
-    echo -en "Result: "
     if diff -Z "${data}${n_keys}_${n_queries}.ans" "${data}${n_keys}_${n_queries}.res" > /dev/null
     then
-        echo -e "${green}passed${default}"
+        echo -e "${green}Test passed${default}"
     else
-        echo -e "${red}failed${default}"
+        echo -e "${red}Test failed${default}"
     fi
 }
 
 if [ $# -ne 3 ]
 then
-    echo "Testing script requires exactly 3 arguments"
+    echo -e "${red}Testing script requires exactly 3 arguments${default}"
 else
     tree=$1
 
-    if [ $tree = "splay" ] || [ $tree = "splay+" ]
+    if [ ! $tree = "splay" ] && [ ! $tree = "splay+" ]
     then
+        echo -e "${red}There is no testing mode with name \"$tree\"${default}"
+    else
         n_keys=$2
+        number="^[0-9]+$"
 
-        if [ $n_keys -le 0 ]
+        if ! [[ $n_keys =~ $number ]] || [ $n_keys -le 0 ]
         then
-            echo "The number of keys has to be a positive integer number"
+            echo -e "${red}The number of keys has to be a positive integer number${default}"
         else
             n_queries=$3
 
-            if [ $n_queries -le 0 ]
+            if ! [[ $n_queries =~ $number ]] || [ $n_queries -le 0 ]
             then
-                echo "The number of queries has to be a positive integer number"
+                echo -e "${red}The number of queries has to be a positive integer number${default}"
             else
                 build_from_sources $tree
                 generate_test $n_keys $n_queries
@@ -117,7 +119,5 @@ else
                 run_test $n_keys $n_queries
             fi
         fi
-    else
-        echo "There is no testing mode with name $tree"
     fi
 fi
