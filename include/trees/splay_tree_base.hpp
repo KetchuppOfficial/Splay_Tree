@@ -8,6 +8,7 @@
 #include <type_traits>
 #include <cassert>
 #include <concepts>
+#include <stdexcept>
 
 #include "search_tree.hpp"
 #include "../subtree_sizes.hpp"
@@ -49,6 +50,7 @@ public:
     using base_tree::end;
     using base_tree::swap;
     using base_tree::size;
+    using base_tree::size_;
     using base_tree::empty;
     using base_tree::insert;
     using base_tree::lower_bound;
@@ -83,6 +85,33 @@ public:
     Splay_Tree_Base &operator=(Splay_Tree_Base &&rhs) = default;
 
     ~Splay_Tree_Base() override = default;
+
+    void join(Splay_Tree_Base &&rhs)
+    {
+        if (empty())
+            swap(rhs);
+        else if (!rhs.empty())
+        {
+            auto lhs_max_it = std::prev(end());
+            auto rhs_min_it = rhs.begin();
+
+            if (!comp_(*lhs_max_it, *rhs_min_it))
+                throw std::runtime_error{"Trees can't be joined"};
+
+            splay(detail::iterator_attorney<Splay_Tree_Base>::ptr(lhs_max_it));
+
+            node_ptr root = control_node_.get_root();
+            assert(root->get_right() == nullptr);
+            node_ptr rhs_root = rhs.control_node_.get_root();
+
+            root->set_right(rhs_root);
+            rhs_root->set_parent(root);
+            rhs.control_node_.reset();
+
+            size_ += rhs.size_;
+            rhs.size_ = 0;
+        }
+    }
 
     size_type n_less_than(const key_type &key) const
     requires contains_subtree_size<node_type>

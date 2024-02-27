@@ -187,6 +187,40 @@ TEST(Augmented_Splay_Tree, Upper_Bound)
 
 // Modifiers
 
+TEST(Augmented_Splay_Tree, Join)
+{
+    tree_type tree_1{1, 2, 3, 4, 5};
+    tree_type tree_2{6, 7, 8, 9, 10};
+    tree_type tree_3{5, 6, 7, 8, 9};
+    tree_type empty_tree;
+    auto ilist5 = {1, 2, 3, 4, 5};
+    auto ilist10 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    tree_1.join(std::move(empty_tree));
+
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist5));
+    EXPECT_EQ(tree_1.size(), 5);
+    EXPECT_EQ(empty_tree, tree_type{});
+    EXPECT_TRUE(empty_tree.empty());
+
+    empty_tree.join(std::move(tree_1));
+
+    EXPECT_TRUE(std::ranges::equal(empty_tree, ilist5));
+    EXPECT_EQ(empty_tree.size(), 5);
+    EXPECT_EQ(tree_1, tree_type{});
+    EXPECT_TRUE(tree_1.empty());
+
+    tree_1.insert({1, 2, 3, 4, 5});
+    tree_1.join(std::move(tree_2));
+
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist10));
+    EXPECT_EQ(tree_1.size(), 10);
+    EXPECT_EQ(tree_2, tree_type{});
+    EXPECT_TRUE(tree_2.empty());
+
+    EXPECT_THROW(tree_1.join(std::move(tree_3)), std::runtime_error);
+}
+
 TEST(Augmented_Splay_Tree, Swap)
 {
     tree_type tree_1{1, 2, 3, 4}, tree_2{5, 6, 7};
