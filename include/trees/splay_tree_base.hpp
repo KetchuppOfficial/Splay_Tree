@@ -63,20 +63,16 @@ public:
     }
 
     Splay_Tree_Base(std::initializer_list<value_type> ilist,
-                    const key_compare &comp = key_compare{}) : base_tree{comp}
-    {
-        insert(ilist);
-    }
+                    const key_compare &comp = key_compare{})
+                   : Splay_Tree_Base{ilist.begin(), ilist.end(), comp} {}
 
-    Splay_Tree_Base(const Splay_Tree_Base &rhs) : base_tree{rhs.comp_}
-    {
-        insert(rhs.begin(), rhs.end());
-    }
+    Splay_Tree_Base(const Splay_Tree_Base &rhs)
+                   : Splay_Tree_Base{rhs.begin(), rhs.end(), rhs.comp_} {}
 
     Splay_Tree_Base &operator=(const Splay_Tree_Base &rhs)
     {
         auto tmp_tree{rhs};
-        std::swap(*this, tmp_tree);
+        swap(tmp_tree);
 
         return *this;
     }
@@ -89,19 +85,13 @@ public:
     size_type n_less_than(const key_type &key) const
     requires contains_subtree_size<node_type>
     {
-        if (empty())
-            return 0;
-        else
-            return n_less_than_node(lower_bound(key));
+        return empty() ? 0 : n_less_than_node(lower_bound(key));
     }
 
     size_type n_less_or_equal_to(const key_type &key) const
     requires contains_subtree_size<node_type>
     {
-        if (empty())
-            return 0;
-        else
-            return n_less_than_node(upper_bound(key));
+        return empty() ? 0 : n_less_than_node(upper_bound(key));
     }
 
 protected:
