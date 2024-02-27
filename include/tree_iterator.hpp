@@ -25,41 +25,41 @@ public:
     using reference = const value_type &;
     using pointer = const value_type *;
 
-    tree_iterator () = default;
-    explicit tree_iterator (const_base_node_ptr node) noexcept : node_{node} {}
+    tree_iterator() = default;
+    explicit tree_iterator(const_base_node_ptr node) noexcept : node_{node} {}
 
-    reference operator* () const { return get_key(); }
-    pointer operator-> () const { return std::addressof(get_key()); }
+    reference operator*() const { return get_key(); }
+    pointer operator->() const { return std::addressof(get_key()); }
 
-    tree_iterator &operator++ () noexcept
+    tree_iterator &operator++() noexcept
     {
         node_ = node_->successor();
         return *this;
     }
 
-    tree_iterator operator++ (int) noexcept
+    tree_iterator operator++(int) noexcept
     {
         auto tmp = *this;
         ++(*this);
         return tmp;
     }
 
-    tree_iterator &operator-- () noexcept
+    tree_iterator &operator--() noexcept
     {
         node_ = node_->predecessor();
         return *this;
     }
 
-    tree_iterator operator-- (int) noexcept
+    tree_iterator operator--(int) noexcept
     {
         auto tmp = *this;
         --(*this);
         return tmp;
     }
 
-    bool operator== (const tree_iterator &rhs) const noexcept { return node_ == rhs.node_; }
+    bool operator==(const tree_iterator &rhs) const noexcept { return node_ == rhs.node_; }
 
-    const_base_node_ptr base () const { return node_; }
+    const_base_node_ptr base() const { return node_; }
 
 private:
 

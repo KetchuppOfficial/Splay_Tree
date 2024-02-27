@@ -12,10 +12,10 @@ namespace yLab
  * rooted at the node pointed to by node_ptr
  */
 template<typename T>
-concept contains_subtree_size = requires (const T *node_ptr)
+concept contains_subtree_size = requires(const T *node_ptr)
 {
     typename T::size_type;
-    { T::size (node_ptr) } -> std::convertible_to<typename T::size_type>;
+    { T::size(node_ptr) } -> std::convertible_to<typename T::size_type>;
 };
 
 } // namespace yLab
