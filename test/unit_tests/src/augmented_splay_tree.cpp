@@ -185,6 +185,8 @@ TEST(Augmented_Splay_Tree, Upper_Bound)
     EXPECT_EQ(empty_tree.upper_bound(0), empty_tree.end());
 }
 
+// Modifiers
+
 TEST(Augmented_Splay_Tree, Swap)
 {
     tree_type tree_1{1, 2, 3, 4}, tree_2{5, 6, 7};
@@ -301,6 +303,8 @@ TEST(Augmented_Splay_Tree, Erase_By_Key)
     tree_2.erase(1);
     EXPECT_EQ(tree_2, empty_tree);
 }
+
+// Comparison
 
 TEST(Augmented_Splay_Tree, Equality)
 {
