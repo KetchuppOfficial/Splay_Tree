@@ -193,32 +193,77 @@ TEST(Augmented_Splay_Tree, Join)
     tree_type tree_2{6, 7, 8, 9, 10};
     tree_type tree_3{5, 6, 7, 8, 9};
     tree_type empty_tree;
-    auto ilist5 = {1, 2, 3, 4, 5};
-    auto ilist10 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    auto ilist_5 = {1, 2, 3, 4, 5};
+    auto ilist_10 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    tree_1.join(std::move(empty_tree));
+    tree_1.join(std::move(empty_tree)); // join empty tree: no effect
 
-    EXPECT_TRUE(std::ranges::equal(tree_1, ilist5));
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist_5));
     EXPECT_EQ(tree_1.size(), 5);
+    EXPECT_TRUE(tree_1.subtree_sizes_verifier());
     EXPECT_EQ(empty_tree, tree_type{});
     EXPECT_TRUE(empty_tree.empty());
 
-    empty_tree.join(std::move(tree_1));
+    empty_tree.join(std::move(tree_1)); // join a tree to the empty one
 
-    EXPECT_TRUE(std::ranges::equal(empty_tree, ilist5));
+    EXPECT_TRUE(std::ranges::equal(empty_tree, ilist_5));
     EXPECT_EQ(empty_tree.size(), 5);
+    EXPECT_TRUE(empty_tree.subtree_sizes_verifier());
     EXPECT_EQ(tree_1, tree_type{});
     EXPECT_TRUE(tree_1.empty());
 
     tree_1.insert({1, 2, 3, 4, 5});
-    tree_1.join(std::move(tree_2));
+    tree_1.join(std::move(tree_2)); // regular case
 
-    EXPECT_TRUE(std::ranges::equal(tree_1, ilist10));
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist_10));
     EXPECT_EQ(tree_1.size(), 10);
+    EXPECT_TRUE(tree_1.subtree_sizes_verifier());
     EXPECT_EQ(tree_2, tree_type{});
     EXPECT_TRUE(tree_2.empty());
 
+     // trying to join trees which ranges of keys overlap
     EXPECT_THROW(tree_1.join(std::move(tree_3)), std::runtime_error);
+}
+
+TEST(Augmented_Splay_Tree, Split)
+{
+    tree_type tree_1{1, 2, 3, 4, 5};
+    auto ilist_1 = {1, 2, 3};
+    auto ilist_2 = {4, 5};
+
+    tree_type right_part = tree_1.split(3); // regular case
+
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist_1));
+    EXPECT_EQ(tree_1.size(), 3);
+
+    EXPECT_TRUE(std::ranges::equal(right_part, ilist_2));
+    EXPECT_EQ(right_part.size(), 2);
+
+    // tree_1 == {1, 2, 3}
+
+    tree_type empty_tree = tree_1.split(0); // key is less than any in the tree
+
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist_1));
+    EXPECT_EQ(tree_1.size(), 3);
+
+    EXPECT_EQ(empty_tree, tree_type{});
+    EXPECT_TRUE(empty_tree.empty());
+
+    empty_tree = tree_1.split(4); // key is greater than any in the tree
+
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist_1));
+    EXPECT_EQ(tree_1.size(), 3);
+
+    EXPECT_EQ(empty_tree, tree_type{});
+    EXPECT_TRUE(empty_tree.empty());
+
+    empty_tree = tree_1.split(3); // key is the greatest one in the tree
+
+    EXPECT_TRUE(std::ranges::equal(tree_1, ilist_1));
+    EXPECT_EQ(tree_1.size(), 3);
+
+    EXPECT_EQ(empty_tree, tree_type{});
+    EXPECT_TRUE(empty_tree.empty());
 }
 
 TEST(Augmented_Splay_Tree, Swap)

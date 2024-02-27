@@ -113,6 +113,30 @@ public:
         }
     }
 
+    Splay_Tree_Base split(const key_type &key)
+    requires contains_subtree_size<node_type>
+    {
+        if (auto node = find_impl(key); node == control_node_.get_end_node())
+            return {};
+
+        node_ptr left_root = control_node_.get_root();
+        node_ptr right_root = left_root->get_right();
+        if (right_root)
+            left_root->set_right(nullptr);
+        else
+            return {};
+
+        Splay_Tree_Base right_tree;
+        right_root->set_parent(right_tree.control_node_.get_end_node());
+        right_tree.control_node_.set_root(right_root);
+        right_tree.control_node_.set_leftmost(right_root->minimum());
+        right_tree.size_ = node_type::size(right_root);
+
+        size_ -= right_tree.size_;
+
+        return right_tree;
+    }
+
     size_type n_less_than(const key_type &key) const
     requires contains_subtree_size<node_type>
     {
