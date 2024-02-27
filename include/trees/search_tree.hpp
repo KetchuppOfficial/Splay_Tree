@@ -271,13 +271,13 @@ public:
 
     iterator erase(iterator pos)
     {
-        auto node = const_cast<base_node_ptr>(pos.base());
+        auto node = detail::Iterator_Attorney::base_ptr(pos);
         ++pos;
 
         erase_impl(static_cast<node_ptr>(node));
 
         if (node == control_node_.get_leftmost())
-            control_node_.set_leftmost(const_cast<base_node_ptr>(pos.base()));
+            control_node_.set_leftmost(detail::Iterator_Attorney::base_ptr(pos));
         size_--;
 
         delete node;
@@ -306,8 +306,8 @@ public:
               "    rankdir = TB;\n"
               "    node [shape = record];\n\n";
 
-        auto begin_node = begin().base();
-        auto end_node = end().base();
+        auto begin_node = detail::Iterator_Attorney::const_base_ptr(begin());
+        auto end_node = detail::Iterator_Attorney::const_base_ptr(end());
 
         dot_dump(os, end_node);
 

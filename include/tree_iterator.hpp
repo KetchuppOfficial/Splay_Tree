@@ -8,6 +8,13 @@
 namespace yLab
 {
 
+namespace detail
+{
+
+struct Iterator_Attorney;
+
+}
+
 template <typename Node_T, typename Base_Node_T>
 requires std::derived_from<Node_T, Base_Node_T>
 class tree_iterator final
@@ -59,12 +66,44 @@ public:
 
     bool operator==(const tree_iterator &rhs) const noexcept { return node_ == rhs.node_; }
 
-    const_base_node_ptr base() const { return node_; }
+    friend class detail::Iterator_Attorney;
 
 private:
 
     reference get_key() const { return static_cast<const_node_ptr>(node_)->get_key(); }
 };
+
+namespace detail
+{
+
+struct Iterator_Attorney
+{
+    template<typename Node_T, typename Base_Node_T>
+    static auto const_base_ptr(tree_iterator<Node_T, Base_Node_T> it)
+    {
+        return it.node_;
+    }
+
+    template<typename Node_T, typename Base_Node_T>
+    static auto base_ptr(tree_iterator<Node_T, Base_Node_T> it)
+    {
+        return const_cast<Base_Node_T *>(it.node_);
+    }
+
+    template<typename Node_T, typename Base_Node_T>
+    static auto ptr(tree_iterator<Node_T, Base_Node_T> it)
+    {
+        return static_cast<Node_T *>(base_ptr(it));
+    }
+
+    template<typename Node_T, typename Base_Node_T>
+    static auto const_ptr(tree_iterator<Node_T, Base_Node_T> it)
+    {
+        return static_cast<const Node_T *>(const_base_ptr(it));
+    }
+};
+
+} // namespace detail
 
 } // namespace yLab
 

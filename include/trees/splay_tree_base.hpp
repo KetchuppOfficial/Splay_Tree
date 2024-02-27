@@ -45,7 +45,9 @@ public:
     using typename base_tree::reverse_iterator;
     using typename base_tree::const_reverse_iterator;
 
+    using base_tree::begin;
     using base_tree::end;
+    using base_tree::swap;
     using base_tree::size;
     using base_tree::empty;
     using base_tree::insert;
@@ -175,7 +177,10 @@ protected:
         if (it == end())
             return size();
         else
-            return node_type::size(static_cast<const_node_ptr>(it.base())->get_left());
+        {
+            auto node = detail::Iterator_Attorney::const_ptr(it);
+            return node_type::size(node->get_left());
+        }
     }
 
     // Modifiers
