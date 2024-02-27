@@ -11,7 +11,8 @@ namespace yLab
 namespace detail
 {
 
-struct Iterator_Attorney;
+template<typename Tree_T>
+class iterator_attorney;
 
 }
 
@@ -66,7 +67,8 @@ public:
 
     bool operator==(const tree_iterator &rhs) const noexcept { return node_ == rhs.node_; }
 
-    friend class detail::Iterator_Attorney;
+    template<typename Tree_T>
+    friend class detail::iterator_attorney;
 
 private:
 
@@ -76,31 +78,36 @@ private:
 namespace detail
 {
 
-struct Iterator_Attorney
+template<typename Tree_T>
+class iterator_attorney
 {
-    template<typename Node_T, typename Base_Node_T>
-    static auto const_base_ptr(tree_iterator<Node_T, Base_Node_T> it)
+    using node_type = typename Tree_T::node_type;
+
+    template<typename Base_Node_T>
+    static auto const_base_ptr(tree_iterator<node_type, Base_Node_T> it)
     {
         return it.node_;
     }
 
-    template<typename Node_T, typename Base_Node_T>
-    static auto base_ptr(tree_iterator<Node_T, Base_Node_T> it)
+    template<typename Base_Node_T>
+    static auto base_ptr(tree_iterator<node_type, Base_Node_T> it)
     {
         return const_cast<Base_Node_T *>(it.node_);
     }
 
-    template<typename Node_T, typename Base_Node_T>
-    static auto ptr(tree_iterator<Node_T, Base_Node_T> it)
+    template<typename Base_Node_T>
+    static auto ptr(tree_iterator<node_type, Base_Node_T> it)
     {
-        return static_cast<Node_T *>(base_ptr(it));
+        return static_cast<node_type *>(base_ptr(it));
     }
 
-    template<typename Node_T, typename Base_Node_T>
-    static auto const_ptr(tree_iterator<Node_T, Base_Node_T> it)
+    template<typename Base_Node_T>
+    static auto const_ptr(tree_iterator<node_type, Base_Node_T> it)
     {
-        return static_cast<const Node_T *>(const_base_ptr(it));
+        return static_cast<const node_type *>(const_base_ptr(it));
     }
+
+    friend Tree_T;
 };
 
 } // namespace detail

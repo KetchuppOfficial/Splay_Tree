@@ -16,23 +16,6 @@ using tree_type = yLab::Augmented_Splay_Tree<key_type>;
 
 // Constructors and operator=
 
-bool subtree_sizes_verifier(typename tree_type::iterator first, typename tree_type::iterator last)
-{
-    using node_type = typename tree_type::node_type;
-
-    for (; first != last; ++first)
-    {
-        auto node = yLab::detail::Iterator_Attorney::const_ptr(first);
-        auto expected_size = 1 + node_type::size(node->get_left())
-                               + node_type::size(node->get_right());
-
-        if (expected_size != node_type::size(node))
-            return false;
-    }
-
-    return true;
-}
-
 TEST(Augmented_Splay_Tree, Constructors)
 {
     tree_type empty_tree;
@@ -64,7 +47,7 @@ TEST(Augmented_Splay_Tree, Initializer_List_Constructor)
     std::iota(vec.begin(), vec.end(), 1);
 
     EXPECT_TRUE(std::ranges::equal(tree, vec));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Iterator_Constructor)
@@ -78,7 +61,7 @@ TEST(Augmented_Splay_Tree, Iterator_Constructor)
     EXPECT_FALSE(tree.empty());
 
     EXPECT_TRUE(std::ranges::equal(tree, vec));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Copy_Constructor)
@@ -88,7 +71,7 @@ TEST(Augmented_Splay_Tree, Copy_Constructor)
     auto copy{tree};
 
     EXPECT_EQ(tree, copy);
-    EXPECT_TRUE(subtree_sizes_verifier(copy.begin(), copy.end()));
+    EXPECT_TRUE(copy.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Move_Constructor)
@@ -99,7 +82,7 @@ TEST(Augmented_Splay_Tree, Move_Constructor)
     auto moved_to = std::move(moved_from);
 
     EXPECT_EQ(moved_to, moved_from_copy);
-    EXPECT_TRUE(subtree_sizes_verifier(moved_to.begin(), moved_to.end()));
+    EXPECT_TRUE(moved_to.subtree_sizes_verifier());
     EXPECT_EQ(moved_from.size(), 0);
     EXPECT_EQ(moved_from.begin(), moved_from.end());
 }
@@ -112,7 +95,7 @@ TEST(Augmented_Splay_Tree, Move_Assignment)
     moved_to = std::move(moved_from);
 
     EXPECT_EQ(moved_to, moved_from_copy);
-    EXPECT_TRUE(subtree_sizes_verifier(moved_to.begin(), moved_to.end()));
+    EXPECT_TRUE(moved_to.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Copy_Assignment)
@@ -123,7 +106,7 @@ TEST(Augmented_Splay_Tree, Copy_Assignment)
     copy = tree;
 
     EXPECT_EQ(copy, tree);
-    EXPECT_TRUE(subtree_sizes_verifier(copy.begin(), copy.end()));
+    EXPECT_TRUE(copy.subtree_sizes_verifier());
 }
 
 // Lookup
@@ -136,7 +119,7 @@ TEST(Augmented_Splay_Tree, Find)
     for (auto it = tree.begin(), ite = tree.end(); it != ite; ++it, ++key)
     {
         EXPECT_EQ(it, tree.find(key));
-        EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+        EXPECT_TRUE(tree.subtree_sizes_verifier());
     }
 
     tree_type empty_tree;
@@ -161,19 +144,19 @@ TEST(Augmented_Splay_Tree, Lower_Bound)
     tree_type tree = {1, 3};
 
     EXPECT_EQ(tree.lower_bound(0), tree.find(1));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.lower_bound(1), tree.find(1));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.lower_bound(2), tree.find(3));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.lower_bound(3), tree.find(3));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.lower_bound(4), tree.end());
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     tree_type empty_tree;
     EXPECT_EQ(empty_tree.lower_bound(0), empty_tree.end());
@@ -184,19 +167,19 @@ TEST(Augmented_Splay_Tree, Upper_Bound)
     tree_type tree = {1, 3};
 
     EXPECT_EQ(tree.upper_bound(0), tree.find(1));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.upper_bound(1), tree.find(3));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.upper_bound(2), tree.find(3));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.upper_bound(3), tree.end());
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     EXPECT_EQ(tree.upper_bound(4), tree.end());
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     tree_type empty_tree;
     EXPECT_EQ(empty_tree.upper_bound(0), empty_tree.end());
@@ -233,7 +216,7 @@ TEST(Augmented_Splay_Tree, Insert_By_Key)
     EXPECT_EQ(*it_1, 1);
     EXPECT_EQ(it_1, tree.begin());
     EXPECT_EQ(++it_1, tree.end());
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 
     auto [it_2, is_inserted_2] = tree.insert(1);
 
@@ -250,7 +233,7 @@ TEST(Augmented_Splay_Tree, Insert_By_Key)
     EXPECT_EQ(*it_3, 2);
     EXPECT_EQ(it_3, std::next(tree.begin()));
     EXPECT_EQ(std::next(it_3), tree.end());
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Insert_Range)
@@ -261,7 +244,7 @@ TEST(Augmented_Splay_Tree, Insert_Range)
     tree.insert(model.begin(), model.end());
 
     EXPECT_TRUE(std::ranges::equal(tree, model));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Insert_By_Initializer_List)
@@ -275,7 +258,7 @@ TEST(Augmented_Splay_Tree, Insert_By_Initializer_List)
     tree.insert(ilist);
 
     EXPECT_TRUE(std::ranges::equal(tree, model));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Erase_By_Iterator)
@@ -288,7 +271,7 @@ TEST(Augmented_Splay_Tree, Erase_By_Iterator)
     model.erase(15);
 
     EXPECT_TRUE(std::ranges::equal(tree, model));
-    EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+    EXPECT_TRUE(tree.subtree_sizes_verifier());
 }
 
 TEST(Augmented_Splay_Tree, Erase_By_Key)
@@ -306,7 +289,7 @@ TEST(Augmented_Splay_Tree, Erase_By_Key)
 
         model.erase(key);
         EXPECT_TRUE(std::ranges::equal(tree, model));
-        EXPECT_TRUE(subtree_sizes_verifier(tree.begin(), tree.end()));
+        EXPECT_TRUE(tree.subtree_sizes_verifier());
 
         is_erased = tree.erase(-key);
         EXPECT_EQ(is_erased, 0);

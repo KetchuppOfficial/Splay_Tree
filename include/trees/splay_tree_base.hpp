@@ -45,6 +45,7 @@ public:
     using typename base_tree::reverse_iterator;
     using typename base_tree::const_reverse_iterator;
 
+    using base_tree::begin;
     using base_tree::end;
     using base_tree::swap;
     using base_tree::size;
@@ -93,6 +94,22 @@ public:
     requires contains_subtree_size<node_type>
     {
         return empty() ? 0 : n_less_than_node(upper_bound(key));
+    }
+
+    bool subtree_sizes_verifier() const
+    requires contains_subtree_size<node_type>
+    {
+        for (auto it = begin(), ite = end(); it != ite; ++it)
+        {
+            auto node = detail::iterator_attorney<Splay_Tree_Base>::const_ptr(it);
+            auto expected_size = 1 + node_type::size(node->get_left())
+                                   + node_type::size(node->get_right());
+
+            if (expected_size != node_type::size(node))
+                return false;
+        }
+
+        return true;
     }
 
 protected:
@@ -177,7 +194,7 @@ protected:
             return size();
         else
         {
-            auto node = detail::Iterator_Attorney::const_ptr(it);
+            auto node = detail::iterator_attorney<Splay_Tree_Base>::const_ptr(it);
             return node_type::size(node->get_left());
         }
     }
