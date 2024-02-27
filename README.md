@@ -56,13 +56,13 @@ ctest --test-dir build
 
 ## How to run end-to-end tests
 
-If you want to run some tests on my tree, go to [test/end_to_end](/test/end_to_end/) directory.
+If you want to run some tests on my tree, look at [test/end_to_end](/test/end_to_end/) directory.
 There you will find a special script **checker.sh** provided for such purpose.
 
 Let **N** be the number of keys and **M** be the number of queries, then command sequence:
 
 ```bash
-./checker.sh tree N M
+./test/end_to_end/checker.sh tree N M
 ```
 
 generates a test with **N** keys and **M** queries. The test is saved in **N_M.test**. After that
