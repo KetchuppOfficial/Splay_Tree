@@ -42,9 +42,12 @@ To answer a query **Q1** **Q2** means to return the number of keys that belong t
 **[Q1; Q2]**.
 
 The **driver** is a program that receives queries for Splay_Tree from stdin and prints the answers
-on stdout. The **augmented_driver** is the same as **driver** except that splay tree there contains
-sizes of subtrees in each node and is called Augmented_Splay_Tree. The **ans_generator** is a
-program that does the same as **driver** but uses std::set.
+on stdout.
+
+The **augmented_driver** is the same as **driver** except that splay tree there contains sizes of
+subtrees in each node and is called Augmented_Splay_Tree.
+
+The **ans_generator** is a program that does the same as **driver** but uses std::set.
 
 If --target option is omitted, all targets will be built.
 
