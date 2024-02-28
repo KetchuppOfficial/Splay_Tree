@@ -271,13 +271,13 @@ public:
 
     iterator erase(iterator pos)
     {
-        auto node = detail::iterator_attorney<Search_Tree>::base_ptr(pos);
+        auto node = base_ptr(pos);
         ++pos;
 
         erase_impl(static_cast<node_ptr>(node));
 
         if (node == control_node_.get_leftmost())
-            control_node_.set_leftmost(detail::iterator_attorney<Search_Tree>::base_ptr(pos));
+            control_node_.set_leftmost(base_ptr(pos));
         size_--;
 
         delete node;
@@ -306,8 +306,8 @@ public:
               "    rankdir = TB;\n"
               "    node [shape = record];\n\n";
 
-        auto begin_node = detail::iterator_attorney<Search_Tree>::const_base_ptr(begin());
-        auto end_node = detail::iterator_attorney<Search_Tree>::const_base_ptr(end());
+        auto begin_node = const_base_ptr(begin());
+        auto end_node = const_base_ptr(end());
 
         dot_dump(os, end_node);
 
@@ -324,6 +324,20 @@ public:
     }
 
 protected:
+
+    static const_base_node_ptr const_base_ptr(iterator it) { return it.node_; }
+
+    static base_node_ptr base_ptr(iterator it)
+    {
+        return const_cast<base_node_ptr>(const_base_ptr(it));
+    }
+
+    static const_node_ptr const_ptr(iterator it)
+    {
+        return static_cast<const_node_ptr>(const_base_ptr(it));
+    }
+
+    static node_ptr ptr(iterator it) { return const_cast<node_ptr>(const_ptr(it)); }
 
     virtual const_base_node_ptr find_impl(const key_type &key) const
     {

@@ -98,7 +98,7 @@ public:
             if (!comp_(*lhs_max_it, *rhs_min_it))
                 throw std::runtime_error{"Trees can't be joined"};
 
-            splay(detail::iterator_attorney<Splay_Tree_Base>::ptr(lhs_max_it));
+            splay(base_tree::ptr(lhs_max_it));
 
             node_ptr root = control_node_.get_root();
             assert(root->get_right() == nullptr);
@@ -154,7 +154,7 @@ public:
     {
         for (auto it = begin(), ite = end(); it != ite; ++it)
         {
-            auto node = detail::iterator_attorney<Splay_Tree_Base>::const_ptr(it);
+            auto node = base_tree::const_ptr(it);
             auto expected_size = 1 + node_type::size(node->get_left())
                                    + node_type::size(node->get_right());
 
@@ -247,7 +247,7 @@ protected:
             return size();
         else
         {
-            auto node = detail::iterator_attorney<Splay_Tree_Base>::const_ptr(it);
+            auto node = base_tree::const_ptr(it);
             return node_type::size(node->get_left());
         }
     }
