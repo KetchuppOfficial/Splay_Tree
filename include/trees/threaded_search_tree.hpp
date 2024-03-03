@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SEARCH_TREE_HPP
-#define INCLUDE_SEARCH_TREE_HPP
+#ifndef INCLUDE_THREADED_SEARCH_TREE_HPP
+#define INCLUDE_THREADED_SEARCH_TREE_HPP
 
 #include <functional>
 #include <concepts>
@@ -14,7 +14,6 @@
 #include <iostream>
 
 #include "../tree_iterator.hpp"
-#include "../nodes/node_concepts.hpp"
 
 namespace yLab
 {
@@ -35,7 +34,7 @@ protected:
     class Control_Node final
     {
         // left child of head_ is the root of the tree
-        // right child of head_ is the leftmost element of the tree
+        // parent of head_ is the leftmost element of the tree
         base_node_type head_;
 
     public:
@@ -73,9 +72,9 @@ protected:
         }
         void set_root(base_node_ptr root) noexcept { head_.set_left(root); }
 
-        base_node_ptr get_leftmost() noexcept { return head_.get_right(); }
-        const_base_node_ptr get_leftmost() const noexcept { return head_.get_right(); }
-        void set_leftmost(base_node_ptr leftmost) noexcept { head_.set_right(leftmost); }
+        base_node_ptr get_leftmost() noexcept { return head_.get_parent(); }
+        const_base_node_ptr get_leftmost() const noexcept { return head_.get_parent(); }
+        void set_leftmost(base_node_ptr leftmost) noexcept { head_.set_parent(leftmost); }
 
         // Use _unsafe getters only if you are sure that dynamic type of *head_.parent_ is Node_T.
         // Using _unsafe getters in other cases leads to UB
@@ -313,7 +312,7 @@ public:
         dot_dump(os, end_node);
 
         for (auto node = begin_node; node != end_node; node = node->successor())
-            dot_dump(os, static_cast<const_node_ptr>(node));
+            dot_dump (os, static_cast<const_node_ptr>(node));
 
         os << std::endl;
 
@@ -413,9 +412,8 @@ protected:
     }
 
     node_ptr bst_insert(const key_type &key, base_node_ptr parent)
-    requires(has_parent<node_type>)
     {
-        node_ptr new_node = new node_type{key, nullptr, nullptr, parent};
+        auto new_node = new node_type{key, nullptr, nullptr, parent};
 
         if (parent == control_node_.get_end_node() ||
             comp_(key, static_cast<node_ptr>(parent)->get_key()))
@@ -424,46 +422,6 @@ protected:
         }
         else
             parent->set_right(new_node);
-
-        return new_node;
-    }
-
-    node_ptr bst_insert(const key_type &key, base_node_ptr parent)
-    requires(!has_parent<node_type>)
-    {
-        node_ptr new_node = new node_type{key};
-
-        if (auto end_node = control_node_.get_end_node(); parent == end_node)
-        {
-            new_node->set_left_thread(end_node);
-            new_node->set_right_thread(end_node);
-
-            parent->set_left(new_node);
-        }
-        else if (comp_(key, static_cast<node_ptr>(parent)->get_key()))
-        {
-            // O(1) because parent has no left child
-            base_node_ptr predecessor = parent->predecessor();
-            if (predecessor != end_node)
-                predecessor->set_right_thread(new_node);
-
-            new_node->set_left_thread(predecessor);
-            new_node->set_right_thread(parent);
-
-            parent->set_left(new_node);
-        }
-        else
-        {
-            // O(1) because parent has no right child
-            base_node_ptr successor = parent->successor();
-            if (successor != end_node)
-                successor->set_left_thread(new_node);
-
-            new_node->set_right_thread(successor);
-            new_node->set_left_thread(parent);
-
-            parent->set_right(new_node);
-        }
 
         return new_node;
     }
@@ -486,7 +444,6 @@ protected:
     virtual void erase_impl(node_ptr node) { bst_erase(node); }
 
     void bst_erase(node_ptr node)
-    requires(has_parent<node_type>)
     {
         assert(node);
 
@@ -497,9 +454,9 @@ protected:
         else
         {
             auto successor = node->get_right()->minimum();
-            assert(successor->get_left() == nullptr);
+            assert (successor->get_left() == nullptr);
 
-            if (successor != node->get_right())
+            if (successor->get_parent() != node)
             {
                 transplant(successor, successor->get_right());
                 successor->set_right(node->get_right());
@@ -514,7 +471,6 @@ protected:
 
     // replaces the subtree rooted at node u with the subtree rooted at node v
     void transplant(base_node_ptr u, base_node_ptr v)
-    requires(has_parent<node_type>)
     {
         assert(u);
 
@@ -529,92 +485,7 @@ protected:
             v->set_parent(u->get_parent());
     }
 
-    void bst_erase(node_ptr node)
-    requires(!has_parent<node_type>)
-    {
-        assert(node);
-
-        if (node->has_left_thread())
-        {
-            if (node->has_right_thread())
-            {
-                if (node == control_node_.get_root())
-                    control_node_.set_root(nullptr);
-                else
-                    bst_erase_no_children_case(node);
-            }
-            else
-                bst_erase_only_right_child_case(node);
-        }
-        else
-        {
-            if (node->has_right_thread())
-                bst_erase_only_left_child_case(node);
-            else
-                bst_erase_both_children_case(node);
-        }
-    }
-
-    static void bst_erase_no_children_case(node_ptr node)
-    requires(!has_parent<node_type>)
-    {
-        // O(1) because node has both threads
-        auto successor = node->successor();
-        auto predecessor = node->predecessor();
-
-        if (node == successor->get_left()) // node is a left child of successor
-            successor->set_left_thread(predecessor);
-        else
-            predecessor->set_right_thread(successor);
-    }
-
-    static void bst_erase_only_left_child_case(node_ptr node)
-    requires(!has_parent<node_type>)
-    {
-        auto child = node->get_left();
-        auto successor = node->successor(); // O(1) because node has right thread
-        auto predecessor = child->maximum(); // O(log n)
-
-        predecessor->set_right_thread(successor);
-
-        if (node == successor->get_left())
-            successor->set_left(child);
-        else
-        {
-            auto min = child->minimum(); // O(log n)
-            auto parent = min->predecessor(); // O(1) because min has at least left thread
-            parent->set_right(child);
-        }
-    }
-
-    static void bst_erase_only_right_child_case(node_ptr node)
-    requires(!has_parent<node_type>)
-    {
-        auto child = node->get_right();
-        auto successor = child->minimum(); // O(log n)
-        auto predecessor = node->predecessor(); // O(1) because node has left thread
-
-        successor->set_left_thread(predecessor);
-
-        if (node == predecessor->get_right())
-            predecessor->set_right(child);
-        else
-        {
-            auto max = child->maximum(); // O(log n)
-            auto parent = max->successor(); // O(1) because max has at least right thread
-            parent->set_left(child);
-        }
-    }
-
-    // TODO: maybe this method has to be static
-    void bst_erase_both_children_case(node_ptr node)
-    requires(!has_parent<node_type>)
-    {
-        // TBD
-    }
-
     static void arrow_dump(std::ostream &os, const_base_node_ptr node)
-    requires(has_parent<node_type>)
     {
         assert(node);
 
@@ -635,26 +506,6 @@ protected:
         os << "    node_" << node << " -> "
             << "node_" << node->get_parent() << " [color = \"dimgray\"];\n";
     }
-
-    static void arrow_dump(std::ostream &os, const_base_node_ptr node)
-    requires(!has_parent<node_type>)
-    {
-        assert(node);
-
-        os << "    node_" << node;
-        if (node->has_left_thread())
-            os << ":w -> node_" << node->predecessor() << " [style=dotted, ";
-        else
-            os << " -> node_" << node->get_left() << " [";
-        os << "color = \"blue\"];\n";
-
-        os << "    node_" << node;
-        if (node->has_right_thread())
-            os << ":e -> node_" << node->successor() << " [style=dotted, ";
-        else
-            os << " -> node_" << node->get_right() << " [";
-        os << "color = \"red\"];\n";
-    }
 };
 
 template<typename Node_T, typename Compare>
@@ -673,4 +524,4 @@ auto operator<=>(const Search_Tree<Node_T, Compare> &lhs, const Search_Tree<Node
 
 } // namespace yLab
 
-#endif // INCLUDE_SEARCH_TREE_HPP
+#endif // INCLUDE_THREADED_SEARCH_TREE_HPP

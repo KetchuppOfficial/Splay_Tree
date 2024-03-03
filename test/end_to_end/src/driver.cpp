@@ -8,12 +8,12 @@
 #include <iterator>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
-#include "splay_trees.hpp"
+#include "trees.hpp"
 #else
 #include <set>
 #endif
 
-#include "subtree_sizes.hpp"
+#include "node_concepts.hpp"
 
 namespace
 {

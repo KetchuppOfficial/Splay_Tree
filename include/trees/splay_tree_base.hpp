@@ -11,7 +11,7 @@
 #include <stdexcept>
 
 #include "search_tree.hpp"
-#include "../subtree_sizes.hpp"
+#include "../nodes/node_concepts.hpp"
 
 namespace yLab
 {

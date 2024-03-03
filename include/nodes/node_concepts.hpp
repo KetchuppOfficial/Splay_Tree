@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SUBTREE_SIZES_HPP
-#define INCLUDE_SUBTREE_SIZES_HPP
+#ifndef INCLUDE_NODES_SUBTREE_SIZES_HPP
+#define INCLUDE_NODES_SUBTREE_SIZES_HPP
 
 #include <concepts>
 
@@ -18,6 +18,13 @@ concept contains_subtree_size = requires(const T *node_ptr)
     { T::size(node_ptr) } -> std::convertible_to<typename T::size_type>;
 };
 
+template<typename T>
+concept has_parent = requires(T *node_ptr, const T *const_node_ptr)
+{
+    { node_ptr->get_parent() } -> std::convertible_to<T *>;
+    { const_node_ptr->get_parent() } -> std::convertible_to<const T*>;
+};
+
 } // namespace yLab
 
-#endif // INCLUDE_SUBTREE_SIZES_HPP
+#endif // INCLUDE_NODES_SUBTREE_SIZES_HPP

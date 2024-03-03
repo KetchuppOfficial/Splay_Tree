@@ -1,25 +1,25 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "augmented_splay_node.hpp"
-#include "subtree_sizes.hpp"
+#include "augmented_node.hpp"
+#include "node_concepts.hpp"
 
-TEST (Augmented_Splay_Node, Constructors)
+TEST (Augmented_Node, Constructors)
 {
     std::vector vec{1, 2, 3, 4, 5};
     auto vec_copy = vec;
 
-    yLab::Augmented_Splay_Node node_1{vec};
+    yLab::Augmented_Node node_1{vec};
     EXPECT_EQ (node_1.get_key(), vec);
 
-    yLab::Augmented_Splay_Node node_2{std::move (vec)};
+    yLab::Augmented_Node node_2{std::move (vec)};
     EXPECT_TRUE (vec.empty());
     EXPECT_EQ (node_2.get_key(), vec_copy);
 }
 
-TEST (Augmented_Splay_Node, Size)
+TEST (Augmented_Node, Size)
 {
-    using node_type = yLab::Augmented_Splay_Node<int>;
+    using node_type = yLab::Augmented_Node<int>;
 
     static_assert(yLab::contains_subtree_size<node_type>);
 
@@ -33,9 +33,9 @@ TEST (Augmented_Splay_Node, Size)
 }
 
 // Look at the picture in node_base.hpp
-TEST (Augmented_Splay_Node, Left_Rotate)
+TEST (Augmented_Node, Left_Rotate)
 {
-    using node_type = yLab::Augmented_Splay_Node<int>;
+    using node_type = yLab::Augmented_Node<int>;
 
     node_type a{1}, b{2}, c{3};
     node_type y{4, &b, &c};
@@ -81,9 +81,9 @@ TEST (Augmented_Splay_Node, Left_Rotate)
 }
 
 // Look at the picture in node_base.hpp
-TEST (Augmented_Splay_Node, Right_Rotate)
+TEST (Augmented_Node, Right_Rotate)
 {
-    using node_type = yLab::Augmented_Splay_Node<int>;
+    using node_type = yLab::Augmented_Node<int>;
 
     node_type a{1}, b{2}, c{3};
     node_type y{4, &a, &b};

@@ -5,10 +5,10 @@
 #include <algorithm>
 
 #include "search_tree.hpp"
-#include "splay_node.hpp"
+#include "node.hpp"
 
 using key_type = int;
-using node_type = yLab::Splay_Node<key_type>;
+using node_type = yLab::Node<key_type>;
 using tree_type = yLab::Search_Tree<node_type, yLab::Node_Base>;
 
 // Constructors and operator=
