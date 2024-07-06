@@ -3,3 +3,4 @@ TODO
 bin/
 data/
 *.info
+.vscode/
