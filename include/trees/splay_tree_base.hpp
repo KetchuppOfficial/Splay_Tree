@@ -270,15 +270,13 @@ protected:
                 control_node_.set_root(left);
                 left->set_parent(control_node_.get_end_node());
 
-                base_node_ptr left_max = left->maximum();
-                assert(left_max->has_right_thread() && left_max->get_right_unsafe() == node);
+                base_node_ptr predecessor = left->maximum();
+                splay(predecessor);
+                predecessor->set_right(right);
+                right->set_parent(predecessor);
 
-                splay(left_max);
-                left_max->set_right(right);
-                right->set_parent(left_max);
-
-                if (right->has_left_thread())
-                    right->set_left_thread(left_max);
+                base_node_ptr successor = right->minimum();
+                successor->set_left_thread(predecessor);
             }
             else
             {
