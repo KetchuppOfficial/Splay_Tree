@@ -4,20 +4,20 @@
 #include "augmented_node.hpp"
 #include "node_concepts.hpp"
 
-TEST (Augmented_Node, Constructors)
+TEST(Augmented_Node, Constructors)
 {
     std::vector vec{1, 2, 3, 4, 5};
     auto vec_copy = vec;
 
     yLab::Augmented_Node node_1{vec};
-    EXPECT_EQ (node_1.get_key(), vec);
+    EXPECT_EQ(node_1.get_key(), vec);
 
-    yLab::Augmented_Node node_2{std::move (vec)};
-    EXPECT_TRUE (vec.empty());
-    EXPECT_EQ (node_2.get_key(), vec_copy);
+    yLab::Augmented_Node node_2{std::move(vec)};
+    EXPECT_TRUE(vec.empty());
+    EXPECT_EQ(node_2.get_key(), vec_copy);
 }
 
-TEST (Augmented_Node, Size)
+TEST(Augmented_Node, Size)
 {
     using node_type = yLab::Augmented_Node<int>;
 
@@ -26,104 +26,72 @@ TEST (Augmented_Node, Size)
     node_type left{1}, right{3};
     node_type node{2, &left, &right};
 
-    EXPECT_EQ (node_type::size (&left), 1);
-    EXPECT_EQ (node_type::size (&right), 1);
-    EXPECT_EQ (node_type::size (&node), 3);
-    EXPECT_EQ (node_type::size (nullptr), 0);
+    EXPECT_EQ(node_type::size(&left), 1);
+    EXPECT_EQ(node_type::size(&right), 1);
+    EXPECT_EQ(node_type::size(&node), 3);
+    EXPECT_EQ(node_type::size(nullptr), 0);
 }
 
 // Look at the picture in node_base.hpp
-TEST (Augmented_Node, Left_Rotate)
+TEST(Augmented_Node, Left_Rotate)
 {
     using node_type = yLab::Augmented_Node<int>;
 
     node_type a{1}, b{2}, c{3};
     node_type y{4, &b, &c};
     node_type x{5, &a, &y};
-    node_type parent{6, &x};
-    a.set_parent (&x);
-    b.set_parent (&y);
-    c.set_parent (&y);
-    y.set_parent (&x);
-    x.set_parent (&parent);
+    node_type end_node{6, &x};
+    a.set_parent(&x);
+    b.set_parent(&y);
+    c.set_parent(&y);
+    y.set_parent(&x);
+    x.set_parent(&end_node);
+
+    a.set_left_thread(&end_node);
+    a.set_right_thread(&x);
+    b.set_left_thread(&x);
+    b.set_right_thread(&y);
+    c.set_left_thread(&y);
+    c.set_right_thread(&end_node);
 
     x.left_rotate();
 
-    EXPECT_EQ (parent.get_parent(), nullptr);
-    EXPECT_EQ (parent.get_left(), &y);
-    EXPECT_EQ (parent.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&parent), 6);
-
-    EXPECT_EQ (y.get_parent(), &parent);
-    EXPECT_EQ (y.get_left(), &x);
-    EXPECT_EQ (y.get_right(), &c);
-    EXPECT_EQ (node_type::size (&y), 5);
-
-    EXPECT_EQ (x.get_parent(), &y);
-    EXPECT_EQ (x.get_left(), &a);
-    EXPECT_EQ (x.get_right(), &b);
-    EXPECT_EQ (node_type::size (&x), 3);
-
-    EXPECT_EQ (a.get_parent(), &x);
-    EXPECT_EQ (a.get_left(), nullptr);
-    EXPECT_EQ (a.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&a), 1);
-
-    EXPECT_EQ (b.get_parent(), &x);
-    EXPECT_EQ (b.get_left(), nullptr);
-    EXPECT_EQ (b.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&b), 1);
-
-    EXPECT_EQ (c.get_parent(), &y);
-    EXPECT_EQ (c.get_left(), nullptr);
-    EXPECT_EQ (c.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&c), 1);
+    EXPECT_EQ(node_type::size(&end_node), 6);
+    EXPECT_EQ(node_type::size(&y), 5);
+    EXPECT_EQ(node_type::size(&x), 3);
+    EXPECT_EQ(node_type::size(&a), 1);
+    EXPECT_EQ(node_type::size(&b), 1);
+    EXPECT_EQ(node_type::size(&c), 1);
 }
 
 // Look at the picture in node_base.hpp
-TEST (Augmented_Node, Right_Rotate)
+TEST(Augmented_Node, Right_Rotate)
 {
     using node_type = yLab::Augmented_Node<int>;
 
     node_type a{1}, b{2}, c{3};
     node_type y{4, &a, &b};
     node_type x{5, &y, &c};
-    node_type parent{6, &x};
-    a.set_parent (&y);
-    b.set_parent (&y);
-    c.set_parent (&x);
-    y.set_parent (&x);
-    x.set_parent (&parent);
+    node_type end_node{6, &x};
+    a.set_parent(&y);
+    b.set_parent(&y);
+    c.set_parent(&x);
+    y.set_parent(&x);
+    x.set_parent(&end_node);
+
+    a.set_left_thread(&end_node);
+    a.set_right_thread(&y);
+    b.set_left_thread(&y);
+    b.set_right_thread(&x);
+    c.set_left_thread(&x);
+    c.set_right_thread(&end_node);
 
     x.right_rotate();
 
-    EXPECT_EQ (parent.get_parent(), nullptr);
-    EXPECT_EQ (parent.get_left(), &y);
-    EXPECT_EQ (parent.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&parent), 6);
-
-    EXPECT_EQ (y.get_parent(), &parent);
-    EXPECT_EQ (y.get_left(), &a);
-    EXPECT_EQ (y.get_right(), &x);
-    EXPECT_EQ (node_type::size (&y), 5);
-
-    EXPECT_EQ (x.get_parent(), &y);
-    EXPECT_EQ (x.get_left(), &b);
-    EXPECT_EQ (x.get_right(), &c);
-    EXPECT_EQ (node_type::size (&x), 3);
-
-    EXPECT_EQ (a.get_parent(), &y);
-    EXPECT_EQ (a.get_left(), nullptr);
-    EXPECT_EQ (a.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&a), 1);
-
-    EXPECT_EQ (b.get_parent(), &x);
-    EXPECT_EQ (b.get_left(), nullptr);
-    EXPECT_EQ (b.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&b), 1);
-
-    EXPECT_EQ (c.get_parent(), &x);
-    EXPECT_EQ (c.get_left(), nullptr);
-    EXPECT_EQ (c.get_right(), nullptr);
-    EXPECT_EQ (node_type::size (&c), 1);
+    EXPECT_EQ(node_type::size(&end_node), 6);
+    EXPECT_EQ(node_type::size(&y), 5);
+    EXPECT_EQ(node_type::size(&x), 3);
+    EXPECT_EQ(node_type::size(&a), 1);
+    EXPECT_EQ(node_type::size(&b), 1);
+    EXPECT_EQ(node_type::size(&c), 1);
 }

@@ -11,10 +11,147 @@
 #include <type_traits>
 #include <algorithm>
 #include <compare>
-#include <iostream>
+#include <ostream>
+#include <cstddef>
 
-#include "../tree_iterator.hpp"
-#include "../nodes/node_concepts.hpp"
+#include "tree_iterator.hpp"
+#include "node_concepts.hpp"
+
+namespace yLab::detail
+{
+
+template<typename T>
+class Control_Node final
+{
+    using base_node_type = T;
+    using base_node_ptr = T *;
+    using const_base_node_ptr = const T *;
+
+public:
+
+    Control_Node() noexcept (std::is_nothrow_constructible_v<base_node_type>)
+        : head_{nullptr, &head_, &head_} {}
+
+    Control_Node(const Control_Node &rhs) = delete;
+    Control_Node &operator=(const Control_Node &rhs) = delete;
+
+    Control_Node(Control_Node &&rhs) noexcept
+    {
+        if (rhs.get_root())
+            take_ownership_of_tree_of(rhs);
+    }
+
+    Control_Node &operator=(Control_Node &&rhs)
+        noexcept (std::is_nothrow_swappable_v<base_node_type>)
+    {
+        swap(rhs);
+        return *this;
+    }
+
+    ~Control_Node() { clean_up(); }
+
+    base_node_ptr get_end_node() noexcept { return std::addressof(head_); }
+    const_base_node_ptr get_end_node() const noexcept { return std::addressof(head_); }
+
+    base_node_ptr get_root() noexcept { return head_.get_left(); }
+    const_base_node_ptr get_root() const noexcept { return head_.get_left(); }
+    void set_root(base_node_ptr root) noexcept { head_.set_left(root); }
+
+    base_node_ptr get_leftmost() noexcept { return head_.get_right(); }
+    const_base_node_ptr get_leftmost() const noexcept { return head_.get_right(); }
+    void set_leftmost(base_node_ptr leftmost) noexcept { head_.set_right(leftmost); }
+
+    base_node_ptr get_rightmost() noexcept { return head_.get_parent(); }
+    const_base_node_ptr get_rightmost() const noexcept { return head_.get_parent(); }
+    void set_rightmost(base_node_ptr rightmost) noexcept { head_.set_parent(rightmost); }
+
+    void clean_up()
+    {
+        for (base_node_ptr node = get_root(), save; node != nullptr; node = save)
+        {
+            if (base_node_ptr left = node->get_left())
+            {
+                save = left;
+                node->set_left(save->get_right());
+                save->set_right(node);
+            }
+            else
+            {
+                save = node->get_right();
+                delete node;
+            }
+        }
+    }
+
+    void swap(Control_Node &rhs) noexcept (std::is_nothrow_swappable_v<base_node_type>)
+    {
+        if (get_root())
+        {
+            if (rhs.get_root())
+            {
+                adjust_tree_to_end_node_of(rhs);
+                rhs.adjust_tree_to_end_node_of(*this);
+                std::swap(head_, rhs.head_);
+            }
+            else
+                rhs.take_ownership_of_tree_of(*this);
+        }
+        else if (rhs.get_root())
+            take_ownership_of_tree_of(rhs);
+    }
+
+    void reset() noexcept
+    {
+        set_root(nullptr);
+
+        base_node_ptr end = get_end_node();
+        set_leftmost(end);
+        set_rightmost(end);
+    }
+
+private:
+
+    void take_ownership_of_tree_of(Control_Node &rhs) noexcept
+    {
+        assert(get_root() == nullptr);
+
+        rhs.adjust_tree_to_end_node_of(*this);
+
+        set_root(rhs.get_root());
+        set_leftmost(rhs.get_leftmost());
+        set_rightmost(rhs.get_rightmost());
+        rhs.reset();
+    }
+
+    void adjust_tree_to_end_node_of(Control_Node &rhs) noexcept
+    {
+        assert(get_root());
+
+        base_node_ptr end = rhs.get_end_node();
+        get_root()->set_parent(end);
+        get_leftmost()->set_left_thread(end);
+        get_rightmost()->set_right_thread(end);
+    }
+
+    // left child of head_ is the root of the tree
+    // right child of head_ is the leftmost element of the tree
+    // parent of head_ is the rightmost element of the tree
+    base_node_type head_;
+};
+
+} // namespace yLab::detail
+
+namespace std
+{
+
+template<typename T>
+void swap(yLab::detail::Control_Node<T> &lhs, yLab::detail::Control_Node<T> &rhs)
+    noexcept(noexcept(lhs.swap(rhs)))
+{
+    lhs.swap(rhs);
+}
+
+} // namespace std
 
 namespace yLab
 {
@@ -32,93 +169,7 @@ protected:
     using node_ptr = Node_T *;
     using const_node_ptr = const Node_T *;
 
-    class Control_Node final
-    {
-        // left child of head_ is the root of the tree
-        // right child of head_ is the leftmost element of the tree
-        base_node_type head_;
-
-    public:
-
-        Control_Node() { set_leftmost(get_end_node()); }
-
-        Control_Node(const Control_Node &rhs) = delete;
-        Control_Node &operator=(const Control_Node &rhs) = delete;
-
-        Control_Node(Control_Node &&rhs) : head_{std::move(rhs.head_)}
-        {
-            reset_leftmost_or_parent_of_root();
-            rhs.reset();
-        }
-
-        Control_Node &operator=(Control_Node &&rhs)
-        {
-            head_ = std::move(rhs.head_);
-
-            reset_leftmost_or_parent_of_root();
-            rhs.reset();
-
-            return *this;
-        }
-
-        ~Control_Node() { clean_up(); }
-
-        base_node_ptr get_end_node() noexcept { return std::addressof(head_); }
-        const_base_node_ptr get_end_node() const noexcept { return std::addressof(head_); }
-
-        node_ptr get_root() noexcept { return static_cast<node_ptr>(head_.get_left()); }
-        const_node_ptr get_root() const noexcept
-        {
-            return static_cast<const_node_ptr>(head_.get_left());
-        }
-        void set_root(base_node_ptr root) noexcept { head_.set_left(root); }
-
-        base_node_ptr get_leftmost() noexcept { return head_.get_right(); }
-        const_base_node_ptr get_leftmost() const noexcept { return head_.get_right(); }
-        void set_leftmost(base_node_ptr leftmost) noexcept { head_.set_right(leftmost); }
-
-        // Use _unsafe getters only if you are sure that dynamic type of *head_.parent_ is Node_T.
-        // Using _unsafe getters in other cases leads to UB
-        node_ptr get_leftmost_unsafe() noexcept { return static_cast<node_ptr>(get_leftmost()); }
-        const_node_ptr get_leftmost_unsafe() const noexcept
-        {
-            return static_cast<const_node_ptr>(get_leftmost());
-        }
-
-        void clean_up()
-        {
-            for (base_node_ptr node = get_root(), save; node != nullptr; node = save)
-            {
-                if (node->get_left() == nullptr)
-                {
-                    save = node->get_right();
-                    delete node;
-                }
-                else
-                {
-                    save = node->get_left();
-                    node->set_left(save->get_right());
-                    save->set_right(node);
-                }
-            }
-        }
-
-        void reset_leftmost_or_parent_of_root()
-        {
-            if (get_root())
-                get_root()->set_parent(get_end_node());
-            else
-                set_leftmost(get_end_node());
-        }
-
-        void reset()
-        {
-            set_root(nullptr);
-            set_leftmost(get_end_node());
-        }
-    };
-
-    Control_Node control_node_;
+    detail::Control_Node<base_node_type> control_node_;
     Compare comp_;
     std::size_t size_ = 0;
 
@@ -151,9 +202,9 @@ public:
     }
 
     Search_Tree(std::initializer_list<value_type> ilist, const key_compare &comp = key_compare{})
-               : Search_Tree{ilist.begin(), ilist.end(), comp} {}
+               : Search_Tree(ilist.begin(), ilist.end(), comp) {}
 
-    Search_Tree(const Search_Tree &rhs) : Search_Tree{rhs.begin(), rhs.end(), rhs.comp_} {}
+    Search_Tree(const Search_Tree &rhs) : Search_Tree(rhs.begin(), rhs.end(), rhs.comp_) {}
 
     Search_Tree &operator=(const Search_Tree &rhs)
     {
@@ -167,8 +218,7 @@ public:
                                      comp_{std::move(rhs.comp_)},
                                      size_{std::exchange(rhs.size_, 0)} {}
 
-    Search_Tree &operator=(Search_Tree &&rhs) noexcept (std::is_nothrow_swappable_v<key_compare> &&
-                                                        std::is_nothrow_swappable_v<Control_Node>)
+    Search_Tree &operator=(Search_Tree &&rhs) noexcept(noexcept(swap(rhs)))
     {
         swap(rhs);
         return *this;
@@ -176,17 +226,17 @@ public:
 
     virtual ~Search_Tree() = default;
 
-    // Observers
+    // observers
 
     key_compare key_comp() const { return comp_; }
     value_compare value_comp() const { return key_comp(); }
 
-    // Capacity
+    // capacity
 
     size_type size() const noexcept { return size_; }
     bool empty() const noexcept { return size() == 0; }
 
-    // Iterators
+    // iterators
 
     const_iterator begin() const noexcept { return const_iterator{control_node_.get_leftmost()}; }
     const_iterator end() const noexcept { return const_iterator{control_node_.get_end_node()}; }
@@ -200,7 +250,7 @@ public:
     const_reverse_iterator crbegin() const noexcept { return rbegin(); }
     const_reverse_iterator crend() const noexcept { return rend(); }
 
-    // Lookup
+    // lookup
 
     const_iterator find(const key_type &key) const
     {
@@ -226,12 +276,12 @@ public:
 
     // Modifiers
 
-    void swap(Search_Tree &other) noexcept (std::is_nothrow_swappable_v<key_compare> &&
-                                            std::is_nothrow_swappable_v<Control_Node>)
+    void swap(Search_Tree &rhs) noexcept (std::is_nothrow_swappable_v<decltype(control_node_)> &&
+                                          std::is_nothrow_swappable_v<key_compare>)
     {
-        std::swap(control_node_, other.control_node_);
-        std::swap(comp_, other.comp_);
-        std::swap(size_, other.size_);
+        std::swap(control_node_, rhs.control_node_);
+        std::swap(comp_, rhs.comp_);
+        std::swap(size_, rhs.size_);
     }
 
     void clear()
@@ -250,8 +300,15 @@ public:
         {
             node = insert_impl(key, const_cast<base_node_ptr>(parent));
 
-            if (size_ == 0 || (size_ > 0 && comp_(key, *begin())))
-                control_node_.set_leftmost(const_cast<node_ptr>(node));
+            if (size_ == 0)
+            {
+                control_node_.set_leftmost(const_cast<base_node_ptr>(node));
+                control_node_.set_rightmost(const_cast<base_node_ptr>(node));
+            }
+            else if (comp_(key, *begin()))
+                control_node_.set_leftmost(const_cast<base_node_ptr>(node));
+            else if (comp_(static_cast<node_ptr>(control_node_.get_rightmost())->get_key(), key))
+                control_node_.set_rightmost(const_cast<base_node_ptr>(node));
 
             size_++;
 
@@ -265,25 +322,33 @@ public:
     void insert(It first, It last)
     {
         for (; first != last; ++first)
-            insert_unique(*first);
+            insert(*first);
     }
 
     void insert(std::initializer_list<value_type> ilist) { insert(ilist.begin(), ilist.end()); }
 
     iterator erase(iterator pos)
     {
-        auto node = base_ptr(pos);
-        ++pos;
-
-        erase_impl(static_cast<node_ptr>(node));
+        base_node_ptr node = base_ptr(pos);
+        auto res = std::next(pos);
 
         if (node == control_node_.get_leftmost())
-            control_node_.set_leftmost(base_ptr(pos));
+            control_node_.set_leftmost(base_ptr(res));
+
+        if (node == control_node_.get_rightmost())
+        {
+            if (size_ == 1)
+                control_node_.set_rightmost(control_node_.get_end_node());
+            else
+                control_node_.set_rightmost(base_ptr(std::prev(pos)));
+        }
+
+        erase_impl(node);
         size_--;
 
         delete node;
 
-        return pos;
+        return res;
     }
 
     size_type erase(const key_type &key)
@@ -297,11 +362,8 @@ public:
         }
     }
 
-    void graphic_dump(std::ostream &os = std::cout) const
+    void graphic_dump(std::ostream &os) const
     {
-        if (empty())
-            return;
-
         os << "digraph Tree\n"
               "{\n"
               "    rankdir = TB;\n"
@@ -318,37 +380,64 @@ public:
         os << std::endl;
 
         for (auto node = begin_node; node != end_node; node = node->successor())
-            Search_Tree::arrow_dump(os, node);
+            arrow_dump(os, node);
 
-        os << "    node_" << end_node << " -> node_"
-           << end_node->get_left() << " [color = \"blue\"];\n}\n";
+        if (!empty())
+            std::println(os, "    node_{} -> node_{} [color = \"blue\"];",
+                         reinterpret_cast<const void *>(end_node),
+                         reinterpret_cast<const void *>(end_node->get_left_unsafe()));
+
+        os << "}\n";
+    }
+
+    bool subtree_sizes_verifier() const
+    requires contains_subtree_size<node_type>
+    {
+        return true; // Search_TreeTODO
+
+        for (auto it = begin(), ite = end(); it != ite; ++it)
+        {
+            const_node_ptr node = const_ptr(it);
+
+            auto expected_size = 1 + node_type::size(static_cast<const_node_ptr>(node->get_left()))
+                                   + node_type::size(static_cast<const_node_ptr>(node->get_right()));
+
+            if (expected_size != node_type::size(node))
+                return false;
+        }
+
+        return true;
     }
 
 protected:
 
-    static const_base_node_ptr const_base_ptr(iterator it) { return it.node_; }
+    // access to underlying pointer of iterators
 
-    static base_node_ptr base_ptr(iterator it)
+    static const_base_node_ptr const_base_ptr(iterator it) noexcept { return it.node_; }
+
+    static base_node_ptr base_ptr(iterator it) noexcept
     {
         return const_cast<base_node_ptr>(const_base_ptr(it));
     }
 
-    static const_node_ptr const_ptr(iterator it)
+    static const_node_ptr const_ptr(iterator it) noexcept
     {
         return static_cast<const_node_ptr>(const_base_ptr(it));
     }
 
-    static node_ptr ptr(iterator it) { return const_cast<node_ptr>(const_ptr(it)); }
+    static node_ptr ptr(iterator it) noexcept { return const_cast<node_ptr>(const_ptr(it)); }
+
+    // implementation of operations on tree
 
     virtual const_base_node_ptr find_impl(const key_type &key) const
     {
-        auto node = control_node_.get_root();
+        const_base_node_ptr node = control_node_.get_root();
 
         while (node)
         {
-            if (comp_(key, node->get_key())) // key < node->get_key()
+            if (comp_(key, static_cast<const_node_ptr>(node)->get_key()))
                 node = node->get_left();
-            else if (comp_(node->get_key(), key)) // key > node->get_key()
+            else if (comp_(static_cast<const_node_ptr>(node)->get_key(), key))
                 node = node->get_right();
             else
                 return node;
@@ -357,16 +446,16 @@ protected:
         return control_node_.get_end_node();
     }
 
-    std::pair<const_node_ptr, const_base_node_ptr> find_with_parent(const key_type &key) const
+    std::pair<const_base_node_ptr, const_base_node_ptr> find_with_parent(const key_type &key) const
     {
-        auto node = control_node_.get_root();
-        auto parent = control_node_.get_end_node();
+        const_base_node_ptr node = control_node_.get_root();
+        const_base_node_ptr parent = control_node_.get_end_node();
 
         while (node)
         {
-            if (comp_(key, node->get_key())) // key < node->get_key()
+            if (comp_(key, static_cast<const_node_ptr>(node)->get_key()))
                 parent = std::exchange(node, node->get_left());
-            else if (comp_(node->get_key(), key)) // key > node->get_key()
+            else if (comp_(static_cast<const_node_ptr>(node)->get_key(), key))
                 parent = std::exchange(node, node->get_right());
             else
                 break;
@@ -377,12 +466,12 @@ protected:
 
     virtual const_base_node_ptr lower_bound_impl(const key_type &key) const
     {
-        auto node = control_node_.get_root();
-        auto lower_bound = control_node_.get_end_node();
+        const_base_node_ptr node = control_node_.get_root();
+        const_base_node_ptr lower_bound = control_node_.get_end_node();
 
         while (node)
         {
-            if (!comp_(node->get_key(), key)) // key <= node->get_key()
+            if (!comp_(static_cast<const_node_ptr>(node)->get_key(), key))
                 lower_bound = std::exchange(node, node->get_left());
             else
                 node = node->get_right();
@@ -393,12 +482,12 @@ protected:
 
     virtual const_base_node_ptr upper_bound_impl(const key_type &key) const
     {
-        auto node = control_node_.get_root();
-        auto upper_bound = control_node_.get_end_node();
+        const_base_node_ptr node = control_node_.get_root();
+        const_base_node_ptr upper_bound = control_node_.get_end_node();
 
         while (node)
         {
-            if (comp_(key, node->get_key())) // key < node->get_key()
+            if (comp_(key, static_cast<const_node_ptr>(node)->get_key()))
                 upper_bound = std::exchange(node, node->get_left());
             else
                 node = node->get_right();
@@ -407,33 +496,20 @@ protected:
         return upper_bound;
     }
 
-    virtual node_ptr insert_impl(const key_type &key, base_node_ptr parent)
+    virtual base_node_ptr insert_impl(const key_type &key, base_node_ptr parent)
     {
         return bst_insert(key, parent);
     }
 
-    node_ptr bst_insert(const key_type &key, base_node_ptr parent)
-    requires(has_parent<node_type>)
+    base_node_ptr bst_insert(const key_type &key, base_node_ptr parent)
     {
-        node_ptr new_node = new node_type{key, nullptr, nullptr, parent};
+        assert(parent);
+        assert(!parent->get_left() || !parent->get_right());
 
-        if (parent == control_node_.get_end_node() ||
-            comp_(key, static_cast<node_ptr>(parent)->get_key()))
-        {
-            parent->set_left(new_node);
-        }
-        else
-            parent->set_right(new_node);
+        base_node_ptr new_node = new node_type{key, nullptr, nullptr, parent};
+        base_node_ptr end_node = control_node_.get_end_node();
 
-        return new_node;
-    }
-
-    node_ptr bst_insert(const key_type &key, base_node_ptr parent)
-    requires(!has_parent<node_type>)
-    {
-        node_ptr new_node = new node_type{key};
-
-        if (auto end_node = control_node_.get_end_node(); parent == end_node)
+        if (parent == end_node)
         {
             new_node->set_left_thread(end_node);
             new_node->set_right_thread(end_node);
@@ -442,9 +518,8 @@ protected:
         }
         else if (comp_(key, static_cast<node_ptr>(parent)->get_key()))
         {
-            // O(1) because parent has no left child
-            base_node_ptr predecessor = parent->predecessor();
-            if (predecessor != end_node)
+            base_node_ptr predecessor = parent->get_left_unsafe();
+            if (predecessor != end_node && predecessor->has_right_thread())
                 predecessor->set_right_thread(new_node);
 
             new_node->set_left_thread(predecessor);
@@ -454,13 +529,12 @@ protected:
         }
         else
         {
-            // O(1) because parent has no right child
-            base_node_ptr successor = parent->successor();
-            if (successor != end_node)
+            base_node_ptr successor = parent->get_right_unsafe();
+            if (successor != end_node && successor->has_left_thread())
                 successor->set_left_thread(new_node);
 
-            new_node->set_right_thread(successor);
             new_node->set_left_thread(parent);
+            new_node->set_right_thread(successor);
 
             parent->set_right(new_node);
         }
@@ -468,69 +542,9 @@ protected:
         return new_node;
     }
 
-    void insert_unique(const key_type &key)
-    {
-        auto [node, parent] = find_with_parent(key);
+    virtual void erase_impl(base_node_ptr node) { bst_erase(node); }
 
-        if (node == nullptr)
-        {
-            node = insert_impl(key, const_cast<base_node_ptr>(parent));
-
-            if (size_ == 0 || (size_ > 0 && comp_(key, *begin())))
-                control_node_.set_leftmost(const_cast<node_ptr>(node));
-
-            size_++;
-        }
-    }
-
-    virtual void erase_impl(node_ptr node) { bst_erase(node); }
-
-    void bst_erase(node_ptr node)
-    requires(has_parent<node_type>)
-    {
-        assert(node);
-
-        if (node->get_left() == nullptr)
-            transplant(node, node->get_right());
-        else if (node->get_right() == nullptr)
-            transplant(node, node->get_left());
-        else
-        {
-            auto successor = node->get_right()->minimum();
-            assert(successor->get_left() == nullptr);
-
-            if (successor != node->get_right())
-            {
-                transplant(successor, successor->get_right());
-                successor->set_right(node->get_right());
-                successor->get_right()->set_parent(successor);
-            }
-
-            transplant(node, successor);
-            successor->set_left(node->get_left());
-            successor->get_left()->set_parent(successor);
-        }
-    }
-
-    // replaces the subtree rooted at node u with the subtree rooted at node v
-    void transplant(base_node_ptr u, base_node_ptr v)
-    requires(has_parent<node_type>)
-    {
-        assert(u);
-
-        if (u == control_node_.get_root())
-            control_node_.set_root(v);
-        else if (u->is_left_child())
-            u->get_parent()->set_left(v);
-        else
-            u->get_parent()->set_right(v);
-
-        if (v)
-            v->set_parent(u->get_parent());
-    }
-
-    void bst_erase(node_ptr node)
-    requires(!has_parent<node_type>)
+    void bst_erase(base_node_ptr node)
     {
         assert(node);
 
@@ -555,105 +569,137 @@ protected:
         }
     }
 
-    static void bst_erase_no_children_case(node_ptr node)
-    requires(!has_parent<node_type>)
+    static void bst_erase_no_children_case(base_node_ptr node)
     {
-        // O(1) because node has both threads
-        auto successor = node->successor();
-        auto predecessor = node->predecessor();
+        assert(node->has_left_thread());
+        assert(node->has_right_thread());
 
-        if (node == successor->get_left()) // node is a left child of successor
+        base_node_ptr successor = node->get_right_unsafe();
+        base_node_ptr predecessor = node->get_left_unsafe();
+
+        if (node == successor->get_left())
             successor->set_left_thread(predecessor);
         else
             predecessor->set_right_thread(successor);
     }
 
-    static void bst_erase_only_left_child_case(node_ptr node)
-    requires(!has_parent<node_type>)
+    static void bst_erase_only_left_child_case(base_node_ptr node)
     {
-        auto child = node->get_left();
-        auto successor = node->successor(); // O(1) because node has right thread
-        auto predecessor = child->maximum(); // O(log n)
+        assert(!node->has_left_thread());
+        assert(node->has_right_thread());
 
+        base_node_ptr child = node->get_left_unsafe();
+        base_node_ptr successor = node->get_right_unsafe();
+        base_node_ptr predecessor = child->maximum(); // O(child's subtree height)
+
+        // predecessor cannot be end-node because node has the left child
         predecessor->set_right_thread(successor);
 
-        if (node == successor->get_left())
-            successor->set_left(child);
+        base_node_ptr parent = node->get_parent();
+        child->set_parent(parent);
+
+        if (node->is_left_child())
+            parent->set_left(child);
         else
-        {
-            auto min = child->minimum(); // O(log n)
-            auto parent = min->predecessor(); // O(1) because min has at least left thread
             parent->set_right(child);
-        }
     }
 
-    static void bst_erase_only_right_child_case(node_ptr node)
-    requires(!has_parent<node_type>)
+    static void bst_erase_only_right_child_case(base_node_ptr node)
     {
-        auto child = node->get_right();
-        auto successor = child->minimum(); // O(log n)
-        auto predecessor = node->predecessor(); // O(1) because node has left thread
+        assert(node->has_left_thread());
+        assert(!node->has_right_thread());
 
+        base_node_ptr child = node->get_right_unsafe();
+        base_node_ptr successor = child->minimum(); // O(child's subtree height)
+        base_node_ptr predecessor = node->get_left_unsafe();
+
+        // successor cannot be end-node because node has the right child
         successor->set_left_thread(predecessor);
 
-        if (node == predecessor->get_right())
-            predecessor->set_right(child);
-        else
-        {
-            auto max = child->maximum(); // O(log n)
-            auto parent = max->successor(); // O(1) because max has at least right thread
+        base_node_ptr parent = node->get_parent();
+        child->set_parent(parent);
+
+        if (node->is_left_child())
             parent->set_left(child);
+        else
+            parent->set_right(child);
+    }
+
+    static void bst_erase_both_children_case(base_node_ptr node)
+    {
+        assert(!node->has_left_thread());
+        assert(!node->has_right_thread());
+
+        base_node_ptr left = node->get_left_unsafe();
+        base_node_ptr right = node->get_right_unsafe();
+        base_node_ptr successor = right->minimum(); // O(log n)
+
+        successor->set_left(left);
+        left->set_parent(successor);
+
+        if (left->has_right_thread())
+            left->set_right_thread(successor);
+
+        if (successor != right)
+        {
+            assert(successor->is_left_child());
+            base_node_ptr s_parent = successor->get_parent();
+
+            if (successor->has_right_thread())
+            {
+                assert(successor->get_right_unsafe() == successor->get_parent());
+                s_parent->set_left_thread(successor);
+            }
+            else
+            {
+                base_node_ptr s_right = successor->get_right_unsafe();
+                assert(s_right);
+                s_parent->set_left(s_right);
+                s_right->set_parent(s_parent);
+            }
+
+            successor->set_right(right);
+            right->set_parent(successor);
         }
+
+        transplant(node, successor);
     }
 
-    // TODO: maybe this method has to be static
-    void bst_erase_both_children_case(node_ptr node)
-    requires(!has_parent<node_type>)
+    // replaces the subtree rooted at node u with the subtree rooted at node v
+    static void transplant(base_node_ptr u, base_node_ptr v)
     {
-        // TBD
+        assert(u);
+        assert(v);
+
+        base_node_ptr parent = u->get_parent();
+
+        if (u->is_left_child())
+            parent->set_left(v);
+        else
+            parent->set_right(v);
+
+        v->set_parent(parent);
     }
 
     static void arrow_dump(std::ostream &os, const_base_node_ptr node)
-    requires(has_parent<node_type>)
     {
         assert(node);
 
-        os << "    node_" << node << " -> ";
-        if (node->get_left())
-            os << "node_" << node->get_left();
-        else
-            os << "left_nil_node_" << node;
-        os << " [color = \"blue\"];\n";
+        auto self = reinterpret_cast<const void *>(node);
 
-        os << "    node_" << node << " -> ";
-        if (node->get_right())
-            os << "node_" << node->get_right();
-        else
-            os << "right_nil_node_" << node;
-        os << " [color = \"gold\"];\n";
-
-        os << "    node_" << node << " -> "
-            << "node_" << node->get_parent() << " [color = \"dimgray\"];\n";
-    }
-
-    static void arrow_dump(std::ostream &os, const_base_node_ptr node)
-    requires(!has_parent<node_type>)
-    {
-        assert(node);
-
-        os << "    node_" << node;
         if (node->has_left_thread())
-            os << ":w -> node_" << node->predecessor() << " [style=dotted, ";
+            std::println(os, "    node_{}:w -> node_{} [style = dotted, color = \"blue\"];",
+                         self, reinterpret_cast<const void *>(node->get_left_unsafe()));
         else
-            os << " -> node_" << node->get_left() << " [";
-        os << "color = \"blue\"];\n";
+            std::println(os, "    node_{} -> node_{} [color = \"blue\"];",
+                         self, reinterpret_cast<const void *>(node->get_left_unsafe()));
 
-        os << "    node_" << node;
         if (node->has_right_thread())
-            os << ":e -> node_" << node->successor() << " [style=dotted, ";
+            std::println(os, "    node_{}:e -> node_{} [style = dotted, color = \"red\"];",
+                         self, reinterpret_cast<const void *>(node->get_right_unsafe()));
         else
-            os << " -> node_" << node->get_right() << " [";
-        os << "color = \"red\"];\n";
+            std::println(os, "    node_{} -> node_{} [color = \"red\"];",
+                         self, reinterpret_cast<const void *>(node->get_right_unsafe()));
     }
 };
 

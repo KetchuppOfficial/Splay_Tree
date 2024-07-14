@@ -11,7 +11,7 @@
 #include <stdexcept>
 
 #include "search_tree.hpp"
-#include "../nodes/node_concepts.hpp"
+#include "node_concepts.hpp"
 
 namespace yLab
 {
@@ -68,10 +68,10 @@ public:
 
     Splay_Tree_Base(std::initializer_list<value_type> ilist,
                     const key_compare &comp = key_compare{})
-                   : Splay_Tree_Base{ilist.begin(), ilist.end(), comp} {}
+        : Splay_Tree_Base(ilist.begin(), ilist.end(), comp) {}
 
     Splay_Tree_Base(const Splay_Tree_Base &rhs)
-                   : Splay_Tree_Base{rhs.begin(), rhs.end(), rhs.comp_} {}
+        : Splay_Tree_Base(rhs.begin(), rhs.end(), rhs.comp_) {}
 
     Splay_Tree_Base &operator=(const Splay_Tree_Base &rhs)
     {
@@ -89,23 +89,27 @@ public:
     void join(Splay_Tree_Base &&rhs)
     {
         if (empty())
-            swap(rhs);
+            swap(rhs); // leads to change of the comparator if one of rhs differs from ours
         else if (!rhs.empty())
         {
-            auto lhs_max_it = std::prev(end());
-            auto rhs_min_it = rhs.begin();
+            auto lhs_rightmost = static_cast<node_ptr>(control_node_.get_rightmost());
+            auto rhs_leftmost = static_cast<node_ptr>(rhs.control_node_.get_leftmost());
 
-            if (!comp_(*lhs_max_it, *rhs_min_it))
+            if (!comp_(lhs_rightmost->get_key(), rhs_leftmost->get_key()))
                 throw std::runtime_error{"Trees can't be joined"};
 
-            splay(base_tree::ptr(lhs_max_it));
+            splay(lhs_rightmost);
 
-            node_ptr root = control_node_.get_root();
-            assert(root->get_right() == nullptr);
-            node_ptr rhs_root = rhs.control_node_.get_root();
-
+            base_node_ptr root = control_node_.get_root();
+            base_node_ptr rhs_root = rhs.control_node_.get_root();
             root->set_right(rhs_root);
             rhs_root->set_parent(root);
+
+            rhs_leftmost->set_left_thread(root);
+            base_node_ptr rhs_rightmost = rhs.control_node_.get_rightmost();
+            rhs_rightmost->set_right_thread(control_node_.get_end_node());
+            control_node_.set_rightmost(rhs_rightmost);
+
             rhs.control_node_.reset();
 
             size_ += rhs.size_;
@@ -116,13 +120,15 @@ public:
     Splay_Tree_Base split(const key_type &key)
     requires contains_subtree_size<node_type>
     {
-        if (auto node = find_impl(key); node == control_node_.get_end_node())
+        const_base_node_ptr node = find_impl(key);
+        if (node == control_node_.get_end_node())
             return {};
 
-        node_ptr left_root = control_node_.get_root();
-        node_ptr right_root = left_root->get_right();
+        // key is found => the tree is not empty
+        base_node_ptr left_root = control_node_.get_root();
+        base_node_ptr right_root = left_root->get_left();
         if (right_root)
-            left_root->set_right(nullptr);
+            left_root->set_right_thread(control_node_.get_end_node());
         else
             return {};
 
@@ -130,8 +136,10 @@ public:
         right_root->set_parent(right_tree.control_node_.get_end_node());
         right_tree.control_node_.set_root(right_root);
         right_tree.control_node_.set_leftmost(right_root->minimum());
-        right_tree.size_ = node_type::size(right_root);
+        right_tree.control_node_.set_rightmost(control_node_.get_rightmost());
+        control_node_.set_rightmost(const_cast<base_node_ptr>(node));
 
+        right_tree.size_ = node_type::size(static_cast<node_ptr>(right_root));
         size_ -= right_tree.size_;
 
         return right_tree;
@@ -147,22 +155,6 @@ public:
     requires contains_subtree_size<node_type>
     {
         return empty() ? 0 : n_less_than_node(upper_bound(key));
-    }
-
-    bool subtree_sizes_verifier() const
-    requires contains_subtree_size<node_type>
-    {
-        for (auto it = begin(), ite = end(); it != ite; ++it)
-        {
-            auto node = base_tree::const_ptr(it);
-            auto expected_size = 1 + node_type::size(node->get_left())
-                                   + node_type::size(node->get_right());
-
-            if (expected_size != node_type::size(node))
-                return false;
-        }
-
-        return true;
     }
 
 protected:
@@ -183,15 +175,15 @@ protected:
 
     const_base_node_ptr lower_bound_impl(const key_type &key) const override
     {
-        auto parent = control_node_.get_end_node();
         const_base_node_ptr lower_bound = nullptr;
+        const_base_node_ptr parent = control_node_.get_end_node();
 
-        auto node = control_node_.get_root();
+        const_base_node_ptr node = control_node_.get_root();
         while (node)
         {
             parent = node;
 
-            if (!comp_(node->get_key(), key)) // key <= node->get_key()
+            if (!comp_(static_cast<const_node_ptr>(node)->get_key(), key))
                 lower_bound = std::exchange(node, node->get_left());
             else
                 node = node->get_right();
@@ -204,15 +196,15 @@ protected:
 
     const_base_node_ptr upper_bound_impl(const key_type &key) const override
     {
-        auto parent = control_node_.get_end_node();
         const_base_node_ptr upper_bound = nullptr;
+        const_base_node_ptr parent = control_node_.get_end_node();
 
-        auto node = control_node_.get_root();
+        const_base_node_ptr node = control_node_.get_root();
         while (node)
         {
             parent = node;
 
-            if (comp_(key, node->get_key())) // key < node->get_key()
+            if (comp_(key, static_cast<const_node_ptr>(node)->get_key()))
                 upper_bound = std::exchange(node, node->get_left());
             else
                 node = node->get_right();
@@ -227,14 +219,14 @@ protected:
     {
         if (node)
         {
-            splay(static_cast<node_ptr>(const_cast<base_node_ptr>(node)));
+            splay(const_cast<base_node_ptr>(node));
             return node;
         }
         else
         {
-            auto end_node = control_node_.get_end_node();
+            const_base_node_ptr end_node = control_node_.get_end_node();
             if (parent != end_node)
-                splay(static_cast<node_ptr>(const_cast<base_node_ptr>(parent)));
+                splay(const_cast<base_node_ptr>(parent));
 
             return end_node;
         }
@@ -247,14 +239,14 @@ protected:
             return size();
         else
         {
-            auto node = base_tree::const_ptr(it);
-            return node_type::size(node->get_left());
+            const_base_node_ptr node = base_tree::const_base_ptr(it);
+            return node_type::size(static_cast<const_node_ptr>(node->get_left()));
         }
     }
 
     // Modifiers
 
-    node_ptr insert_impl(const key_type &key, base_node_ptr parent) override
+    base_node_ptr insert_impl(const key_type &key, base_node_ptr parent) override
     {
         auto new_node = bst_insert(key, parent);
         splay(new_node);
@@ -262,44 +254,54 @@ protected:
         return new_node;
     }
 
-    void erase_impl(node_ptr node) override
+    void erase_impl(base_node_ptr node) override
     {
         assert(node);
 
         splay(node);
 
-        if (node->get_left() == nullptr)
-            transplant(node, node->get_right());
-        else if (node->get_right() == nullptr)
-            transplant(node, node->get_left());
-        else
-            join(node->get_left(), node->get_right());
+        base_node_ptr left = node->get_left();
+        base_node_ptr right = node->get_right();
+
+        if (left)
+        {
+            if (right)
+            {
+                control_node_.set_root(left);
+                left->set_parent(control_node_.get_end_node());
+
+                base_node_ptr left_max = left->maximum();
+
+                splay(left_max);
+                left_max->set_right(right);
+                right->set_parent(left_max);
+            }
+            else
+            {
+                transplant(node, left);
+                base_node_ptr predecessor = left->maximum();
+                predecessor->set_right_thread(node->get_right_unsafe());
+            }
+        }
+        else if (right)
+        {
+            transplant(node, right);
+            base_node_ptr successor = right->minimum();
+            successor->set_left_thread(node->get_left_unsafe());
+        }
+
+        if (size_ == 1)
+            control_node_.set_root(nullptr);
     }
 
-    void join(node_ptr left_subtree, node_ptr right_subtree)
-    {
-        assert(control_node_.get_root());
-        assert(left_subtree == control_node_.get_root()->get_left());
-        assert(right_subtree == control_node_.get_root()->get_right());
-
-        control_node_.set_root(left_subtree);
-        left_subtree->set_parent(control_node_.get_end_node());
-
-        auto left_max = static_cast<node_ptr>(left_subtree->maximum());
-
-        splay(left_max);
-        left_max->set_right(right_subtree);
-        right_subtree->set_parent(left_max);
-    }
-
-    void splay(node_ptr node) const
+    void splay(base_node_ptr node) const
     {
         assert(node);
 
         while (node != control_node_.get_root())
         {
-            auto parent = node->get_parent();
-            auto node_is_left_child = node->is_left_child();
+            base_node_ptr parent = node->get_parent();
+            bool node_is_left_child = node->is_left_child();
 
             if (parent == control_node_.get_root())
             {
@@ -310,28 +312,34 @@ protected:
             }
             else
             {
-                auto grandparent = parent->get_parent();
-                auto parent_is_left_child = parent->is_left_child();
+                base_node_ptr grandparent = parent->get_parent();
+                bool parent_is_left_child = parent->is_left_child();
 
-                if (node_is_left_child && parent_is_left_child)
+                if (node_is_left_child)
                 {
-                    grandparent->right_rotate();
-                    parent->right_rotate();
-                }
-                else if (!node_is_left_child && !parent_is_left_child)
-                {
-                    grandparent->left_rotate();
-                    parent->left_rotate();
-                }
-                else if (node_is_left_child && !parent_is_left_child)
-                {
-                    parent->right_rotate();
-                    grandparent->left_rotate();
+                    if (parent_is_left_child)
+                    {
+                        grandparent->right_rotate();
+                        parent->right_rotate();
+                    }
+                    else
+                    {
+                        parent->right_rotate();
+                        grandparent->left_rotate();
+                    }
                 }
                 else
                 {
-                    parent->left_rotate();
-                    grandparent->right_rotate();
+                    if (parent_is_left_child)
+                    {
+                        parent->left_rotate();
+                        grandparent->right_rotate();
+                    }
+                    else
+                    {
+                        grandparent->left_rotate();
+                        parent->left_rotate();
+                    }
                 }
             }
         }

@@ -27,7 +27,7 @@ function build_from_sources
         test_driver="augmented_driver"
     fi
 
-    local basic_options="-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-11"
+    local basic_options="-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=g++-14"
 
     cmake ${top_dir} -B ${build_dir} ${basic_options}
 
