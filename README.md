@@ -1,14 +1,18 @@
-# HWT. Level 2: splay tree
+# HWT. Level 2: threaded splay tree
 
 This project is a task on course "Uses and applications of C++ language" by
 [K.I.Vladimirov](https://github.com/tilir). The task was to implement a class representing splay
 tree.
 
+During code review of an intermediate version of this project it was mentioned that `operator++`
+and `operator--` of the iterator over my tree have *O(log(n))* time complexity that contradicts
+standard requirements. Thus, I implemented a threaded splay tree instead of a regular one.
+
 ## Requirements
 
 The following application has to be installed:
 
-- CMake of version 3.15 (or higher)
+- CMake of version 3.20 (or higher)
 
 ## How to install
 
@@ -83,7 +87,7 @@ P.p.s. **driver**, **augmented_driver** and **ans_generator** measure the time s
 test. This information is saved in **splay_tree.info**, **augmented_splay_tree.info** and
 **std_set.info** files respectively.
 
-## Behold... Splay tree
+## Behold... Threaded splay tree
 
 ![dump](/images/splay_tree.png)
 
