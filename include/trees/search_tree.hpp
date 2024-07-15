@@ -387,17 +387,6 @@ public:
         os << '}' << std::endl;
     }
 
-    void dump_subtree(std::ostream &os, const_node_ptr node) const
-    {
-        dot_dump(os, node);
-
-        if (auto left = node->get_left(); left)
-            dump_subtree(os, static_cast<const_node_ptr>(left));
-
-        if (auto right = node->get_right(); right)
-            dump_subtree(os, static_cast<const_node_ptr>(right));
-    }
-
     bool subtree_sizes_verifier() const
     requires contains_subtree_size<node_type>
     {
@@ -504,11 +493,6 @@ protected:
 
     virtual base_node_ptr insert_impl(const key_type &key, base_node_ptr parent)
     {
-        return bst_insert(key, parent);
-    }
-
-    base_node_ptr bst_insert(const key_type &key, base_node_ptr parent)
-    {
         assert(parent);
         assert(!parent->get_left() || !parent->get_right());
 
@@ -548,9 +532,7 @@ protected:
         return new_node;
     }
 
-    virtual void erase_impl(base_node_ptr node) { bst_erase(node); }
-
-    void bst_erase(base_node_ptr node)
+    virtual void erase_impl(base_node_ptr node)
     {
         assert(node);
 
@@ -685,6 +667,17 @@ protected:
             parent->set_right(v);
 
         v->set_parent(parent);
+    }
+
+    void dump_subtree(std::ostream &os, const_node_ptr node) const
+    {
+        dot_dump(os, node);
+
+        if (auto left = node->get_left(); left)
+            dump_subtree(os, static_cast<const_node_ptr>(left));
+
+        if (auto right = node->get_right(); right)
+            dump_subtree(os, static_cast<const_node_ptr>(right));
     }
 
     static void arrow_dump(std::ostream &os, const_base_node_ptr node)

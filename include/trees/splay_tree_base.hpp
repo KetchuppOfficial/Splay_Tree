@@ -18,7 +18,7 @@ namespace yLab
 
 template<typename Node_T, typename Base_Node_T,
          typename Compare = std::less<typename Node_T::key_type>>
-class Splay_Tree_Base : public Search_Tree<Node_T, Base_Node_T, Compare>
+class Splay_Tree_Base final : public Search_Tree<Node_T, Base_Node_T, Compare>
 {
     using base_tree = Search_Tree<Node_T, Base_Node_T, Compare>;
     using base_tree::control_node_;
@@ -157,11 +157,10 @@ public:
         return empty() ? 0 : n_less_than_node(upper_bound(key));
     }
 
-protected:
+private:
 
     using base_tree::find_with_parent;
     using base_tree::transplant;
-    using base_tree::bst_insert;
 
     // Lookup
 
