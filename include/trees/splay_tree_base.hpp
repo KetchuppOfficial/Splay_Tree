@@ -248,8 +248,57 @@ protected:
 
     base_node_ptr insert_impl(const key_type &key, base_node_ptr parent) override
     {
-        auto new_node = bst_insert(key, parent);
-        splay(new_node);
+        base_node_ptr new_node = new node_type{key, nullptr, nullptr, parent};
+        base_node_ptr end_node = control_node_.get_end_node();
+
+        if (parent == end_node)
+        {
+            new_node->set_left_thread(end_node);
+            new_node->set_right_thread(end_node);
+
+            parent->set_left(new_node);
+        }
+        else
+        {
+            if (comp_(key, static_cast<node_ptr>(parent)->get_key()))
+            {
+                base_node_ptr predecessor = parent->get_left_unsafe();
+
+                splay(parent);
+
+                if (predecessor == end_node) // parent is leftmost
+                    new_node->set_left_thread(end_node);
+                else
+                {
+                    base_node_ptr left = parent->get_left_unsafe();
+                    left->set_parent(new_node);
+                    predecessor->set_right_thread(new_node);
+                    new_node->set_left(left);
+                }
+
+                new_node->set_right_thread(parent);
+                parent->set_left(new_node);
+            }
+            else
+            {
+                base_node_ptr successor = parent->get_right_unsafe();
+
+                splay(parent);
+
+                if (successor == end_node) // parent is rightmost
+                    new_node->set_right_thread(end_node);
+                else
+                {
+                    base_node_ptr right = parent->get_right_unsafe();
+                    right->set_parent(new_node);
+                    successor->set_left_thread(new_node);
+                    new_node->set_right(right);
+                }
+
+                new_node->set_left_thread(parent);
+                parent->set_right(new_node);
+            }
+        }
 
         return new_node;
     }

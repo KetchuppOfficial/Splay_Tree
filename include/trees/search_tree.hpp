@@ -393,8 +393,6 @@ public:
     bool subtree_sizes_verifier() const
     requires contains_subtree_size<node_type>
     {
-        return true; // Search_TreeTODO
-
         for (auto it = begin(), ite = end(); it != ite; ++it)
         {
             const_node_ptr node = const_ptr(it);

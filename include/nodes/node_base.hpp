@@ -147,13 +147,14 @@ public:
             b->parent_ = this;
         }
 
+        y->set_left(this);
+
         y->parent_ = parent_;
         if (is_left_child())
             parent_->set_left(y);
         else
             parent_->set_right(y);
 
-        y->set_left(this);
         set_parent(y);
     }
 
@@ -184,13 +185,14 @@ public:
             b->parent_ = this;
         }
 
+        y->set_right(this);
+
         y->parent_ = parent_;
         if (is_left_child())
             parent_->set_left(y);
         else
             parent_->set_right(y);
 
-        y->set_right(this);
         set_parent(y);
     }
 

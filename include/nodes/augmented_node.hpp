@@ -36,19 +36,12 @@ public:
 
     void set_left(base_node_ptr left) noexcept override
     {
-        if (this->has_left_thread())
-        {
-            this->left_ = left;
-            size_ += size(static_cast<node_ptr>(this->left_));
-        }
-        else
-        {
-            size_ -= size(static_cast<node_ptr>(this->left_));
-            this->left_ = left;
-            size_ += size(static_cast<node_ptr>(this->left_));
-        }
-
+        this->left_ = left;
         this->left_thread_ = false;
+
+        size_ = 1 + size(static_cast<node_ptr>(left));
+        if (!this->has_right_thread())
+            size_ += size(static_cast<node_ptr>(this->right_));
     }
 
     void set_left_thread(base_node_ptr left) noexcept override
@@ -62,19 +55,12 @@ public:
 
     void set_right(base_node_ptr right) noexcept override
     {
-        if (this->has_right_thread())
-        {
-            this->right_ = right;
-            size_ += size(static_cast<node_ptr>(this->right_));
-        }
-        else
-        {
-            size_ -= size(static_cast<node_ptr>(this->right_));
-            this->right_ = right;
-            size_ += size(static_cast<node_ptr>(this->right_));
-        }
-
+        this->right_ = right;
         this->right_thread_ = false;
+
+        size_ = 1 + size(static_cast<node_ptr>(right));
+        if (!this->has_left_thread())
+            size_ += size(static_cast<node_ptr>(this->left_));
     }
 
     void set_right_thread(base_node_ptr right) noexcept override
@@ -88,9 +74,18 @@ public:
 
     static size_type size(const_node_ptr node) noexcept { return node ? node->size_ : 0; }
 
-protected:
+private:
 
-    std::size_t size_;
+    size_type size_;
+
+    void set_size()
+    {
+        size_ = 1;
+        if (!this->has_left_thread())
+            size_ += size(static_cast<node_ptr>(this->left_));
+        if (!this->has_right_thread())
+            size_ += size(static_cast<node_ptr>(this->right_));
+    }
 };
 
 template<typename Key_T>
