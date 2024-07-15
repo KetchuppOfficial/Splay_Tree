@@ -369,17 +369,14 @@ public:
               "    rankdir = TB;\n"
               "    node [shape = record];\n\n";
 
-        auto begin_node = const_base_ptr(begin());
         auto end_node = const_base_ptr(end());
 
         dot_dump(os, end_node);
+        dump_subtree(os, static_cast<const_node_ptr>(control_node_.get_root()));
 
-        for (auto node = begin_node; node != end_node; node = node->successor())
-            dot_dump(os, static_cast<const_node_ptr>(node));
+        os << '\n';
 
-        os << std::endl;
-
-        for (auto node = begin_node; node != end_node; node = node->successor())
+        for (auto node = const_base_ptr(begin()); node != end_node; node = node->successor())
             arrow_dump(os, node);
 
         if (!empty())
@@ -387,7 +384,18 @@ public:
                          reinterpret_cast<const void *>(end_node),
                          reinterpret_cast<const void *>(end_node->get_left_unsafe()));
 
-        os << "}\n";
+        os << '}' << std::endl;
+    }
+
+    void dump_subtree(std::ostream &os, const_node_ptr node) const
+    {
+        dot_dump(os, node);
+
+        if (auto left = node->get_left(); left)
+            dump_subtree(os, static_cast<const_node_ptr>(left));
+
+        if (auto right = node->get_right(); right)
+            dump_subtree(os, static_cast<const_node_ptr>(right));
     }
 
     bool subtree_sizes_verifier() const
