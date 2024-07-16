@@ -54,6 +54,13 @@ TEST(Augmented_Node, Left_Rotate)
     c.set_left_thread(&y);
     c.set_right_thread(&end_node);
 
+    EXPECT_EQ(node_type::size(&end_node), 6);
+    EXPECT_EQ(node_type::size(&y), 3);
+    EXPECT_EQ(node_type::size(&x), 5);
+    EXPECT_EQ(node_type::size(&a), 1);
+    EXPECT_EQ(node_type::size(&b), 1);
+    EXPECT_EQ(node_type::size(&c), 1);
+
     x.left_rotate();
 
     EXPECT_EQ(node_type::size(&end_node), 6);
@@ -85,6 +92,13 @@ TEST(Augmented_Node, Right_Rotate)
     b.set_right_thread(&x);
     c.set_left_thread(&x);
     c.set_right_thread(&end_node);
+
+    EXPECT_EQ(node_type::size(&end_node), 6);
+    EXPECT_EQ(node_type::size(&y), 3);
+    EXPECT_EQ(node_type::size(&x), 5);
+    EXPECT_EQ(node_type::size(&a), 1);
+    EXPECT_EQ(node_type::size(&b), 1);
+    EXPECT_EQ(node_type::size(&c), 1);
 
     x.right_rotate();
 
