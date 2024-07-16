@@ -96,3 +96,8 @@ catch(const std::exception &e)
     std::println("Error: {}. Abort", e.what());
     return 1;
 }
+catch (...)
+{
+    std::println("Unknown exception caught. Abort");
+    return 1;
+}
