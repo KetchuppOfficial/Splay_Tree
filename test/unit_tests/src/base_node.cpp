@@ -30,7 +30,7 @@ TEST(Node_Base, Constructor)
     EXPECT_EQ(node_3.get_parent(), &node_2);
 }
 
-TEST(Node_Base, Is_Left_Right_Child)
+TEST(Node_Base, Is_Left_Child)
 {
     yLab::Node_Base left, right;
     yLab::Node_Base node{&left, &right};
