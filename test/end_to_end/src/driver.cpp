@@ -76,7 +76,7 @@ std::vector<std::size_t> run_test(const Tree_T &tree, It from, It to)
     std::vector<std::size_t> answers;
     answers.reserve(std::distance(from, to));
 
-    std::for_each(from, to, [&tree, &answers](auto &&pair)
+    std::for_each(from, to, [&](auto &pair)
     {
         if (pair.first <= pair.second)
         {
