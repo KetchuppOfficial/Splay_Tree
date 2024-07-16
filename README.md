@@ -13,6 +13,7 @@ standard requirements. Thus, I implemented a threaded splay tree instead of a re
 The following application has to be installed:
 
 - CMake of version 3.20 (or higher)
+- Boost
 
 ## How to install
 
