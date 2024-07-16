@@ -15,6 +15,10 @@ The following application has to be installed:
 - CMake of version 3.20 (or higher)
 - Boost
 
+> [!NOTE]
+> Your compiler should support some features of C++23. g++-14 (or newer), clang++-18 (or newer) will
+  work good.
+
 ## How to install
 
 ```bash
