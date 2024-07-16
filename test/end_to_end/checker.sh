@@ -1,12 +1,5 @@
 #!/bin/bash
 
-# argv[1]: the number of keys
-# argv[2]: the number of queries
-
-green="\033[1;32m"
-red="\033[1;31m"
-default="\033[0m"
-
 script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 top_dir="${script_dir}/../../"
 build_dir="${top_dir}build/"
@@ -90,34 +83,8 @@ function run_test
     fi
 }
 
-if [ $# -ne 3 ]
-then
-    echo -e "${red}Testing script requires exactly 3 arguments${default}"
-else
-    tree=$1
-
-    if [ ! $tree = "splay" ] && [ ! $tree = "splay+" ]
-    then
-        echo -e "${red}There is no testing mode with name \"$tree\"${default}"
-    else
-        n_keys=$2
-        number="^[0-9]+$"
-
-        if ! [[ $n_keys =~ $number ]] || [ $n_keys -le 0 ]
-        then
-            echo -e "${red}The number of keys has to be a positive integer number${default}"
-        else
-            n_queries=$3
-
-            if ! [[ $n_queries =~ $number ]] || [ $n_queries -le 0 ]
-            then
-                echo -e "${red}The number of queries has to be a positive integer number${default}"
-            else
-                build_from_sources $tree
-                generate_test $n_keys $n_queries
-                generate_answer $n_keys $n_queries
-                run_test $n_keys $n_queries
-            fi
-        fi
-    fi
-fi
+source $script_dir/opts.sh
+build_from_sources $tree
+generate_test $n_keys $n_queries
+generate_answer $n_keys $n_queries
+run_test $n_keys $n_queries
