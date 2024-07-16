@@ -84,10 +84,6 @@ void dot_dump(std::ostream &os, const Augmented_Node<Key_T> *node)
 {
     assert(node);
 
-    static const char *nil_properties = " [shape = record, color = blue, style = filled,"
-                                        " fillcolor = black, fontcolor = white,"
-                                        " label = \"nil\"];\n";
-
     std::println(os, "    node_{} [shape = record, color = blue, style = filled, "
                      "fillcolor = chartreuse, fontcolor = black, label = \"key: {} | size: {}\"];",
                       reinterpret_cast<const void *>(node), node->get_key(),
