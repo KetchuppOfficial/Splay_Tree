@@ -46,7 +46,7 @@ void generate_queries(std::size_t n_queries, Distr_T distr, Engine gen)
         if (lower_bound > upper_bound)
             std::swap(lower_bound, upper_bound);
 
-        std::cout << lower_bound << " " << upper_bound << " ";
+        std::cout << lower_bound << ' ' << upper_bound << ' ';
     }
     std::cout << std::endl;
 }
