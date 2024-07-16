@@ -1,7 +1,6 @@
 #ifndef INCLUDE_TREES_SEARCH_TREE_HPP
 #define INCLUDE_TREES_SEARCH_TREE_HPP
 
-#include <type_traits>
 #include <memory>
 #include <utility>
 #include <cassert>
@@ -10,27 +9,30 @@
 #include <cstddef>
 #include <iterator>
 #include <initializer_list>
+#include <type_traits>
 #include <ostream>
 #include <algorithm>
 #include <compare>
 
+#include "node_base.hpp"
 #include "tree_iterator.hpp"
 #include "node_concepts.hpp"
 
-namespace yLab::detail
+namespace yLab
 {
 
-template<typename T>
+namespace detail
+{
+
 class Control_Node final
 {
-    using base_node_type = T;
-    using base_node_ptr = T *;
-    using const_base_node_ptr = const T *;
+    using base_node_type = Node_Base;
+    using base_node_ptr = base_node_type *;
+    using const_base_node_ptr = const base_node_type *;
 
 public:
 
-    Control_Node() noexcept (std::is_nothrow_constructible_v<base_node_type>)
-        : head_{nullptr, &head_, &head_} {}
+    Control_Node() noexcept : head_{nullptr, &head_, &head_} {}
 
     Control_Node(const Control_Node &rhs) = delete;
     Control_Node &operator=(const Control_Node &rhs) = delete;
@@ -41,8 +43,7 @@ public:
             take_ownership_of_tree_of(rhs);
     }
 
-    Control_Node &operator=(Control_Node &&rhs)
-        noexcept (std::is_nothrow_swappable_v<base_node_type>)
+    Control_Node &operator=(Control_Node &&rhs) noexcept
     {
         swap(rhs);
         return *this;
@@ -65,7 +66,7 @@ public:
     const_base_node_ptr get_rightmost() const noexcept { return head_.get_parent(); }
     void set_rightmost(base_node_ptr rightmost) noexcept { head_.set_parent(rightmost); }
 
-    void clean_up()
+    void clean_up() noexcept
     {
         for (base_node_ptr node = get_root(), save; node != nullptr; node = save)
         {
@@ -83,7 +84,7 @@ public:
         }
     }
 
-    void swap(Control_Node &rhs) noexcept (std::is_nothrow_swappable_v<base_node_type>)
+    void swap(Control_Node &rhs) noexcept
     {
         if (get_root())
         {
@@ -139,39 +140,19 @@ private:
     base_node_type head_;
 };
 
-} // namespace yLab::detail
+} // namespace detail
 
-namespace std
-{
-
-template<typename T>
-void swap(yLab::detail::Control_Node<T> &lhs, yLab::detail::Control_Node<T> &rhs)
-    noexcept(noexcept(lhs.swap(rhs)))
-{
-    lhs.swap(rhs);
-}
-
-} // namespace std
-
-namespace yLab
-{
-
-template<typename Node_T, typename Base_Node_T,
-         typename Compare = std::less<typename Node_T::key_type>>
-requires std::derived_from<Node_T, Base_Node_T>
+template<typename Node_T, typename Compare = std::less<typename Node_T::key_type>>
+requires std::derived_from<Node_T, Node_Base>
 class Search_Tree
 {
 protected:
 
-    using base_node_type = Base_Node_T;
+    using base_node_type = Node_Base;
     using base_node_ptr = base_node_type *;
     using const_base_node_ptr = const base_node_type *;
     using node_ptr = Node_T *;
     using const_node_ptr = const Node_T *;
-
-    detail::Control_Node<base_node_type> control_node_;
-    Compare comp_;
-    std::size_t size_ = 0;
 
 public:
 
@@ -186,7 +167,7 @@ public:
     using const_reference = const value_type &;
     using size_type = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using iterator = tree_iterator<node_type, base_node_type>;
+    using iterator = tree_iterator<node_type>;
     using const_iterator = iterator;
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = reverse_iterator;
@@ -214,11 +195,12 @@ public:
         return *this;
     }
 
-    Search_Tree(Search_Tree &&rhs) : control_node_{std::move(rhs.control_node_)},
-                                     comp_{std::move(rhs.comp_)},
-                                     size_{std::exchange(rhs.size_, 0)} {}
+    Search_Tree(Search_Tree &&rhs) noexcept (std::is_nothrow_move_constructible_v<Compare>)
+        : control_node_{std::move(rhs.control_node_)},
+          comp_{std::move(rhs.comp_)},
+          size_{std::exchange(rhs.size_, 0)} {}
 
-    Search_Tree &operator=(Search_Tree &&rhs) noexcept(noexcept(swap(rhs)))
+    Search_Tree &operator=(Search_Tree &&rhs) noexcept (noexcept(swap(rhs)))
     {
         swap(rhs);
         return *this;
@@ -276,15 +258,14 @@ public:
 
     // Modifiers
 
-    void swap(Search_Tree &rhs) noexcept (std::is_nothrow_swappable_v<decltype(control_node_)> &&
-                                          std::is_nothrow_swappable_v<key_compare>)
+    void swap(Search_Tree &rhs) noexcept (std::is_nothrow_swappable_v<key_compare>)
     {
-        std::swap(control_node_, rhs.control_node_);
+        control_node_.swap(rhs.control_node_);
         std::swap(comp_, rhs.comp_);
         std::swap(size_, rhs.size_);
     }
 
-    void clear()
+    void clear() noexcept
     {
         control_node_.clean_up();
         control_node_.reset();
@@ -580,7 +561,6 @@ protected:
         base_node_ptr successor = node->get_right_unsafe();
         base_node_ptr predecessor = child->maximum(); // O(child's subtree height)
 
-        // predecessor cannot be end-node because node has the left child
         predecessor->set_right_thread(successor);
 
         base_node_ptr parent = node->get_parent();
@@ -601,7 +581,6 @@ protected:
         base_node_ptr successor = child->minimum(); // O(child's subtree height)
         base_node_ptr predecessor = node->get_left_unsafe();
 
-        // successor cannot be end-node because node has the right child
         successor->set_left_thread(predecessor);
 
         base_node_ptr parent = node->get_parent();
@@ -700,6 +679,10 @@ protected:
             std::println(os, "    node_{} -> node_{} [color = \"red\"];",
                          self, reinterpret_cast<const void *>(node->get_right_unsafe()));
     }
+
+    detail::Control_Node control_node_;
+    Compare comp_;
+    std::size_t size_ = 0;
 };
 
 template<typename Node_T, typename Compare>

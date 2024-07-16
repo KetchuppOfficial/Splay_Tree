@@ -6,15 +6,17 @@
 #include <cstddef>
 #include <memory>
 
+#include "node_base.hpp"
+
 namespace yLab
 {
 
-template <typename Node_T, typename Base_Node_T>
-requires std::derived_from<Node_T, Base_Node_T>
+template <typename Node_T>
+requires std::derived_from<Node_T, Node_Base>
 class tree_iterator final
 {
     using const_node_ptr = const Node_T *;
-    using const_base_node_ptr = const Base_Node_T *;
+    using const_base_node_ptr = const Node_Base *;
 
     const_base_node_ptr node_;
 
@@ -60,8 +62,8 @@ public:
 
     bool operator==(const tree_iterator &rhs) const noexcept { return node_ == rhs.node_; }
 
-    template<typename node_t, typename base_node_t, typename Compare>
-    requires std::derived_from<node_t, base_node_t>
+    template<typename node_t, typename Compare>
+    requires std::derived_from<node_t, Node_Base>
     friend class Search_Tree;
 
 private:

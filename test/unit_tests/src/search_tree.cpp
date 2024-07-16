@@ -9,7 +9,7 @@
 
 using key_type = int;
 using node_type = yLab::Node<key_type>;
-using tree_type = yLab::Search_Tree<node_type, yLab::Node_Base>;
+using tree_type = yLab::Search_Tree<node_type>;
 
 // Constructors and operator=
 
@@ -25,7 +25,7 @@ TEST(Search_Tree, Comparator_Constructor)
 {
     using custom_comp = std::greater<key_type>;
 
-    yLab::Search_Tree<node_type, yLab::Node_Base, custom_comp> empty_tree{custom_comp{}};
+    yLab::Search_Tree<node_type, custom_comp> empty_tree{custom_comp{}};
 
     EXPECT_EQ(empty_tree.size(), 0);
     EXPECT_TRUE(empty_tree.empty());

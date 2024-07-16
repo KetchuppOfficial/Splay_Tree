@@ -4,12 +4,12 @@
 #include "node.hpp"
 
 template<typename Key_T>
-using tree_type = yLab::Search_Tree<yLab::Node<Key_T>, yLab::Node_Base>;
+using tree_type = yLab::Search_Tree<yLab::Node<Key_T>>;
 
 TEST (Iterator, Check_Iterator_Concept)
 {
     using node_type = yLab::Node<int>;
-    static_assert (std::bidirectional_iterator<yLab::tree_iterator<node_type, yLab::Node_Base>>);
+    static_assert (std::bidirectional_iterator<yLab::tree_iterator<node_type>>);
 }
 
 TEST (Iterator, Preincrement)

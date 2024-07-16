@@ -196,16 +196,18 @@ TEST(Augmented_Splay_Tree, Join)
     auto ilist_5 = {1, 2, 3, 4, 5};
     auto ilist_10 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
-    tree_1.join(std::move(empty_tree)); // join empty tree: no effect
+    bool res = tree_1.join(std::move(empty_tree)); // join empty tree: no effect
 
+    EXPECT_TRUE(res);
     EXPECT_TRUE(std::ranges::equal(tree_1, ilist_5));
     EXPECT_EQ(tree_1.size(), 5);
     EXPECT_TRUE(tree_1.subtree_sizes_verifier());
     EXPECT_EQ(empty_tree, tree_type{});
     EXPECT_TRUE(empty_tree.empty());
 
-    empty_tree.join(std::move(tree_1)); // join a tree to the empty one
+    res = empty_tree.join(std::move(tree_1)); // join a tree to the empty one
 
+    EXPECT_TRUE(res);
     EXPECT_TRUE(std::ranges::equal(empty_tree, ilist_5));
     EXPECT_EQ(empty_tree.size(), 5);
     EXPECT_TRUE(empty_tree.subtree_sizes_verifier());
@@ -213,8 +215,9 @@ TEST(Augmented_Splay_Tree, Join)
     EXPECT_TRUE(tree_1.empty());
 
     tree_1.insert({1, 2, 3, 4, 5});
-    tree_1.join(std::move(tree_2)); // regular case
+    res = tree_1.join(std::move(tree_2)); // regular case
 
+    EXPECT_TRUE(res);
     EXPECT_TRUE(std::ranges::equal(tree_1, ilist_10));
     EXPECT_EQ(tree_1.size(), 10);
     EXPECT_TRUE(tree_1.subtree_sizes_verifier());
@@ -222,7 +225,8 @@ TEST(Augmented_Splay_Tree, Join)
     EXPECT_TRUE(tree_2.empty());
 
      // trying to join trees which ranges of keys overlap
-    EXPECT_THROW(tree_1.join(std::move(tree_3)), std::runtime_error);
+    res = tree_1.join(std::move(tree_3));
+    EXPECT_FALSE(res);
 }
 
 #if 0
