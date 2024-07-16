@@ -4,7 +4,6 @@
 
 TEST(Node_Base, Constructor)
 {
-    // default constructor
     yLab::Node_Base node_0;
 
     EXPECT_EQ(node_0.get_left(), nullptr);
@@ -137,6 +136,7 @@ TEST(Node_Base, Left_Rotate)
     yLab::Node_Base y{&b, &c};
     yLab::Node_Base x{&a, &y};
     yLab::Node_Base end_node{&x};
+
     a.set_parent(&x);
     b.set_parent(&y);
     c.set_parent(&y);
@@ -190,6 +190,7 @@ TEST(Node_Base, Right_Rotate)
     yLab::Node_Base y{&a, &b};
     yLab::Node_Base x{&y, &c};
     yLab::Node_Base end_node{&x};
+
     a.set_parent(&y);
     b.set_parent(&y);
     c.set_parent(&x);
