@@ -18,7 +18,6 @@ set(CMAKE_CXX_STANDARD          23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
-set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/test/end_to_end)
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(test)
