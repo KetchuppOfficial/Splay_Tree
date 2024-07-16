@@ -117,28 +117,30 @@ public:
         return true;
     }
 
-    // FIX: doesn't work properly
-    #if 0
     Splay_Tree_Base split(const key_type &key)
     requires contains_subtree_size<node_type>
     {
         const_base_node_ptr node = find_impl(key);
-        if (node == control_node_.get_end_node())
+        base_node_ptr end_node = control_node_.get_end_node();
+
+        if (node == end_node)
             return {};
 
         // key is found => the tree is not empty
         base_node_ptr left_root = control_node_.get_root();
-        base_node_ptr right_root = left_root->get_left();
+        base_node_ptr right_root = left_root->get_right();
         if (right_root)
-            left_root->set_right_thread(control_node_.get_end_node());
+            left_root->set_right_thread(end_node);
         else
             return {};
 
         Splay_Tree_Base right_tree;
-        right_root->set_parent(right_tree.control_node_.get_end_node());
-        right_tree.control_node_.set_root(right_root);
-        right_tree.control_node_.set_leftmost(right_root->minimum());
-        right_tree.control_node_.set_rightmost(control_node_.get_rightmost());
+        detail::Control_Node &right_control_node = right_tree.control_node_;
+
+        right_root->set_parent(right_control_node.get_end_node());
+        right_control_node.set_root(right_root);
+        right_control_node.set_leftmost(right_root->minimum());
+        right_control_node.set_rightmost(control_node_.get_rightmost());
         control_node_.set_rightmost(const_cast<base_node_ptr>(node));
 
         right_tree.size_ = node_type::size(static_cast<node_ptr>(right_root));
@@ -146,7 +148,6 @@ public:
 
         return right_tree;
     }
-    #endif
 
     size_type n_less_than(const key_type &key) const
     requires contains_subtree_size<node_type>

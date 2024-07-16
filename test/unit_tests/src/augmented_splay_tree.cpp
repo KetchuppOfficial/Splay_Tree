@@ -229,7 +229,7 @@ TEST(Augmented_Splay_Tree, Join)
     EXPECT_FALSE(res);
 }
 
-#if 0
+
 TEST(Augmented_Splay_Tree, Split)
 {
     tree_type tree_1{1, 2, 3, 4, 5};
@@ -270,7 +270,7 @@ TEST(Augmented_Splay_Tree, Split)
     EXPECT_EQ(empty_tree, tree_type{});
     EXPECT_TRUE(empty_tree.empty());
 }
-#endif
+
 
 TEST(Augmented_Splay_Tree, Swap)
 {
