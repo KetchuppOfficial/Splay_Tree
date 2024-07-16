@@ -1,9 +1,7 @@
 #ifndef INcLUDE_NODES_NODE_BASE_HPP
 #define INcLUDE_NODES_NODE_BASE_HPP
 
-#include <cstddef>
 #include <cassert>
-#include <memory>
 #include <ostream>
 
 namespace yLab
