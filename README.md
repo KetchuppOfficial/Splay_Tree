@@ -67,15 +67,25 @@ ctest --test-dir build
 If you want to run some tests on my tree, look at [test/end_to_end](/test/end_to_end/) directory.
 There you will find a special script **checker.sh** provided for such purpose.
 
-Let **N** be the number of keys and **M** be the number of queries, then command sequence:
-
 ```bash
-./test/end_to_end/checker.sh tree N M
+Usage: /path/to/checker.sh [OPTIONS]
+
+-m <testing-mode>         Set the tree to test on: <splay> or <splay+>
+-k <number-of-keys>       Set the number of keys for the test
+-q <number-of-queries>    Set the number of queries for the test
 ```
 
-generates a test with **N** keys and **M** queries. The test is saved in **N_M.test**. After that
-this script runs **ans_generator**, gets answers that are supposed to be correct and saves them in
-file **N_M.ans**. Then, **driver** or **augmented_driver** (depending on **tree**) does the same.
+Example of usage:
+
+```bash
+./test/end_to_end/checker.sh -m tree -k N -q M
+```
+
+where **tree** is either *splay* or *splay+*; **N**, and **M** are positive integer numbers.
+
+The script generates a test with **N** keys and **M** queries. The test is saved in **N_M.test**.
+After that this script runs **ans_generator**, gets answers that are supposed to be correct and saves
+them in file **N_M.ans**. Then, **driver** or **augmented_driver** (depending on **tree**) does the same.
 The results are saved in **N_M.res**. Finally, files **N_M.ans** and **N_M.res** are compared. If
 they differ, then this test is considered "failed". It is considered "passed" otherwise.
 
