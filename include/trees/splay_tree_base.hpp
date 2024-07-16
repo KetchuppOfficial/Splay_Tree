@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SPLAY_TREE_HPP
-#define INCLUDE_SPLAY_TREE_HPP
+#ifndef INCLUDE_TREES_SPLAY_TREE_BASE_HPP
+#define INCLUDE_TREES_SPLAY_TREE_BASE_HPP
 
 #include <functional>
 #include <utility>
@@ -398,4 +398,4 @@ private:
 
 } // namespace yLab
 
-#endif // INCLUDE_SPLAY_TREE_HPP
+#endif // INCLUDE_TREES_SPLAY_TREE_BASE_HPP

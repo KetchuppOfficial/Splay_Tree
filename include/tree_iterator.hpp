@@ -1,5 +1,5 @@
-#ifndef INCLUDE_TREE_ITERATOR
-#define INCLUDE_TREE_ITERATOR
+#ifndef INCLUDE_TREE_ITERATOR_HPP
+#define INCLUDE_TREE_ITERATOR_HPP
 
 #include <iterator>
 #include <concepts>
@@ -70,4 +70,4 @@ private:
 
 } // namespace yLab
 
-#endif // INCLUDE_TREE_ITERATOR
+#endif // INCLUDE_TREE_ITERATOR_HPP

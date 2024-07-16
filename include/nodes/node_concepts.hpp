@@ -1,5 +1,5 @@
-#ifndef INCLUDE_NODES_SUBTREE_SIZES_HPP
-#define INCLUDE_NODES_SUBTREE_SIZES_HPP
+#ifndef INCLUDE_NODES_NODE_CONCEPTS_HPP
+#define INCLUDE_NODES_NODE_CONCEPTS_HPP
 
 #include <concepts>
 
@@ -20,4 +20,4 @@ concept contains_subtree_size = requires(const T *node_ptr)
 
 } // namespace yLab
 
-#endif // INCLUDE_NODES_SUBTREE_SIZES_HPP
+#endif // INCLUDE_NODES_NODE_CONCEPTS_HPP

@@ -1,5 +1,5 @@
-#ifndef INCLUDE_TREES_HPP
-#define INCLUDE_TREES_HPP
+#ifndef INCLUDE_TREES_TREES_HPP
+#define INCLUDE_TREES_TREES_HPP
 
 #include <functional>
 
@@ -27,4 +27,4 @@ using Augmented_Splay_Tree = Splay_Tree_Base<Augmented_Node<Key_T>, Node_Base, C
 
 } // namespace yLab
 
-#endif // INCLUDE_TREES_HPP
+#endif // INCLUDE_TREES_TREES_HPP

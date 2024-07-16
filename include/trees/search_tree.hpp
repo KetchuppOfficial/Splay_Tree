@@ -1,5 +1,5 @@
-#ifndef INCLUDE_SEARCH_TREE_HPP
-#define INCLUDE_SEARCH_TREE_HPP
+#ifndef INCLUDE_TREES_SEARCH_TREE_HPP
+#define INCLUDE_TREES_SEARCH_TREE_HPP
 
 #include <functional>
 #include <concepts>
@@ -718,4 +718,4 @@ auto operator<=>(const Search_Tree<Node_T, Compare> &lhs, const Search_Tree<Node
 
 } // namespace yLab
 
-#endif // INCLUDE_SEARCH_TREE_HPP
+#endif // INCLUDE_TREES_SEARCH_TREE_HPP

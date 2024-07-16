@@ -1,5 +1,5 @@
-#ifndef INCLUDE_NODES_AUGMENTED_NODE
-#define INCLUDE_NODES_AUGMENTED_NODE
+#ifndef INCLUDE_NODES_AUGMENTED_NODE_HPP
+#define INCLUDE_NODES_AUGMENTED_NODE_HPP
 
 #include <cstddef>
 #include <utility>
@@ -92,4 +92,4 @@ void dot_dump(std::ostream &os, const Augmented_Node<Key_T> *node)
 
 } // namespace yLab
 
-#endif // INCLUDE_NODES_AUGMENTED_NODE
+#endif // INCLUDE_NODES_AUGMENTED_NODE_HPP

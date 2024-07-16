@@ -1,5 +1,5 @@
-#ifndef INcLUDE_NODES_NODE_BASE_HPP
-#define INcLUDE_NODES_NODE_BASE_HPP
+#ifndef INCLUDE_NODES_NODE_BASE_HPP
+#define INCLUDE_NODES_NODE_BASE_HPP
 
 #include <cassert>
 #include <ostream>
@@ -198,4 +198,4 @@ inline void dot_dump(std::ostream &os, const Node_Base *node)
 
 } // namespace yLab
 
-#endif // INcLUDE_NODE_BASE_HPP
+#endif // INCLUDE_NODES_NODE_BASE_HPP
