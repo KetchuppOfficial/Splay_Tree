@@ -29,7 +29,7 @@ std::vector<Key_T> get_keys()
     std::vector<Key_T> keys;
     keys.reserve(n_keys);
 
-    for (auto key_i = 0; key_i != n_keys; ++key_i)
+    for (auto key_i = 0uz; key_i != n_keys; ++key_i)
     {
         Key_T key;
         std::cin >> key;
@@ -53,7 +53,7 @@ std::vector<std::pair<Key_T, Key_T>> get_queries()
     std::vector<std::pair<Key_T, Key_T>> queries;
     queries.reserve(n_queries);
 
-    for (auto query_i = 0; query_i != n_queries; ++query_i)
+    for (auto query_i = 0uz; query_i != n_queries; ++query_i)
     {
         Key_T lower_bound;
         Key_T upper_bound;
