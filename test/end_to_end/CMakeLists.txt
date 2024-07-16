@@ -24,5 +24,7 @@ target_include_directories(ans_generator
                            PRIVATE ${INCLUDE_DIR}/nodes
                            PRIVATE ${INCLUDE_DIR}/trees)
 
+target_link_libraries(generator PRIVATE Boost::program_options)
+
 install(TARGETS driver augmented_driver generator ans_generator
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

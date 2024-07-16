@@ -57,7 +57,7 @@ function generate_test
     mkdir -p ${data}
 
     echo -e "${green}Generating test...${default}"
-    ${bin_dir}${test_generator} ${n_keys} ${n_queries} > "${data}${n_keys}_${n_queries}.test"
+    ${bin_dir}${test_generator} --n-keys ${n_keys} --n-queries ${n_queries} > "${data}${n_keys}_${n_queries}.test"
     echo -en "\n"
 }
 

@@ -1,31 +1,20 @@
-#include <random>
-#include <cmath>
-#include <iostream>
 #include <utility>
+#include <cstddef>
+#include <vector>
+#include <ranges>
 #include <algorithm>
-#include <numeric>
+#include <iostream>
 #include <iterator>
-#include <stdexcept>
-#include <cstdlib>
+#include <numeric>
+#include <cmath>
+#include <random>
+#include <exception>
+#include <print>
+
+#include <boost/program_options.hpp>
 
 namespace yLab
 {
-
-std::pair<std::size_t, std::size_t> get_cmd_line_args(int argc, char *argv[])
-{
-    if (argc != 3)
-        throw std::runtime_error{"Program requires 2 arguments"};
-
-    auto n_keys = std::atoi(argv[1]);
-    if (n_keys < 0)
-        throw std::runtime_error{"The number of keys has to be a positive integer"};
-
-    auto n_queries = std::atoi(argv[2]);
-    if (n_queries < 0)
-        throw std::runtime_error{"The number of queries has to be a positive integer"};
-
-    return std::pair{n_keys, n_queries};
-}
 
 template<typename Key_T, typename Distr_T, typename Engine>
 std::pair<Key_T, Key_T> generate_keys(std::size_t n_keys, Distr_T distr, Engine gen)
@@ -33,13 +22,13 @@ std::pair<Key_T, Key_T> generate_keys(std::size_t n_keys, Distr_T distr, Engine 
     std::vector<Key_T> keys;
     keys.reserve(n_keys);
 
-    for (auto key_i = 0; key_i != n_keys; ++key_i)
+    for (auto _ : std::views::iota(0uz, n_keys))
         keys.emplace_back(distr(gen));
 
     auto min = *std::ranges::min_element(keys);
     auto max = *std::ranges::max_element(keys);
 
-    std::cout << n_keys << std::endl;
+    std::cout << n_keys << '\n';
     std::ranges::copy(keys, std::ostream_iterator<Key_T>{std::cout, " "});
     std::cout << std::endl;
 
@@ -50,7 +39,7 @@ template<typename Key_T, typename Distr_T, typename Engine>
 void generate_queries(std::size_t n_queries, Distr_T distr, Engine gen)
 {
     std::cout << n_queries << std::endl;
-    for (auto query_i = 0; query_i != n_queries; ++query_i)
+    for (auto _ : std::views::iota(0uz, n_queries))
     {
         Key_T lower_bound = std::round(distr(gen));
         Key_T upper_bound = std::round(distr(gen));
@@ -64,11 +53,32 @@ void generate_queries(std::size_t n_queries, Distr_T distr, Engine gen)
 
 } // namespace yLab
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) try
 {
     using key_type = int;
 
-    auto [n_keys, n_queries] = yLab::get_cmd_line_args(argc, argv);
+    namespace po = boost::program_options;
+
+    po::options_description desc{"Allowed options"};
+
+    std::size_t n_keys, n_queries;
+    desc.add_options()
+        ("help", "Produce help message")
+        ("n-keys", po::value<std::size_t>(&n_keys)->required(),
+         "Set the number of keys to generate")
+        ("n-queries", po::value<std::size_t>(&n_queries)->required(),
+         "Set the number of queries to generate");
+
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+
+    if (vm.count("help"))
+    {
+        std::cout << desc << std::endl;
+        return 0;
+    }
+
+    po::notify(vm);
 
     std::random_device rd;
     std::mt19937_64 gen{rd()};
@@ -80,4 +90,9 @@ int main(int argc, char *argv[])
     yLab::generate_queries<key_type>(n_queries, query, gen);
 
     return 0;
+}
+catch(const std::exception &e)
+{
+    std::println("Error: {}. Abort", e.what());
+    return 1;
 }

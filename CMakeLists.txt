@@ -11,6 +11,8 @@ find_package(GTest REQUIRED)
 enable_testing()
 
 find_package(Threads REQUIRED)
+find_package(Boost REQUIRED
+             COMPONENTS PROGRAM_OPTIONS)
 
 set(CMAKE_CXX_STANDARD          23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
