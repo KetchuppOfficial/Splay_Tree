@@ -110,8 +110,7 @@ public:
 
             rhs.control_node_.reset();
 
-            size_ += rhs.size_;
-            rhs.size_ = 0;
+            size_ += std::exchange(rhs.size_, 0);
         }
 
         return true;
