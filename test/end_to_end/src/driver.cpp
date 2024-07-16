@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <fstream>
 #include <chrono>
+#include <print>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
 #include "trees.hpp"
@@ -99,7 +100,7 @@ std::vector<std::size_t> run_test(const Tree_T &tree, It from, It to)
 
 } // unnamed namespace
 
-int main()
+int main() try
 {
     using key_type = int;
 
@@ -128,4 +129,14 @@ int main()
          << std::endl;
 
     return 0;
+}
+catch (std::exception &e)
+{
+    std::println("Error: {}. Abort", e.what());
+    return 1;
+}
+catch (...)
+{
+    std::println("Unknown exception caught. Abort");
+    return 1;
 }
