@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <iostream>
 #include <stdexcept>
+#include <ranges>
 #include <utility>
 #include <iterator>
 #include <algorithm>
@@ -30,7 +31,7 @@ std::vector<Key_T> get_keys()
     std::vector<Key_T> keys;
     keys.reserve(n_keys);
 
-    for (auto key_i = 0uz; key_i != n_keys; ++key_i)
+    for (auto _ : std::views::iota(0uz, n_keys))
     {
         Key_T key;
         std::cin >> key;
@@ -54,7 +55,7 @@ std::vector<std::pair<Key_T, Key_T>> get_queries()
     std::vector<std::pair<Key_T, Key_T>> queries;
     queries.reserve(n_queries);
 
-    for (auto query_i = 0uz; query_i != n_queries; ++query_i)
+    for (auto _ : std::views::iota(0uz, n_queries))
     {
         Key_T lower_bound;
         Key_T upper_bound;
