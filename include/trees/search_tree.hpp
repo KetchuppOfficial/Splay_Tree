@@ -1,18 +1,18 @@
 #ifndef INCLUDE_TREES_SEARCH_TREE_HPP
 #define INCLUDE_TREES_SEARCH_TREE_HPP
 
-#include <functional>
-#include <concepts>
-#include <iterator>
-#include <initializer_list>
+#include <type_traits>
 #include <memory>
 #include <utility>
 #include <cassert>
-#include <type_traits>
+#include <functional>
+#include <concepts>
+#include <cstddef>
+#include <iterator>
+#include <initializer_list>
+#include <ostream>
 #include <algorithm>
 #include <compare>
-#include <ostream>
-#include <cstddef>
 
 #include "tree_iterator.hpp"
 #include "node_concepts.hpp"
