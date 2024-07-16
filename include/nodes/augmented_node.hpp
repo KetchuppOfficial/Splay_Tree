@@ -77,15 +77,6 @@ public:
 private:
 
     size_type size_;
-
-    void set_size()
-    {
-        size_ = 1;
-        if (!this->has_left_thread())
-            size_ += size(static_cast<node_ptr>(this->left_));
-        if (!this->has_right_thread())
-            size_ += size(static_cast<node_ptr>(this->right_));
-    }
 };
 
 template<typename Key_T>
