@@ -14,8 +14,8 @@ class Node_Base
 
 public:
 
-    Node_Base(node_ptr left = nullptr, node_ptr right = nullptr, node_ptr parent = nullptr)
-        : left_{left}, right_{right}, parent_{parent} {}
+    Node_Base(node_ptr left = nullptr, node_ptr right = nullptr,
+              node_ptr parent = nullptr) noexcept : left_{left}, right_{right}, parent_{parent} {}
 
     Node_Base(const Node_Base &rhs) = delete;
     Node_Base &operator=(const Node_Base &rhs) = delete;
