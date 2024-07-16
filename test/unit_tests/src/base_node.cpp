@@ -50,78 +50,83 @@ TEST(Node_Base, Is_Left_Child)
  *   / \     / \.
  *  1   3   5   7
  */
-TEST(Node_Base, Basic_Queries)
-{
-    yLab::Node_Base node_1, node_3;
-    yLab::Node_Base node_2{&node_1, &node_3};
-    node_1.set_parent(&node_2);
-    node_3.set_parent(&node_2);
 
-    yLab::Node_Base node_5, node_7;
-    yLab::Node_Base node_6{&node_5, &node_7};
-    node_5.set_parent(&node_6);
-    node_7.set_parent(&node_6);
-
-    yLab::Node_Base node_4{&node_2, &node_6};
-    node_2.set_parent(&node_4);
-    node_6.set_parent(&node_4);
-
-    yLab::Node_Base end_node{&node_4};
-    node_4.set_parent(&end_node);
-
-    node_1.set_left_thread(&end_node);
-    node_1.set_right_thread(&node_2);
-    node_3.set_left_thread(&node_2);
-    node_3.set_right_thread(&node_4);
-    node_5.set_left_thread(&node_4);
-    node_5.set_right_thread(&node_6);
-    node_7.set_left_thread(&node_6);
+#define SIMPLE_TREE                                                                                \
+    yLab::Node_Base node_1, node_3;                                                                \
+    yLab::Node_Base node_2{&node_1, &node_3};                                                      \
+    node_1.set_parent(&node_2);                                                                    \
+    node_3.set_parent(&node_2);                                                                    \
+                                                                                                   \
+    yLab::Node_Base node_5, node_7;                                                                \
+    yLab::Node_Base node_6{&node_5, &node_7};                                                      \
+    node_5.set_parent(&node_6);                                                                    \
+    node_7.set_parent(&node_6);                                                                    \
+                                                                                                   \
+    yLab::Node_Base node_4{&node_2, &node_6};                                                      \
+    node_2.set_parent(&node_4);                                                                    \
+    node_6.set_parent(&node_4);                                                                    \
+                                                                                                   \
+    yLab::Node_Base end_node{&node_4};                                                             \
+    node_4.set_parent(&end_node);                                                                  \
+                                                                                                   \
+    node_1.set_left_thread(&end_node);                                                             \
+    node_1.set_right_thread(&node_2);                                                              \
+    node_3.set_left_thread(&node_2);                                                               \
+    node_3.set_right_thread(&node_4);                                                              \
+    node_5.set_left_thread(&node_4);                                                               \
+    node_5.set_right_thread(&node_6);                                                              \
+    node_7.set_left_thread(&node_6);                                                               \
     node_7.set_right_thread(&end_node);
 
-    // Minimum and maximum
+TEST(Node_Base, Minimum)
+{
+    SIMPLE_TREE
 
     EXPECT_EQ(node_1.minimum(), &node_1);
-    EXPECT_EQ(node_1.maximum(), &node_1);
-
     EXPECT_EQ(node_2.minimum(), &node_1);
-    EXPECT_EQ(node_2.maximum(), &node_3);
-
     EXPECT_EQ(node_3.minimum(), &node_3);
-    EXPECT_EQ(node_3.maximum(), &node_3);
-
     EXPECT_EQ(node_4.minimum(), &node_1);
-    EXPECT_EQ(node_4.maximum(), &node_7);
-
     EXPECT_EQ(node_5.minimum(), &node_5);
-    EXPECT_EQ(node_5.maximum(), &node_5);
-
     EXPECT_EQ(node_6.minimum(), &node_5);
-    EXPECT_EQ(node_6.maximum(), &node_7);
-
     EXPECT_EQ(node_7.minimum(), &node_7);
-    EXPECT_EQ(node_7.maximum(), &node_7);
+}
 
-    // Successor and predecessor
+TEST(Node_Base, Maximum)
+{
+    SIMPLE_TREE
+
+    EXPECT_EQ(node_1.maximum(), &node_1);
+    EXPECT_EQ(node_2.maximum(), &node_3);
+    EXPECT_EQ(node_3.maximum(), &node_3);
+    EXPECT_EQ(node_4.maximum(), &node_7);
+    EXPECT_EQ(node_5.maximum(), &node_5);
+    EXPECT_EQ(node_6.maximum(), &node_7);
+    EXPECT_EQ(node_7.maximum(), &node_7);
+}
+
+TEST(Node_Base, Predecessor)
+{
+    SIMPLE_TREE
 
     // node_1.predecessor() is undefined
-    EXPECT_EQ(node_1.successor(), &node_2);
-
     EXPECT_EQ(node_2.predecessor(), &node_1);
-    EXPECT_EQ(node_2.successor(), &node_3);
-
     EXPECT_EQ(node_3.predecessor(), &node_2);
-    EXPECT_EQ(node_3.successor(), &node_4);
-
     EXPECT_EQ(node_4.predecessor(), &node_3);
-    EXPECT_EQ(node_4.successor(), &node_5);
-
     EXPECT_EQ(node_5.predecessor(), &node_4);
-    EXPECT_EQ(node_5.successor(), &node_6);
-
     EXPECT_EQ(node_6.predecessor(), &node_5);
-    EXPECT_EQ(node_6.successor(), &node_7);
-
     EXPECT_EQ(node_7.predecessor(), &node_6);
+}
+
+TEST(Node_Base, Successor)
+{
+    SIMPLE_TREE
+
+    EXPECT_EQ(node_1.successor(), &node_2);
+    EXPECT_EQ(node_2.successor(), &node_3);
+    EXPECT_EQ(node_3.successor(), &node_4);
+    EXPECT_EQ(node_4.successor(), &node_5);
+    EXPECT_EQ(node_5.successor(), &node_6);
+    EXPECT_EQ(node_6.successor(), &node_7);
     EXPECT_EQ(node_7.successor(), &end_node);
 }
 
