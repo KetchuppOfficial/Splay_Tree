@@ -100,24 +100,10 @@ public:
 
     const_node_ptr minimum() const noexcept { return const_cast<node_ptr>(this)->minimum(); }
 
-    node_ptr successor() noexcept
-    {
-        if (has_right_thread())
-            return right_;
-        else
-            return right_->minimum();
-    }
-
+    node_ptr successor() noexcept { return has_right_thread() ? right_ : right_->minimum(); }
     const_node_ptr successor() const noexcept { return const_cast<node_ptr>(this)->successor(); }
 
-    node_ptr predecessor() noexcept
-    {
-        if (has_left_thread())
-            return left_;
-        else
-            return left_->maximum();
-    }
-
+    node_ptr predecessor() noexcept { return has_left_thread() ? left_ : left_->maximum(); }
     const_node_ptr predecessor() const noexcept { return const_cast<node_ptr>(this)->predecessor(); }
 
     /*
