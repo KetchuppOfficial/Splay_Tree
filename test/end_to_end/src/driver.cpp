@@ -130,7 +130,7 @@ int main() try
 
     return 0;
 }
-catch (std::exception &e)
+catch (const std::exception &e)
 {
     std::println("Error: {}. Abort", e.what());
     return 1;
