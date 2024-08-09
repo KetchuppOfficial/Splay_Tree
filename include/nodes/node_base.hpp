@@ -115,7 +115,7 @@ public:
     node_ptr predecessor() noexcept { return has_left_thread() ? left_ : left_->maximum(); }
     const_node_ptr predecessor() const noexcept
     {
-        has_left_thread() ? left_ : left_->maximum();
+        return has_left_thread() ? left_ : left_->maximum();
     }
 
     /*
