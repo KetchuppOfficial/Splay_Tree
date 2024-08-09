@@ -195,7 +195,7 @@ inline void dot_dump(std::ostream &os, const Node_Base *node)
 {
     assert(node);
     fmt::print(os, "    node_{} [color = black, style = filled, fillcolor = olivedrab, "
-                     "label = \"end node\"];\n", fmt::ptr(node));
+                   "label = \"end node\"];\n", fmt::ptr(node));
 }
 
 } // namespace yLab

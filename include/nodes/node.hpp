@@ -47,8 +47,8 @@ void dot_dump(std::ostream &os, const Node<Key_T> *node)
 {
     assert(node);
     fmt::print(os, "    node_{} [shape = record, color = blue, style = filled, "
-                     "fillcolor = chartreuse, fontcolor = black, label = \"{}\"];\n",
-                     fmt::ptr(node), node->get_key());
+                   "fillcolor = chartreuse, fontcolor = black, label = \"{}\"];\n",
+               fmt::ptr(node), node->get_key());
 }
 
 } // namespace yLab
