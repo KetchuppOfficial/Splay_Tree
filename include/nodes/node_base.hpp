@@ -78,7 +78,7 @@ public:
 
     bool is_left_child() const noexcept { return parent_ && this == parent_->left_; }
 
-    node_ptr maximum() noexcept
+    const const_node_ptr maximum() const noexcept
     {
         auto node = this;
         while (!node->has_right_thread())
@@ -87,9 +87,12 @@ public:
         return node;
     }
 
-    const_node_ptr maximum() const noexcept { return const_cast<node_ptr>(this)->maximum(); }
+    node_ptr maximum() noexcept
+    {
+        return const_cast<node_ptr>(static_cast<const_node_ptr>(this)->maximum());
+    }
 
-    node_ptr minimum() noexcept
+    const_node_ptr minimum() const noexcept
     {
         auto node = this;
         while (!node->has_left_thread())
@@ -98,13 +101,22 @@ public:
         return node;
     }
 
-    const_node_ptr minimum() const noexcept { return const_cast<node_ptr>(this)->minimum(); }
+    node_ptr minimum() noexcept
+    {
+        return const_cast<node_ptr>(static_cast<const_node_ptr>(this)->minimum());
+    }
 
     node_ptr successor() noexcept { return has_right_thread() ? right_ : right_->minimum(); }
-    const_node_ptr successor() const noexcept { return const_cast<node_ptr>(this)->successor(); }
+    const_node_ptr successor() const noexcept
+    {
+        return has_right_thread() ? right_ : right_->minimum();
+    }
 
     node_ptr predecessor() noexcept { return has_left_thread() ? left_ : left_->maximum(); }
-    const_node_ptr predecessor() const noexcept { return const_cast<node_ptr>(this)->predecessor(); }
+    const_node_ptr predecessor() const noexcept
+    {
+        has_left_thread() ? left_ : left_->maximum();
+    }
 
     /*
      *   |               |
