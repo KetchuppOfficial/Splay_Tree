@@ -10,8 +10,7 @@
 #include <random>
 #include <exception>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
+#include <fmt/core.h>
 #include <boost/program_options.hpp>
 
 namespace yLab

@@ -9,8 +9,7 @@
 #include <fstream>
 #include <chrono>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
+#include <fmt/core.h>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
 #include "trees.hpp"
