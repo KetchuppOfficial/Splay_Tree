@@ -11,6 +11,8 @@ target_include_directories(driver
 target_compile_definitions(driver
                            PRIVATE SPLAY_TREE)
 
+target_link_libraries(driver PRIVATE fmt::fmt)
+
 target_include_directories(augmented_driver
                            PRIVATE ${INCLUDE_DIR}
                            PRIVATE ${INCLUDE_DIR}/nodes
@@ -19,9 +21,13 @@ target_include_directories(augmented_driver
 target_compile_definitions(augmented_driver
                            PRIVATE AUGMENTED_SPLAY_TREE)
 
+target_link_libraries(augmented_driver PRIVATE fmt::fmt)
+
 target_include_directories(ans_generator
                            PRIVATE ${INCLUDE_DIR}
                            PRIVATE ${INCLUDE_DIR}/nodes
                            PRIVATE ${INCLUDE_DIR}/trees)
 
-target_link_libraries(generator PRIVATE Boost::program_options)
+target_link_libraries(ans_generator PRIVATE fmt::fmt)
+
+target_link_libraries(generator PRIVATE fmt::fmt Boost::program_options)

@@ -9,8 +9,9 @@
 #include <cmath>
 #include <random>
 #include <exception>
-#include <print>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <boost/program_options.hpp>
 
 namespace yLab
@@ -93,11 +94,11 @@ int main(int argc, char *argv[]) try
 }
 catch(const std::exception &e)
 {
-    std::println("Error: {}. Abort", e.what());
+    fmt::print("Error: {}. Abort\n", e.what());
     return 1;
 }
 catch (...)
 {
-    std::println("Unknown exception caught. Abort");
+    fmt::print("Unknown exception caught. Abort\n");
     return 1;
 }

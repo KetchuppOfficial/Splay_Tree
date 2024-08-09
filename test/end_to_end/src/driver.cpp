@@ -8,7 +8,9 @@
 #include <algorithm>
 #include <fstream>
 #include <chrono>
-#include <print>
+
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
 #include "trees.hpp"
@@ -132,11 +134,11 @@ int main() try
 }
 catch (const std::exception &e)
 {
-    std::println("Error: {}. Abort", e.what());
+    fmt::print("Error: {}. Abort\n", e.what());
     return 1;
 }
 catch (...)
 {
-    std::println("Unknown exception caught. Abort");
+    fmt::print("Unknown exception caught. Abort\n");
     return 1;
 }

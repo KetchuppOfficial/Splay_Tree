@@ -4,6 +4,8 @@
 #include <cassert>
 #include <ostream>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 namespace yLab
 {
 
@@ -192,8 +194,8 @@ protected:
 inline void dot_dump(std::ostream &os, const Node_Base *node)
 {
     assert(node);
-    std::println(os, "    node_{} [color = black, style = filled, fillcolor = olivedrab, "
-                     "label = \"end node\"];", reinterpret_cast<const void *>(node));
+    fmt::print(os, "    node_{} [color = black, style = filled, fillcolor = olivedrab, "
+                     "label = \"end node\"];\n", fmt::ptr(node));
 }
 
 } // namespace yLab

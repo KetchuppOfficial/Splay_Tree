@@ -14,6 +14,9 @@
 #include <algorithm>
 #include <compare>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "node_base.hpp"
 #include "tree_iterator.hpp"
 #include "node_concepts.hpp"
@@ -361,9 +364,8 @@ public:
             arrow_dump(os, node);
 
         if (!empty())
-            std::println(os, "    node_{} -> node_{} [color = \"blue\"];",
-                         reinterpret_cast<const void *>(end_node),
-                         reinterpret_cast<const void *>(end_node->get_left_unsafe()));
+            fmt::print(os, "    node_{} -> node_{} [color = \"blue\"];\n",
+                       fmt::ptr(end_node), fmt::ptr(end_node->get_left_unsafe()));
 
         os << '}' << std::endl;
     }
@@ -663,21 +665,21 @@ protected:
     {
         assert(node);
 
-        auto self = reinterpret_cast<const void *>(node);
+        auto self = fmt::ptr(node);
 
         if (node->has_left_thread())
-            std::println(os, "    node_{}:w -> node_{} [style = dotted, color = \"blue\"];",
-                         self, reinterpret_cast<const void *>(node->get_left_unsafe()));
+            fmt::print(os, "    node_{}:w -> node_{} [style = dotted, color = \"blue\"];\n",
+                       self, fmt::ptr(node->get_left_unsafe()));
         else
-            std::println(os, "    node_{} -> node_{} [color = \"blue\"];",
-                         self, reinterpret_cast<const void *>(node->get_left_unsafe()));
+            fmt::print(os, "    node_{} -> node_{} [color = \"blue\"];\n",
+                       self, fmt::ptr(node->get_left_unsafe()));
 
         if (node->has_right_thread())
-            std::println(os, "    node_{}:e -> node_{} [style = dotted, color = \"red\"];",
-                         self, reinterpret_cast<const void *>(node->get_right_unsafe()));
+            fmt::print(os, "    node_{}:e -> node_{} [style = dotted, color = \"red\"];\n",
+                       self, fmt::ptr(node->get_right_unsafe()));
         else
-            std::println(os, "    node_{} -> node_{} [color = \"red\"];",
-                         self, reinterpret_cast<const void *>(node->get_right_unsafe()));
+            fmt::print(os, "    node_{} -> node_{} [color = \"red\"];\n",
+                       self, fmt::ptr(node->get_right_unsafe()));
     }
 
     detail::Control_Node control_node_;

@@ -9,6 +9,7 @@ RUN apt install -y git
 
 RUN apt install -y libgtest-dev
 RUN apt install -y libboost-program-options-dev
+RUN apt install -y libfmt-dev
 
 RUN git clone https://github.com/KetchuppOfficial/Splay_Tree.git
 

@@ -5,6 +5,9 @@
 #include <ostream>
 #include <cassert>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "node_base.hpp"
 
 namespace yLab
@@ -43,9 +46,9 @@ template<typename Key_T>
 void dot_dump(std::ostream &os, const Node<Key_T> *node)
 {
     assert(node);
-    std::println(os, "    node_{} [shape = record, color = blue, style = filled, "
-                     "fillcolor = chartreuse, fontcolor = black, label = \"{}\"];",
-                     reinterpret_cast<const void *>(node), node->get_key());
+    fmt::print(os, "    node_{} [shape = record, color = blue, style = filled, "
+                     "fillcolor = chartreuse, fontcolor = black, label = \"{}\"];\n",
+                     fmt::ptr(node), node->get_key());
 }
 
 } // namespace yLab

@@ -6,6 +6,9 @@
 #include <ostream>
 #include <cassert>
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "node.hpp"
 
 namespace yLab
@@ -84,10 +87,9 @@ void dot_dump(std::ostream &os, const Augmented_Node<Key_T> *node)
 {
     assert(node);
 
-    std::println(os, "    node_{} [shape = record, color = blue, style = filled, "
-                     "fillcolor = chartreuse, fontcolor = black, label = \"key: {} | size: {}\"];",
-                      reinterpret_cast<const void *>(node), node->get_key(),
-                      Augmented_Node<Key_T>::size(node));
+    fmt::print(os, "    node_{} [shape = record, color = blue, style = filled, "
+                   "fillcolor = chartreuse, fontcolor = black, label = \"key: {} | size: {}\"];\n",
+               fmt::ptr(node), node->get_key(), Augmented_Node<Key_T>::size(node));
 }
 
 } // namespace yLab
