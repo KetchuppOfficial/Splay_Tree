@@ -10,14 +10,14 @@ standard requirements. Thus, I implemented a threaded splay tree instead of a re
 
 ## Requirements
 
-The following application has to be installed:
+The following applications have to be installed:
 
 - CMake of version 3.20 (or higher)
-- Boost
+- gtest library
+- boost::program_options
+- fmt library
 
-> [!NOTE]
-> Your compiler should support some features of C++23. g++-14 (or newer), clang++-18 (or newer) will
-  work good.
+There is a [Dockerfile](/Dockerfile) presented for your convenience.
 
 ## How to install
 
