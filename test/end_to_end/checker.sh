@@ -22,19 +22,36 @@ function build_from_sources
 
     local basic_options="-DCMAKE_BUILD_TYPE=Release"
 
-    cmake ${top_dir} -B ${build_dir} ${basic_options}
-
+    echo -e "${green}Generating build system...${default}"
+    cmake ${top_dir} -B ${build_dir} -DCMAKE_BUILD_TYPE=Release
+    exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        return $exit_code
+    fi
     echo -en "\n"
+
     echo -e "${green}Building test generator...${default}"
     cmake --build ${build_dir} --target ${test_generator}
+    exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        return $exit_code
+    fi
     echo -en "\n"
 
     echo -e "${green}Building test driver...${default}"
     cmake --build ${build_dir} --target ${test_driver}
+    exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        return $exit_code
+    fi
     echo -en "\n"
 
     echo -e "${green}Building generator of answers...${default}"
     cmake --build ${build_dir} --target ${ans_generator}
+    exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        return $exit_code
+    fi
     echo -en "\n"
 }
 
@@ -80,7 +97,8 @@ function run_test
 }
 
 source $script_dir/opts.sh
-build_from_sources $tree
-generate_test $n_keys $n_queries
-generate_answer $n_keys $n_queries
+
+build_from_sources $tree && \
+generate_test $n_keys $n_queries && \
+generate_answer $n_keys $n_queries && \
 run_test $n_keys $n_queries
