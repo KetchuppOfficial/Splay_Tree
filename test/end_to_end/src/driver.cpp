@@ -12,12 +12,12 @@
 #include <fmt/core.h>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
-#include "trees.hpp"
+#include "trees/trees.hpp"
 #else
 #include <set>
 #endif
 
-#include "node_concepts.hpp"
+#include "nodes/node_concepts.hpp"
 
 namespace
 {

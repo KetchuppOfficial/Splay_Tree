@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "node_base.hpp"
+#include "nodes/node_base.hpp"
 
 TEST(Node_Base, Constructor)
 {

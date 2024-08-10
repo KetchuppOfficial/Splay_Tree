@@ -8,8 +8,6 @@ target_link_libraries(unit_tests
                       PRIVATE fmt::fmt)
 
 target_include_directories(unit_tests
-                           PRIVATE ${INCLUDE_DIR}
-                           PRIVATE ${INCLUDE_DIR}/nodes
-                           PRIVATE ${INCLUDE_DIR}/trees)
+                           PRIVATE ${INCLUDE_DIR})
 
 gtest_discover_tests(unit_tests)

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "search_tree.hpp"
-#include "node.hpp"
+#include "nodes/node.hpp"
+#include "trees/search_tree.hpp"
 
 template<typename Key_T>
 using tree_type = yLab::Search_Tree<yLab::Node<Key_T>>;

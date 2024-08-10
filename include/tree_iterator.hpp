@@ -6,7 +6,7 @@
 #include <cstddef>
 #include <memory>
 
-#include "node_base.hpp"
+#include "nodes/node_base.hpp"
 
 namespace yLab
 {

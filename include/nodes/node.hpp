@@ -8,7 +8,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "node_base.hpp"
+#include "nodes/node_base.hpp"
 
 namespace yLab
 {

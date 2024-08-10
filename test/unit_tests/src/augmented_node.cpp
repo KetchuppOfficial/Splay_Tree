@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "augmented_node.hpp"
-#include "node_concepts.hpp"
+#include "nodes/augmented_node.hpp"
+#include "nodes/node_concepts.hpp"
 
 TEST(Augmented_Node, Constructors)
 {

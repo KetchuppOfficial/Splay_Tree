@@ -3,11 +3,11 @@
 
 #include <functional>
 
-#include "node.hpp"
-#include "augmented_node.hpp"
+#include "nodes/node.hpp"
+#include "nodes/augmented_node.hpp"
 
-#include "search_tree.hpp"
-#include "splay_tree_base.hpp"
+#include "trees/search_tree.hpp"
+#include "trees/splay_tree_base.hpp"
 
 namespace yLab
 {

@@ -9,7 +9,7 @@
 #include <numeric>
 #include <algorithm>
 
-#include "trees.hpp"
+#include "trees/trees.hpp"
 
 using key_type = int;
 using tree_type = yLab::Augmented_Splay_Tree<key_type>;

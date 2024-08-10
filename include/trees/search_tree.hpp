@@ -17,9 +17,9 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "node_base.hpp"
+#include "nodes/node_base.hpp"
+#include "nodes/node_concepts.hpp"
 #include "tree_iterator.hpp"
-#include "node_concepts.hpp"
 
 namespace yLab
 {

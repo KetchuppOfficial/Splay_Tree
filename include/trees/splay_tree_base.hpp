@@ -8,9 +8,9 @@
 #include <utility>
 #include <cassert>
 
-#include "node_base.hpp"
-#include "search_tree.hpp"
-#include "node_concepts.hpp"
+#include "nodes/node_base.hpp"
+#include "nodes/node_concepts.hpp"
+#include "trees/search_tree.hpp"
 
 namespace yLab
 {

@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-#include "node.hpp"
+#include "nodes/node.hpp"
 
 TEST(Node, Constructors)
 {

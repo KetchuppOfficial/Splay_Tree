@@ -4,8 +4,8 @@
 #include <numeric>
 #include <algorithm>
 
-#include "search_tree.hpp"
-#include "node.hpp"
+#include "nodes/node.hpp"
+#include "trees/search_tree.hpp"
 
 using key_type = int;
 using node_type = yLab::Node<key_type>;

@@ -9,7 +9,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-#include "node.hpp"
+#include "nodes/node.hpp"
 
 namespace yLab
 {
