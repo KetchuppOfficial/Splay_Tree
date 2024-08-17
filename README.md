@@ -52,17 +52,6 @@ cmake --build build [--target <tgt>]
 
 If --target option is omitted, all targets will be built.
 
-The **generator** generates queries of the format:
-
-```
-((k\s-?\d+)|(q\s-?\d+\s-?\d+))+
-```
-
-Query **k N** means to insert the key **N** into the tree.
-
-Query **q Q1 Q2** means to return the number of keys that belong to segment **[Q1; Q2]** if
-**Q1** is less than or equal to **Q2** or return 0 otherwise.
-
 ## How to run unit tests
 
 ```bash
@@ -99,9 +88,10 @@ they differ, then this test is considered "failed". It is considered "passed" ot
 **tree** argument has to be of value **splay** for testing splay tree or **splay+** for testing
 augmented splay tree.
 
-P.s. all above mentioned files locate in test/end_to_end/data directory.
+All above mentioned files locate in test/end_to_end/data directory.
 
 If you want to run tests manually, you can install all targets except for **unit_tests** in *./bin*.
+by running the following command:
 
 ```bash
 cmake --install build
@@ -122,6 +112,23 @@ To have a test one might find **generator** useful. It has the following options
 #   --n-keys arg          Set the number of keys to generate
 #   --n-queries arg       Set the number of queries to generate
 ```
+
+Example of usage:
+
+```bash
+./bin/generator --n-keys 10000 --n-queries 1000
+```
+
+The **generator** generates queries of the format:
+
+```
+((k\s-?\d+)|(q\s-?\d+\s-?\d+))+
+```
+
+Query **k N** means to insert the key **N** into the tree.
+
+Query **q Q1 Q2** means to return the number of keys that belong to segment **[Q1; Q2]** if
+**Q1** is less than or equal to **Q2** or return 0 otherwise.
 
 ## Behold... Threaded splay tree
 
