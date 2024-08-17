@@ -10,7 +10,7 @@ standard requirements. Thus, I implemented a threaded splay tree instead of a re
 
 ## Requirements
 
-The following applications have to be installed:
+The following applications and libraries have to be installed:
 
 - CMake of version 3.20 (or higher)
 - gtest library
@@ -37,28 +37,31 @@ cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build [--target <tgt>]
 ```
 
-**tgt** can be **driver**, **augmented_driver**, **generator** or **ans_generator**.
+**tgt** can be
+
+- **driver**: a program that takes a test as an input, runs it on the splay tree and produces the
+              answer;
+- **augmented_driver**: the same as **driver** except that augmented splay tree is used;
+- **std_driver**: the same as **driver** except that `std::set` is used;
+- **stopwatch**: a program that takes a test as an input, runs it on the splay tree and produces
+                 execution time;
+- **augmented_stopwatch**: the same as **stopwatch** except that augmented splay tree is used;
+- **std_stopwatch**: the same as **stopwatch** except that `std::set` is used;
+- **generator**: a program that generates a test;
+- **unit_tests**: self-explanatory.
+
+If --target option is omitted, all targets will be built.
+
 The **generator** generates queries of the format:
 
 ```
-N K1 ... KN M Q11 Q12 ... QM1 QM2
+((k\s-?\d+)|(q\s-?\d+\s-?\d+))+
 ```
 
-where **N** - the number of keys; **K1**, ..., **KN** - keys; **M** - the number of queries;
-**Q11** **Q12**, ..., **QM1** **QM2** - queries.
+Query **k N** means to insert the key **N** into the tree.
 
-To answer a query **Q1** **Q2** means to return the number of keys that belong to segment
-**[Q1; Q2]**.
-
-The **driver** is a program that receives queries for Splay_Tree from stdin and prints the answers
-on stdout.
-
-The **augmented_driver** is the same as **driver** except that splay tree there contains sizes of
-subtrees in each node and is called Augmented_Splay_Tree.
-
-The **ans_generator** is a program that does the same as **driver** but uses std::set.
-
-If --target option is omitted, all targets will be built.
+Query **q Q1 Q2** means to return the number of keys that belong to segment **[Q1; Q2]** if
+**Q1** is less than or equal to **Q2** or return 0 otherwise.
 
 ## How to run unit tests
 
@@ -98,9 +101,27 @@ augmented splay tree.
 
 P.s. all above mentioned files locate in test/end_to_end/data directory.
 
-P.p.s. **driver**, **augmented_driver** and **ans_generator** measure the time spent on running a
-test. This information is saved in **splay_tree.info**, **augmented_splay_tree.info** and
-**std_set.info** files respectively.
+If you want to run tests manually, you can install all targets except for **unit_tests** in *./bin*.
+
+```bash
+cmake --install build
+```
+
+and then pass tests to drivers and stopwatches as follows:
+
+```bash
+./bin/driver < /path/to/file/with/test
+```
+
+To have a test one might find **generator** useful. It has the following options:
+
+```bash
+./bin/generator --help
+# Allowed options:
+#   --help                Produce help message
+#   --n-keys arg          Set the number of keys to generate
+#   --n-queries arg       Set the number of queries to generate
+```
 
 ## Behold... Threaded splay tree
 
