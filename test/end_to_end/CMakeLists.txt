@@ -18,10 +18,10 @@ target_include_directories(augmented_stopwatch PRIVATE ${INCLUDE_DIR})
 target_compile_definitions(augmented_stopwatch PRIVATE AUGMENTED_SPLAY_TREE TIME)
 target_link_libraries(augmented_stopwatch PRIVATE fmt::fmt)
 
-add_executable(ans_generator ./src/driver.cpp)
-target_include_directories(ans_generator PRIVATE ${INCLUDE_DIR})
-target_compile_definitions(ans_generator PRIVATE ANSWERS)
-target_link_libraries(ans_generator PRIVATE fmt::fmt)
+add_executable(std_driver ./src/driver.cpp)
+target_include_directories(std_driver PRIVATE ${INCLUDE_DIR})
+target_compile_definitions(std_driver PRIVATE ANSWERS)
+target_link_libraries(std_driver PRIVATE fmt::fmt)
 
 add_executable(std_stopwatch ./src/driver.cpp)
 target_include_directories(std_stopwatch PRIVATE ${INCLUDE_DIR})
@@ -36,6 +36,6 @@ install(TARGETS driver
                 stopwatch
                 augmented_stopwatch
                 std_stopwatch
-                ans_generator
+                std_driver
                 generator
         DESTINATION ${INSTALL_DIR})

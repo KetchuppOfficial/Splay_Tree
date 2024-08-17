@@ -8,7 +8,7 @@ data="${script_dir}/data"
 bin_dir="${build_dir}/test/end_to_end"
 
 test_generator="generator"
-ans_generator="ans_generator"
+ans_generator="std_driver"
 
 function build_from_sources
 {
