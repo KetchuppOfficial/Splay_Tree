@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) try
 
     if (vm.count("help") || vm.empty())
     {
-        std::cout << desc << std::endl;
+        std::cout << desc;
         return 0;
     }
 
