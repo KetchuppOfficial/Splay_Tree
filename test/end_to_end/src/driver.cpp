@@ -9,7 +9,7 @@
 #include <fstream>
 #include <chrono>
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
 #include "trees/trees.hpp"
@@ -97,7 +97,7 @@ auto run_test()
             }
 
             default:
-                throw std::runtime_error{"Unknow query"};
+                throw std::runtime_error{fmt::format("Unknow query \'{}\'", query)};
         }
 
         break;
@@ -115,22 +115,20 @@ int main() try
 
 #if defined(AUGMENTED_SPLAY_TREE)
     using tree_type = yLab::Augmented_Splay_Tree<key_type>;
-    std::ofstream file{"augmented_splay_tree.info"};
 #elif defined(SPLAY_TREE)
     using tree_type = yLab::Splay_Tree<key_type>;
-    std::ofstream file{"splay_tree.info"};
 #else
     using tree_type = std::set<key_type>;
-    std::ofstream file{"std_set.info"};
 #endif
 
     auto [answers, time] = run_test<tree_type>();
 
+#if defined(ANSWERS)
     std::ranges::copy(answers, std::ostream_iterator<std::size_t>{std::cout, " "});
     std::cout << std::endl;
-
-    file << std::chrono::duration_cast<std::chrono::milliseconds>(time).count()
-         << std::endl;
+#elif defined(TIME)
+    fmt::print("{} ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(time).count());
+#endif
 
     return 0;
 }

@@ -3,6 +3,7 @@
 script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 top_dir="${script_dir}/../.."
 build_dir="${top_dir}/build"
+bin_dir="${top_dir}/bin"
 data="${script_dir}/data"
 bin_dir="${build_dir}/test/end_to_end"
 

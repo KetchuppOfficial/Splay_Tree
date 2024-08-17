@@ -28,8 +28,8 @@ std::pair<Key_T, Key_T> generate_keys(std::size_t n_keys, Distr_T distr, Engine 
     auto min = *std::ranges::min_element(keys);
     auto max = *std::ranges::max_element(keys);
 
-    std::cout << n_keys << '\n';
-    std::ranges::copy(keys, std::ostream_iterator<Key_T>{std::cout, " "});
+    for (auto k : keys)
+        std::cout << "k " << k;
     std::cout << std::endl;
 
     return std::pair{std::midpoint(min, max), (max - min) / 2};
@@ -38,7 +38,6 @@ std::pair<Key_T, Key_T> generate_keys(std::size_t n_keys, Distr_T distr, Engine 
 template<typename Key_T, typename Distr_T, typename Engine>
 void generate_queries(std::size_t n_queries, Distr_T distr, Engine gen)
 {
-    std::cout << n_queries << std::endl;
     for (auto _ : std::views::iota(0uz, n_queries))
     {
         Key_T lower_bound = std::round(distr(gen));
@@ -46,7 +45,7 @@ void generate_queries(std::size_t n_queries, Distr_T distr, Engine gen)
         if (lower_bound > upper_bound)
             std::swap(lower_bound, upper_bound);
 
-        std::cout << lower_bound << ' ' << upper_bound << ' ';
+        std::cout << "q " << lower_bound << ' ' << upper_bound << ' ';
     }
     std::cout << std::endl;
 }
@@ -72,7 +71,7 @@ int main(int argc, char *argv[]) try
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
 
-    if (vm.count("help"))
+    if (vm.count("help") || vm.empty())
     {
         std::cout << desc << std::endl;
         return 0;
