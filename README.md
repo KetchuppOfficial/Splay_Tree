@@ -88,10 +88,10 @@ they differ, then this test is considered "failed". It is considered "passed" ot
 **tree** argument has to be of value **splay** for testing splay tree or **splay+** for testing
 augmented splay tree.
 
-All above mentioned files locate in test/end_to_end/data directory.
+All above mentioned files locate in *test/end_to_end/data* directory.
 
-If you want to run tests manually, you can install all targets except for **unit_tests** in *./bin*.
-by running the following command:
+If you want to run tests manually, you can install all targets except for **unit_tests** in *bin*
+dirctory by running the following command:
 
 ```bash
 cmake --install build
