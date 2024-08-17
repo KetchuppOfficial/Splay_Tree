@@ -31,11 +31,8 @@ target_link_libraries(std_stopwatch PRIVATE fmt::fmt)
 add_executable(generator ./src/generator.cpp)
 target_link_libraries(generator PRIVATE fmt::fmt Boost::program_options)
 
-install(TARGETS driver
-                augmented_driver
-                stopwatch
-                augmented_stopwatch
-                std_stopwatch
-                std_driver
+install(TARGETS driver stopwatch
+                augmented_driver augmented_stopwatch
+                std_driver std_stopwatch
                 generator
         DESTINATION ${INSTALL_DIR})
