@@ -80,7 +80,7 @@ Example of usage:
 where **tree** is either *splay* or *splay+*; **N**, and **M** are positive integer numbers.
 
 The script generates a test with **N** keys and **M** queries. The test is saved in **N_M.test**.
-After that this script runs **ans_generator**, gets answers that are supposed to be correct and saves
+After that this script runs **std_driver**, gets answers that are supposed to be correct and saves
 them in file **N_M.ans**. Then, **driver** or **augmented_driver** (depending on **tree**) does the same.
 The results are saved in **N_M.res**. Finally, files **N_M.ans** and **N_M.res** are compared. If
 they differ, then this test is considered "failed". It is considered "passed" otherwise.
@@ -119,7 +119,7 @@ Example of usage:
 ./bin/generator --n-keys 10000 --n-queries 1000
 ```
 
-The **generator** generates queries of the format:
+The **generator** generates a test of the format:
 
 ```
 ((k\s-?\d+)|(q\s-?\d+\s-?\d+))+
