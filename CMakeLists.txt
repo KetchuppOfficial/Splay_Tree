@@ -7,19 +7,18 @@ if (${PROJECT_SOURCE_DIR} STREQUAL ${PROJECT_BINARY_DIR})
     message(FATAL_ERROR "In-source build is forbidden")
 endif()
 
-find_package(GTest REQUIRED)
-enable_testing()
-
-find_package(Threads REQUIRED)
-find_package(Boost REQUIRED
-             COMPONENTS PROGRAM_OPTIONS)
-find_package(fmt REQUIRED)
-
 set(CMAKE_CXX_STANDARD          23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS        OFF)
 
 set(INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 set(INSTALL_DIR ${PROJECT_SOURCE_DIR}/bin)
+
+find_package(fmt REQUIRED)
+find_package(CLI11 REQUIRED)
+find_package(GTest REQUIRED)
+find_package(Threads REQUIRED)
+
+enable_testing()
 
 add_subdirectory(test)

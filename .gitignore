@@ -1,6 +1,8 @@
 build/
-TODO
+third_party/
 bin/
 data/
-*.info
 .vscode/
+TODO
+*.info
+CMakeUserPresets.json

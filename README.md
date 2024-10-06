@@ -13,11 +13,7 @@ standard requirements. Thus, I implemented a threaded splay tree instead of a re
 The following applications and libraries have to be installed:
 
 - CMake of version 3.20 (or higher)
-- gtest library
-- boost::program_options
-- fmt library
-
-There is a [Dockerfile](/Dockerfile) presented for your convenience.
+- conan
 
 ## How to install
 
@@ -33,7 +29,8 @@ cd Splay_Tree
 ### 1) Build the project
 
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
+conan install . --output-folder=third_party --build=missing
+cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=./third_party/conan_toolchain.cmake
 cmake --build build [--target <tgt>]
 ```
 

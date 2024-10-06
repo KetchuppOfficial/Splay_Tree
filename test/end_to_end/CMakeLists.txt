@@ -29,7 +29,7 @@ target_compile_definitions(std_stopwatch PRIVATE TIME)
 target_link_libraries(std_stopwatch PRIVATE fmt::fmt)
 
 add_executable(generator ./src/generator.cpp)
-target_link_libraries(generator PRIVATE fmt::fmt Boost::program_options)
+target_link_libraries(generator PRIVATE fmt::fmt CLI11::CLI11)
 
 install(TARGETS driver stopwatch
                 augmented_driver augmented_stopwatch

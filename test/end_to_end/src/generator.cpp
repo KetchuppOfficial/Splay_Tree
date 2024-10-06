@@ -11,7 +11,7 @@
 #include <exception>
 
 #include <fmt/core.h>
-#include <boost/program_options.hpp>
+#include <CLI/CLI.hpp>
 
 namespace yLab
 {
@@ -56,28 +56,13 @@ int main(int argc, char *argv[]) try
 {
     using key_type = int;
 
-    namespace po = boost::program_options;
-
-    po::options_description desc{"Allowed options"};
+    CLI::App app{"Splay tree end-to-end tests driver"};
 
     std::size_t n_keys, n_queries;
-    desc.add_options()
-        ("help", "Produce help message")
-        ("n-keys", po::value<std::size_t>(&n_keys)->required(),
-         "Set the number of keys to generate")
-        ("n-queries", po::value<std::size_t>(&n_queries)->required(),
-         "Set the number of queries to generate");
+    app.add_option("--n-keys", n_keys, "Set the number of keys to generate")->required();
+    app.add_option("--n-queries", n_queries, "Set the number of queries to generate")->required();
 
-    po::variables_map vm;
-    po::store(po::parse_command_line(argc, argv, desc), vm);
-
-    if (vm.count("help") || vm.empty())
-    {
-        std::cout << desc;
-        return 0;
-    }
-
-    po::notify(vm);
+    CLI11_PARSE(app, argc, argv);
 
     std::random_device rd;
     std::mt19937_64 gen{rd()};
@@ -90,7 +75,7 @@ int main(int argc, char *argv[]) try
 
     return 0;
 }
-catch(const std::exception &e)
+catch (const std::exception &e)
 {
     fmt::print("Error: {}. Abort\n", e.what());
     return 1;
