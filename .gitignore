@@ -4,6 +4,7 @@ bin/
 data/
 .vscode/
 .cache/
+.venv/
 TODO
 *.info
 CMakeUserPresets.json
