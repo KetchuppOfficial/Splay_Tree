@@ -3,6 +3,7 @@ third_party/
 bin/
 data/
 .vscode/
+.cache/
 TODO
 *.info
 CMakeUserPresets.json
