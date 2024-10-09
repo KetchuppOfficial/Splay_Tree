@@ -4,11 +4,9 @@
 #include <functional>
 #include <iterator>
 #include <initializer_list>
-#include <stdexcept>
 #include <utility>
 #include <cassert>
 
-#include "nodes/node_base.hpp"
 #include "nodes/node_concepts.hpp"
 #include "trees/search_tree.hpp"
 
