@@ -13,7 +13,7 @@ standard requirements. Thus, I implemented a threaded splay tree instead of a re
 The following applications and libraries have to be installed:
 
 - CMake of version 3.20 (or higher)
-- conan
+- python3
 
 ## How to install
 
@@ -26,7 +26,15 @@ cd Splay_Tree
 
 ### 0) Make sure you are in the root directory of the project (i.e. Splay_Tree/)
 
-### 1) Build the project
+### 1) Installing conan and other Python dependencies
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip3 install -r requirements.txt
+```
+
+### 2) Build the project
 
 ```bash
 conan install . --output-folder=third_party --build=missing
