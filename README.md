@@ -57,44 +57,44 @@ ctest --test-dir build
 
 ## How to run end-to-end tests
 
-If you want to run some tests on my tree, look at [test/end_to_end](/test/end_to_end/) directory.
-There you will find a special script **checker.sh** provided for such purpose.
+If you want to run some tests on my tree, look at [checker.py](/test/end_to_end/checker.py).
 
 ```bash
-Usage: /path/to/checker.sh [OPTIONS]
-
--m <testing-mode>         Set the tree to test on: <splay> or <splay+>
--k <number-of-keys>       Set the number of keys for the test
--q <number-of-queries>    Set the number of queries for the test
+checker.py --help
+# usage: checker.py [-h] --install-dir PATH --tree {splay,splay+} -k N -q N
+#
+# This script is a utility for easy end-to-end testing of splay tree
+#
+# options:
+#   -h, --help            show this help message and exit
+#   --install-dir PATH    path to the directory containing all installed executables produced by the build system
+#   --tree {splay,splay+}
+#                         the tree to use in tests
+#   -k N, --keys N        the number of random keys in test
+#   -q N, --queries N     the number of random queries in test
 ```
 
-Example of usage:
-
-```bash
-./test/end_to_end/checker.sh -m tree -k N -q M
-```
-
-where **tree** is either *splay* or *splay+*; **N**, and **M** are positive integer numbers.
-
-The script generates a test with **N** keys and **M** queries. The test is saved in **N_M.test**.
-After that this script runs **std_driver**, gets answers that are supposed to be correct and saves
-them in file **N_M.ans**. Then, **driver** or **augmented_driver** (depending on **tree**) does the same.
-The results are saved in **N_M.res**. Finally, files **N_M.ans** and **N_M.res** are compared. If
-they differ, then this test is considered "failed". It is considered "passed" otherwise.
+The script generates a test with given number of keys (**N**) and queries (**M**). The test is saved
+in **N_M.test**. After that this script runs **std_driver**, gets answers that are supposed to be
+correct and saves them in file **N_M.ans**. Then, **driver** or **augmented_driver** (depending on
+**tree**) does the same. The results are saved in **N_M.res**. Finally, files **N_M.ans** and
+**N_M.res** are compared. If they differ, then this test is considered "failed". It is considered
+"passed" otherwise.
 
 **tree** argument has to be of value **splay** for testing splay tree or **splay+** for testing
 augmented splay tree.
 
 All above mentioned files locate in *test/end_to_end/data* directory.
 
-If you want to run tests manually, you can install all targets except for **unit_tests** in *bin*
-dirctory by running the following command:
+Before running the test all executables should be placed in a single directory. It can be achieved by
+running the following command:
 
 ```bash
 cmake --install build
 ```
 
-and then pass tests to drivers and stopwatches as follows:
+If you want to run tests manually, you can install all targets except for **unit_tests** in *bin*
+directory and then pass tests to drivers and stopwatches as follows:
 
 ```bash
 ./bin/driver < /path/to/file/with/test
@@ -104,16 +104,13 @@ To have a test one might find **generator** useful. It has the following options
 
 ```bash
 ./bin/generator --help
-# Allowed options:
-#   --help                Produce help message
-#   --n-keys arg          Set the number of keys to generate
-#   --n-queries arg       Set the number of queries to generate
-```
-
-Example of usage:
-
-```bash
-./bin/generator --n-keys 10000 --n-queries 1000
+# Splay tree end-to-end tests driver
+# Usage: ./bin/generator [OPTIONS]
+#
+# Options:
+#   -h,--help                   Print this help message and exit
+#   --n-keys UINT REQUIRED      Set the number of keys to generate
+#   --n-queries UINT REQUIRED   Set the number of queries to generate
 ```
 
 The **generator** generates a test of the format:
