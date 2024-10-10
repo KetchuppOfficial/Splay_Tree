@@ -14,6 +14,8 @@ The following applications and libraries have to be installed:
 
 - CMake of version 3.20 (or higher)
 - python3
+- python3-venv
+- pip
 
 There is a [Dockerfile](/Dockerfile) provided in case you wish to isolate the build.
 
@@ -28,7 +30,7 @@ cd Splay_Tree
 
 ### 0) Make sure you are in the root directory of the project (i.e. Splay_Tree/)
 
-### 1) Installing conan and other Python dependencies
+### 1) Installing conan and other python modules this project depends on
 
 ```bash
 python3 -m venv .venv
