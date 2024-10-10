@@ -26,9 +26,9 @@ std::size_t answer_query(const Tree_T &tree, int key_1, int key_2)
     if (key_1 <= key_2)
     {
         if constexpr (yLab::contains_subtree_size<typename Tree_T::node_type>)
-            return tree.n_less_or_equal_to(key_2) - tree.n_less_than(key_1);
+            return tree.n_less_than(key_2) - tree.n_less_than(key_1);
         else
-            return std::distance(tree.lower_bound(key_1), tree.upper_bound(key_2));
+            return std::distance(tree.lower_bound(key_1), tree.lower_bound(key_2));
     }
     else
         return 0;

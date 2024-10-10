@@ -152,12 +152,6 @@ public:
         return empty() ? 0 : n_less_than_node(lower_bound(key));
     }
 
-    size_type n_less_or_equal_to(const key_type &key) const
-    requires contains_subtree_size<node_type>
-    {
-        return empty() ? 0 : n_less_than_node(upper_bound(key));
-    }
-
 private:
 
     using base_tree::find_with_parent;
