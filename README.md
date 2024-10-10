@@ -15,6 +15,8 @@ The following applications and libraries have to be installed:
 - CMake of version 3.20 (or higher)
 - python3
 
+There is a [Dockerfile](/Dockerfile) provided in case you wish to isolate the build.
+
 ## How to install
 
 ```bash
