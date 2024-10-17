@@ -2,6 +2,11 @@ aux_source_directory(./src SRC_LIST)
 
 add_executable(unit_tests ${SRC_LIST})
 
+set_target_properties(unit_tests PROPERTIES
+                      CXX_STANDARD 23
+                      CXX_STANDARD_REQUIRED ON
+                      CXX_EXTENSIONS OFF)
+
 target_link_libraries(unit_tests
                       PRIVATE GTest::GTest
                       PRIVATE GTest::gtest_main

@@ -31,6 +31,11 @@ target_link_libraries(std_stopwatch PRIVATE fmt::fmt)
 add_executable(generator ./src/generator.cpp)
 target_link_libraries(generator PRIVATE fmt::fmt CLI11::CLI11)
 
+set_directory_properties(PROPERTIES
+                         CXX_STANDARD 23
+                         CXX_STANDARD_REQUIRED ON
+                         CXX_EXTENSIONS OFF)
+
 install(TARGETS driver stopwatch
                 augmented_driver augmented_stopwatch
                 std_driver std_stopwatch
