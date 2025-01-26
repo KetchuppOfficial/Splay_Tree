@@ -83,33 +83,11 @@ public:
 
     bool is_left_child() const noexcept { return parent_ && this == parent_->left_; }
 
-    const const_node_ptr maximum() const noexcept
-    {
-        auto node = this;
-        while (!node->has_right_thread())
-            node = node->right_;
+    const_node_ptr maximum() const & noexcept { return do_maximum(*this); }
+    node_ptr maximum() & noexcept { return do_maximum(*this); }
 
-        return node;
-    }
-
-    node_ptr maximum() noexcept
-    {
-        return const_cast<node_ptr>(static_cast<const_node_ptr>(this)->maximum());
-    }
-
-    const_node_ptr minimum() const noexcept
-    {
-        auto node = this;
-        while (!node->has_left_thread())
-            node = node->left_;
-
-        return node;
-    }
-
-    node_ptr minimum() noexcept
-    {
-        return const_cast<node_ptr>(static_cast<const_node_ptr>(this)->minimum());
-    }
+    const_node_ptr minimum() const & noexcept { return do_minimum(*this); }
+    node_ptr minimum() & noexcept { return do_minimum(*this); }
 
     node_ptr successor() noexcept { return has_right_thread() ? right_ : right_->minimum(); }
     const_node_ptr successor() const noexcept
@@ -206,6 +184,30 @@ protected:
     virtual void do_set_left_thread(node_ptr right) noexcept {}
     virtual void do_set_right(node_ptr right) noexcept {}
     virtual void do_set_right_thread(node_ptr right) noexcept {}
+
+    template<typename Self>
+    static auto do_maximum(Self &self) noexcept
+        -> std::conditional_t<std::is_const_v<Self>,
+            typename Self::const_node_ptr, typename Self::node_ptr>
+    {
+        auto node = &self;
+        while (!node->has_right_thread())
+            node = node->right_;
+
+        return node;
+    }
+
+    template<typename Self>
+    static auto do_minimum(Self &self) noexcept
+        -> std::conditional_t<std::is_const_v<Self>,
+            typename Self::const_node_ptr, typename Self::node_ptr>
+    {
+        auto node = &self;
+        while (!node->has_left_thread())
+            node = node->left_;
+
+        return node;
+    }
 
     node_ptr left_;
     node_ptr right_;
