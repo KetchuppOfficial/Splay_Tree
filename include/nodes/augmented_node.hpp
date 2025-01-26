@@ -37,47 +37,35 @@ public:
 
     ~Augmented_Node() override = default;
 
-    void set_left(base_node_ptr left) noexcept override
-    {
-        this->left_ = left;
-        this->left_thread_ = false;
+    static size_type size(const_node_ptr node) noexcept { return node ? node->size_ : 0; }
 
+private:
+
+    void do_set_left(base_node_ptr left) noexcept override
+    {
         size_ = 1 + size(static_cast<node_ptr>(left));
         if (!this->has_right_thread())
             size_ += size(static_cast<node_ptr>(this->right_));
     }
 
-    void set_left_thread(base_node_ptr left) noexcept override
+    void do_set_left_thread(base_node_ptr left) noexcept override
     {
         if (!this->has_left_thread())
             size_ -= size(static_cast<node_ptr>(this->left_));
-
-        this->left_ = left;
-        this->left_thread_ = true;
     }
 
-    void set_right(base_node_ptr right) noexcept override
+    void do_set_right(base_node_ptr right) noexcept override
     {
-        this->right_ = right;
-        this->right_thread_ = false;
-
         size_ = 1 + size(static_cast<node_ptr>(right));
         if (!this->has_left_thread())
             size_ += size(static_cast<node_ptr>(this->left_));
     }
 
-    void set_right_thread(base_node_ptr right) noexcept override
+    void do_set_right_thread(base_node_ptr right) noexcept override
     {
         if (!this->has_right_thread())
             size_ -= size(static_cast<node_ptr>(this->right_));
-
-        this->right_ = right;
-        this->right_thread_ = true;
     }
-
-    static size_type size(const_node_ptr node) noexcept { return node ? node->size_ : 0; }
-
-private:
 
     size_type size_;
 };

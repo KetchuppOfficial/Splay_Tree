@@ -43,6 +43,7 @@ public:
 
     virtual void set_left(node_ptr left) noexcept
     {
+        do_set_left(left);
         left_ = left;
         left_thread_ = false;
     }
@@ -50,6 +51,7 @@ public:
     bool has_left_thread() const noexcept { return left_thread_; }
     virtual void set_left_thread(node_ptr left) noexcept
     {
+        do_set_left_thread(left);
         left_ = left;
         left_thread_ = true;
     }
@@ -58,15 +60,17 @@ public:
     const_node_ptr get_right() const noexcept { return right_thread_ ? nullptr : right_; }
     node_ptr get_right_unsafe() noexcept { return right_; }
     const_node_ptr get_right_unsafe() const noexcept { return right_; }
-    virtual void set_right(node_ptr right) noexcept
+    void set_right(node_ptr right) noexcept
     {
+        do_set_right(right);
         right_ = right;
         right_thread_ = false;
     }
 
     bool has_right_thread() const noexcept { return right_thread_; }
-    virtual void set_right_thread(node_ptr right) noexcept
+    void set_right_thread(node_ptr right) noexcept
     {
+        do_set_right_thread(right);
         right_ = right;
         right_thread_ = true;
     }
@@ -196,6 +200,12 @@ public:
     }
 
 protected:
+
+    // for additional actions on setting left/right child
+    virtual void do_set_left(node_ptr left) noexcept {}
+    virtual void do_set_left_thread(node_ptr right) noexcept {}
+    virtual void do_set_right(node_ptr right) noexcept {}
+    virtual void do_set_right_thread(node_ptr right) noexcept {}
 
     node_ptr left_;
     node_ptr right_;
