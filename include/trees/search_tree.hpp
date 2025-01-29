@@ -654,10 +654,10 @@ protected:
     {
         dot_dump(os, *node);
 
-        if (auto left = node->get_left(); left)
+        if (auto left = node->get_left())
             dump_subtree(os, static_cast<const_node_ptr>(left));
 
-        if (auto right = node->get_right(); right)
+        if (auto right = node->get_right())
             dump_subtree(os, static_cast<const_node_ptr>(right));
     }
 
