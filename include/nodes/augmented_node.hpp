@@ -71,13 +71,11 @@ private:
 };
 
 template<typename Key_T>
-void dot_dump(std::ostream &os, const Augmented_Node<Key_T> *node)
+void dot_dump(std::ostream &os, const Augmented_Node<Key_T> &node)
 {
-    assert(node);
-
     fmt::print(os, "    node_{} [shape = record, color = blue, style = filled, "
                    "fillcolor = chartreuse, fontcolor = black, label = \"key: {} | size: {}\"];\n",
-               fmt::ptr(node), node->get_key(), Augmented_Node<Key_T>::size(node));
+               fmt::ptr(&node), node.get_key(), Augmented_Node<Key_T>::size(&node));
 }
 
 } // namespace yLab

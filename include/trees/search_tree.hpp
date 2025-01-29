@@ -355,7 +355,7 @@ public:
 
         auto end_node = const_base_ptr(end());
 
-        dot_dump(os, end_node);
+        dot_dump(os, *end_node);
         dump_subtree(os, static_cast<const_node_ptr>(control_node_.get_root()));
 
         os << '\n';
@@ -652,7 +652,7 @@ protected:
 
     void dump_subtree(std::ostream &os, const_node_ptr node) const
     {
-        dot_dump(os, node);
+        dot_dump(os, *node);
 
         if (auto left = node->get_left(); left)
             dump_subtree(os, static_cast<const_node_ptr>(left));
