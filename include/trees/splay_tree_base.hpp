@@ -17,13 +17,14 @@ template<typename Node_T, typename Compare = std::less<typename Node_T::key_type
 class Splay_Tree_Base final : public Search_Tree<Node_T, Compare>
 {
     using base_tree = Search_Tree<Node_T, Compare>;
-    using base_tree::control_node_;
-    using base_tree::comp_;
-    using base_tree::size_;
+
     using typename base_tree::base_node_ptr;
     using typename base_tree::const_base_node_ptr;
     using typename base_tree::node_ptr;
     using typename base_tree::const_node_ptr;
+
+    using base_tree::comp_;
+    using base_tree::size_;
 
 public:
 
@@ -88,25 +89,25 @@ public:
             swap(rhs); // leads to change of the comparator if one of rhs differs from ours
         else if (!rhs.empty())
         {
-            auto lhs_rightmost = static_cast<node_ptr>(control_node_.get_rightmost());
-            auto rhs_leftmost = static_cast<node_ptr>(rhs.control_node_.get_leftmost());
+            auto lhs_rightmost = static_cast<node_ptr>(this->get_rightmost());
+            auto rhs_leftmost = static_cast<node_ptr>(rhs.get_leftmost());
 
             if (!comp_(lhs_rightmost->get_key(), rhs_leftmost->get_key()))
                 return false;
 
             splay(lhs_rightmost);
 
-            base_node_ptr root = control_node_.get_root();
-            base_node_ptr rhs_root = rhs.control_node_.get_root();
+            base_node_ptr root = this->get_root();
+            base_node_ptr rhs_root = rhs.get_root();
             root->set_right(rhs_root);
             rhs_root->set_parent(root);
 
             rhs_leftmost->set_left_thread(root);
-            base_node_ptr rhs_rightmost = rhs.control_node_.get_rightmost();
-            rhs_rightmost->set_right_thread(control_node_.get_end_node());
-            control_node_.set_rightmost(rhs_rightmost);
+            base_node_ptr rhs_rightmost = rhs.get_rightmost();
+            rhs_rightmost->set_right_thread(this->get_end_node());
+            this->set_rightmost(rhs_rightmost);
 
-            rhs.control_node_.reset();
+            rhs.reset();
 
             size_ += std::exchange(rhs.size_, 0);
         }
@@ -118,13 +119,13 @@ public:
     requires contains_subtree_size<node_type>
     {
         const_base_node_ptr node = find_impl(key);
-        base_node_ptr end_node = control_node_.get_end_node();
+        base_node_ptr end_node = this->get_end_node();
 
         if (node == end_node)
             return {};
 
         // key is found => the tree is not empty
-        base_node_ptr left_root = control_node_.get_root();
+        base_node_ptr left_root = this->get_root();
         base_node_ptr right_root = left_root->get_right();
         if (right_root)
             left_root->set_right_thread(end_node);
@@ -132,16 +133,16 @@ public:
             return {};
 
         Splay_Tree_Base right_tree;
-        detail::Control_Node &right_control_node = right_tree.control_node_;
 
-        right_root->set_parent(right_control_node.get_end_node());
-        right_control_node.set_root(right_root);
-        right_control_node.set_leftmost(right_root->minimum());
-        right_control_node.set_rightmost(control_node_.get_rightmost());
-        control_node_.set_rightmost(const_cast<base_node_ptr>(node));
+        right_root->set_parent(right_tree.get_end_node());
+        right_tree.set_root(right_root);
+        right_tree.set_leftmost(right_root->minimum());
+        right_tree.set_rightmost(this->get_rightmost());
+        this->set_rightmost(const_cast<base_node_ptr>(node));
 
-        right_tree.size_ = node_type::size(static_cast<node_ptr>(right_root));
-        size_ -= right_tree.size_;
+        const auto right_size = node_type::size(static_cast<node_ptr>(right_root));
+        right_tree.size_ = right_size;
+        size_ -= right_size;
 
         return right_tree;
     }
@@ -170,8 +171,8 @@ private:
     const_base_node_ptr lower_bound_impl(const key_type &key) const override
     {
         const_base_node_ptr lower_bound = nullptr;
-        const_base_node_ptr parent = control_node_.get_end_node();
-        const_base_node_ptr node = control_node_.get_root();
+        const_base_node_ptr parent = this->get_end_node();
+        const_base_node_ptr node = this->get_root();
 
         while (node)
         {
@@ -191,8 +192,8 @@ private:
     const_base_node_ptr upper_bound_impl(const key_type &key) const override
     {
         const_base_node_ptr upper_bound = nullptr;
-        const_base_node_ptr parent = control_node_.get_end_node();
-        const_base_node_ptr node = control_node_.get_root();
+        const_base_node_ptr parent = this->get_end_node();
+        const_base_node_ptr node = this->get_root();
 
         while (node)
         {
@@ -218,7 +219,7 @@ private:
         }
         else
         {
-            const_base_node_ptr end_node = control_node_.get_end_node();
+            const_base_node_ptr end_node = this->get_end_node();
             if (parent != end_node)
                 splay(const_cast<base_node_ptr>(parent));
 
@@ -246,7 +247,7 @@ private:
         assert(!parent->get_left() || !parent->get_right());
 
         base_node_ptr new_node = new node_type{key, nullptr, nullptr, parent};
-        base_node_ptr end_node = control_node_.get_end_node();
+        base_node_ptr end_node = this->get_end_node();
 
         if (parent == end_node)
         {
@@ -310,8 +311,8 @@ private:
         {
             if (right)
             {
-                control_node_.set_root(left);
-                left->set_parent(control_node_.get_end_node());
+                this->set_root(left);
+                left->set_parent(this->get_end_node());
 
                 base_node_ptr predecessor = left->maximum();
                 splay(predecessor);
@@ -335,17 +336,17 @@ private:
             successor->set_left_thread(node->get_left_unsafe());
         }
 
-        if (size_ == 1)
-            control_node_.set_root(nullptr);
+        if (size() == 1)
+            this->set_root(nullptr);
     }
 
     void splay(base_node_ptr node) const
     {
         assert(node);
 
-        while (node != control_node_.get_root())
+        while (node != this->get_root())
         {
-            if (base_node_ptr parent = node->get_parent(); parent == control_node_.get_root())
+            if (base_node_ptr parent = node->get_parent(); parent == this->get_root())
             {
                 if (node->is_left_child())
                     parent->right_rotate();

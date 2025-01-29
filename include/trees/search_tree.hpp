@@ -1,7 +1,6 @@
 #ifndef INCLUDE_TREES_SEARCH_TREE_HPP
 #define INCLUDE_TREES_SEARCH_TREE_HPP
 
-#include <memory>
 #include <utility>
 #include <cassert>
 #include <functional>
@@ -23,127 +22,6 @@
 
 namespace yLab
 {
-
-namespace detail
-{
-
-class Control_Node final
-{
-    using base_node_type = Node_Base;
-    using base_node_ptr = base_node_type *;
-    using const_base_node_ptr = const base_node_type *;
-
-public:
-
-    Control_Node() noexcept : head_{nullptr, &head_, &head_} {}
-
-    Control_Node(const Control_Node &rhs) = delete;
-    Control_Node &operator=(const Control_Node &rhs) = delete;
-
-    Control_Node(Control_Node &&rhs) noexcept
-    {
-        if (rhs.get_root())
-            take_ownership_of_tree_of(rhs);
-    }
-
-    Control_Node &operator=(Control_Node &&rhs) noexcept
-    {
-        swap(rhs);
-        return *this;
-    }
-
-    ~Control_Node() { clean_up(); }
-
-    base_node_ptr get_end_node() noexcept { return std::addressof(head_); }
-    const_base_node_ptr get_end_node() const noexcept { return std::addressof(head_); }
-
-    base_node_ptr get_root() noexcept { return head_.get_left(); }
-    const_base_node_ptr get_root() const noexcept { return head_.get_left(); }
-    void set_root(base_node_ptr root) noexcept { head_.set_left(root); }
-
-    base_node_ptr get_leftmost() noexcept { return head_.get_right(); }
-    const_base_node_ptr get_leftmost() const noexcept { return head_.get_right(); }
-    void set_leftmost(base_node_ptr leftmost) noexcept { head_.set_right(leftmost); }
-
-    base_node_ptr get_rightmost() noexcept { return head_.get_parent(); }
-    const_base_node_ptr get_rightmost() const noexcept { return head_.get_parent(); }
-    void set_rightmost(base_node_ptr rightmost) noexcept { head_.set_parent(rightmost); }
-
-    void clean_up() noexcept
-    {
-        for (base_node_ptr node = get_root(), save; node != nullptr; node = save)
-        {
-            if (base_node_ptr left = node->get_left())
-            {
-                save = left;
-                node->set_left(save->get_right());
-                save->set_right(node);
-            }
-            else
-            {
-                save = node->get_right();
-                delete node;
-            }
-        }
-    }
-
-    void swap(Control_Node &rhs) noexcept
-    {
-        if (get_root())
-        {
-            if (rhs.get_root())
-            {
-                adjust_tree_to_end_node_of(rhs);
-                rhs.adjust_tree_to_end_node_of(*this);
-                std::swap(head_, rhs.head_);
-            }
-            else
-                rhs.take_ownership_of_tree_of(*this);
-        }
-        else if (rhs.get_root())
-            take_ownership_of_tree_of(rhs);
-    }
-
-    void reset() noexcept
-    {
-        set_root(nullptr);
-
-        base_node_ptr end = get_end_node();
-        set_leftmost(end);
-        set_rightmost(end);
-    }
-
-private:
-
-    void take_ownership_of_tree_of(Control_Node &rhs) noexcept
-    {
-        assert(get_root() == nullptr);
-
-        rhs.adjust_tree_to_end_node_of(*this);
-
-        set_root(rhs.get_root());
-        set_leftmost(rhs.get_leftmost());
-        set_rightmost(rhs.get_rightmost());
-        rhs.reset();
-    }
-
-    void adjust_tree_to_end_node_of(Control_Node &rhs) noexcept
-    {
-        assert(get_root());
-
-        base_node_ptr end = rhs.get_end_node();
-        get_root()->set_parent(end);
-        get_leftmost()->set_left_thread(end);
-        get_rightmost()->set_right_thread(end);
-    }
-
-    // left child of head_ is the root of the tree
-    // right child of head_ is the leftmost element of the tree
-    // parent of head_ is the rightmost element of the tree
-    base_node_type head_;
-};
-
-} // namespace detail
 
 template<typename Node_T, typename Compare = std::less<typename Node_T::key_type>>
 requires std::derived_from<Node_T, Node_Base>
@@ -175,17 +53,17 @@ public:
     using reverse_iterator = std::reverse_iterator<iterator>;
     using const_reverse_iterator = reverse_iterator;
 
-    Search_Tree() : Search_Tree{key_compare{}} {}
+    Search_Tree() : Search_Tree(key_compare()) {}
 
-    explicit Search_Tree(const key_compare &comp) : comp_{comp} {}
+    explicit Search_Tree(const key_compare &comp) : comp_(comp) {}
 
     template<std::input_iterator It>
-    Search_Tree(It first, It last, const key_compare &comp = key_compare{}) : comp_{comp}
+    Search_Tree(It first, It last, const key_compare &comp = key_compare()) : Search_Tree(comp)
     {
         insert(first, last);
     }
 
-    Search_Tree(std::initializer_list<value_type> ilist, const key_compare &comp = key_compare{})
+    Search_Tree(std::initializer_list<value_type> ilist, const key_compare &comp = key_compare())
                : Search_Tree(ilist.begin(), ilist.end(), comp) {}
 
     Search_Tree(const Search_Tree &rhs) : Search_Tree(rhs.begin(), rhs.end(), rhs.comp_) {}
@@ -199,9 +77,11 @@ public:
     }
 
     Search_Tree(Search_Tree &&rhs) noexcept (std::is_nothrow_move_constructible_v<Compare>)
-        : control_node_{std::move(rhs.control_node_)},
-          comp_{std::move(rhs.comp_)},
-          size_{std::exchange(rhs.size_, 0)} {}
+        : size_{std::exchange(rhs.size_, 0)}, comp_(std::move(rhs.comp_))
+    {
+        if (rhs.get_root())
+            take_ownership_of_tree_of(rhs);
+    }
 
     Search_Tree &operator=(Search_Tree &&rhs) noexcept (noexcept(swap(rhs)))
     {
@@ -209,7 +89,7 @@ public:
         return *this;
     }
 
-    virtual ~Search_Tree() = default;
+    virtual ~Search_Tree() { clean_up(); }
 
     // observers
 
@@ -223,8 +103,8 @@ public:
 
     // iterators
 
-    const_iterator begin() const noexcept { return const_iterator{control_node_.get_leftmost()}; }
-    const_iterator end() const noexcept { return const_iterator{control_node_.get_end_node()}; }
+    const_iterator begin() const noexcept { return const_iterator{get_leftmost()}; }
+    const_iterator end() const noexcept { return const_iterator{get_end_node()}; }
 
     const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator{end()}; }
     const_reverse_iterator rend() const noexcept { return const_reverse_iterator{begin()}; }
@@ -263,16 +143,28 @@ public:
 
     void swap(Search_Tree &rhs) noexcept (std::is_nothrow_swappable_v<key_compare>)
     {
-        control_node_.swap(rhs.control_node_);
-        std::swap(comp_, rhs.comp_);
+        if (get_root())
+        {
+            if (rhs.get_root())
+            {
+                adjust_tree_to_end_node_of(rhs);
+                rhs.adjust_tree_to_end_node_of(*this);
+                std::swap(end_, rhs.end_);
+            }
+            else
+                rhs.take_ownership_of_tree_of(*this);
+        }
+        else if (rhs.get_root())
+            take_ownership_of_tree_of(rhs);
+
         std::swap(size_, rhs.size_);
+        std::swap(comp_, rhs.comp_);
     }
 
     void clear() noexcept
     {
-        control_node_.clean_up();
-        control_node_.reset();
-
+        clean_up();
+        reset();
         size_ = 0;
     }
 
@@ -284,15 +176,15 @@ public:
         {
             node = insert_impl(key, const_cast<base_node_ptr>(parent));
 
-            if (size_ == 0)
+            if (size() == 0)
             {
-                control_node_.set_leftmost(const_cast<base_node_ptr>(node));
-                control_node_.set_rightmost(const_cast<base_node_ptr>(node));
+                set_leftmost(const_cast<base_node_ptr>(node));
+                set_rightmost(const_cast<base_node_ptr>(node));
             }
             else if (comp_(key, *begin()))
-                control_node_.set_leftmost(const_cast<base_node_ptr>(node));
-            else if (comp_(static_cast<node_ptr>(control_node_.get_rightmost())->get_key(), key))
-                control_node_.set_rightmost(const_cast<base_node_ptr>(node));
+                set_leftmost(const_cast<base_node_ptr>(node));
+            else if (comp_(static_cast<node_ptr>(get_rightmost())->get_key(), key))
+                set_rightmost(const_cast<base_node_ptr>(node));
 
             size_++;
 
@@ -316,15 +208,15 @@ public:
         base_node_ptr node = base_ptr(pos);
         auto res = std::next(pos);
 
-        if (node == control_node_.get_leftmost())
-            control_node_.set_leftmost(base_ptr(res));
+        if (node == get_leftmost())
+            set_leftmost(base_ptr(res));
 
-        if (node == control_node_.get_rightmost())
+        if (node == get_rightmost())
         {
-            if (size_ == 1)
-                control_node_.set_rightmost(control_node_.get_end_node());
+            if (size() == 1)
+                set_rightmost(get_end_node());
             else
-                control_node_.set_rightmost(base_ptr(std::prev(pos)));
+                set_rightmost(base_ptr(std::prev(pos)));
         }
 
         erase_impl(node);
@@ -356,7 +248,7 @@ public:
         auto end_node = const_base_ptr(end());
 
         dot_dump(os, *end_node);
-        dump_subtree(os, static_cast<const_node_ptr>(control_node_.get_root()));
+        dump_subtree(os, static_cast<const_node_ptr>(get_root()));
 
         os << '\n';
 
@@ -405,11 +297,75 @@ protected:
 
     static node_ptr ptr(iterator it) noexcept { return const_cast<node_ptr>(const_ptr(it)); }
 
+    // end-node routines
+
+    base_node_ptr get_end_node() noexcept { return &end_; }
+    const_base_node_ptr get_end_node() const noexcept { return &end_; }
+
+    base_node_ptr get_root() noexcept { return end_.get_left(); }
+    const_base_node_ptr get_root() const noexcept { return end_.get_left(); }
+    void set_root(base_node_ptr root) noexcept { end_.set_left(root); }
+
+    base_node_ptr get_leftmost() noexcept { return end_.get_right(); }
+    const_base_node_ptr get_leftmost() const noexcept { return end_.get_right(); }
+    void set_leftmost(base_node_ptr leftmost) noexcept { end_.set_right(leftmost); }
+
+    base_node_ptr get_rightmost() noexcept { return end_.get_parent(); }
+    const_base_node_ptr get_rightmost() const noexcept { return end_.get_parent(); }
+    void set_rightmost(base_node_ptr rightmost) noexcept { end_.set_parent(rightmost); }
+
+    void clean_up() noexcept
+    {
+        for (base_node_ptr node = get_root(), save; node != nullptr; node = save)
+        {
+            if (base_node_ptr left = node->get_left())
+            {
+                save = left;
+                node->set_left(save->get_right());
+                save->set_right(node);
+            }
+            else
+            {
+                save = node->get_right();
+                delete node;
+            }
+        }
+    }
+
+    void reset() noexcept
+    {
+        set_root(nullptr);
+        set_leftmost(&end_);
+        set_rightmost(&end_);
+    }
+
+    void take_ownership_of_tree_of(Search_Tree &rhs) noexcept
+    {
+        assert(get_root() == nullptr);
+
+        rhs.adjust_tree_to_end_node_of(*this);
+
+        set_root(rhs.get_root());
+        set_leftmost(rhs.get_leftmost());
+        set_rightmost(rhs.get_rightmost());
+        rhs.reset();
+    }
+
+    void adjust_tree_to_end_node_of(Search_Tree &rhs) noexcept
+    {
+        assert(get_root());
+
+        base_node_ptr right_end = rhs.get_end_node();
+        get_root()->set_parent(right_end);
+        get_leftmost()->set_left_thread(right_end);
+        get_rightmost()->set_right_thread(right_end);
+    }
+
     // implementation of operations on tree
 
     virtual const_base_node_ptr find_impl(const key_type &key) const
     {
-        const_base_node_ptr node = control_node_.get_root();
+        const_base_node_ptr node = get_root();
 
         while (node)
         {
@@ -421,13 +377,13 @@ protected:
                 return node;
         }
 
-        return control_node_.get_end_node();
+        return get_end_node();
     }
 
     std::pair<const_base_node_ptr, const_base_node_ptr> find_with_parent(const key_type &key) const
     {
-        const_base_node_ptr node = control_node_.get_root();
-        const_base_node_ptr parent = control_node_.get_end_node();
+        const_base_node_ptr node = get_root();
+        const_base_node_ptr parent = get_end_node();
 
         while (node)
         {
@@ -444,8 +400,8 @@ protected:
 
     virtual const_base_node_ptr lower_bound_impl(const key_type &key) const
     {
-        const_base_node_ptr node = control_node_.get_root();
-        const_base_node_ptr lower_bound = control_node_.get_end_node();
+        const_base_node_ptr node = get_root();
+        const_base_node_ptr lower_bound = get_end_node();
 
         while (node)
         {
@@ -460,8 +416,8 @@ protected:
 
     virtual const_base_node_ptr upper_bound_impl(const key_type &key) const
     {
-        const_base_node_ptr node = control_node_.get_root();
-        const_base_node_ptr upper_bound = control_node_.get_end_node();
+        const_base_node_ptr node = get_root();
+        const_base_node_ptr upper_bound = get_end_node();
 
         while (node)
         {
@@ -480,7 +436,7 @@ protected:
         assert(!parent->get_left() || !parent->get_right());
 
         base_node_ptr new_node = new node_type{key, nullptr, nullptr, parent};
-        base_node_ptr end_node = control_node_.get_end_node();
+        base_node_ptr end_node = get_end_node();
 
         if (parent == end_node)
         {
@@ -523,8 +479,8 @@ protected:
         {
             if (node->has_right_thread())
             {
-                if (node == control_node_.get_root())
-                    control_node_.set_root(nullptr);
+                if (node == get_root())
+                    set_root(nullptr);
                 else
                     bst_erase_no_children_case(node);
             }
@@ -682,9 +638,12 @@ protected:
                        self, fmt::ptr(node->get_right_unsafe()));
     }
 
-    detail::Control_Node control_node_;
-    Compare comp_;
-    std::size_t size_ = 0;
+    // left child of end_ is the root of the tree
+    // right child of end_ is the leftmost element of the tree
+    // parent of end_ is the rightmost element of the tree
+    base_node_type end_{nullptr, &end_, &end_};
+    size_type size_ = 0;
+    key_compare comp_;
 };
 
 template<typename Node_T, typename Compare>
