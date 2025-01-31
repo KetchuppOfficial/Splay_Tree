@@ -34,14 +34,14 @@ protected:
     using const_base_node_ptr = const base_node_type *;
     using node_ptr = Node_T *;
     using const_node_ptr = const Node_T *;
+    using node_type = Node_T;
 
 public:
 
-    using node_type = Node_T;
     using key_type = typename node_type::key_type;
     using key_compare = Compare;
     using value_type = key_type;
-    using value_compare = Compare;
+    using value_compare = key_compare;
     using pointer = value_type *;
     using const_pointer = const value_type *;
     using reference = value_type &;
@@ -76,7 +76,7 @@ public:
         return *this;
     }
 
-    Search_Tree(Search_Tree &&rhs) noexcept (std::is_nothrow_move_constructible_v<Compare>)
+    Search_Tree(Search_Tree &&rhs) noexcept (std::is_nothrow_move_constructible_v<key_compare>)
         : size_{std::exchange(rhs.size_, 0)}, comp_(std::move(rhs.comp_))
     {
         if (rhs.get_root())
