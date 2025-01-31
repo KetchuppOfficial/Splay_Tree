@@ -104,7 +104,7 @@ public:
     // iterators
 
     const_iterator begin() const noexcept { return const_iterator{get_leftmost()}; }
-    const_iterator end() const noexcept { return const_iterator{get_end_node()}; }
+    const_iterator end() const noexcept { return const_iterator{&end_}; }
 
     const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator{end()}; }
     const_reverse_iterator rend() const noexcept { return const_reverse_iterator{begin()}; }
@@ -214,7 +214,7 @@ public:
         if (node == get_rightmost())
         {
             if (size() == 1)
-                set_rightmost(get_end_node());
+                set_rightmost(&end_);
             else
                 set_rightmost(base_ptr(std::prev(pos)));
         }
@@ -299,9 +299,6 @@ protected:
 
     // end-node routines
 
-    base_node_ptr get_end_node() noexcept { return &end_; }
-    const_base_node_ptr get_end_node() const noexcept { return &end_; }
-
     base_node_ptr get_root() noexcept { return end_.get_left(); }
     const_base_node_ptr get_root() const noexcept { return end_.get_left(); }
     void set_root(base_node_ptr root) noexcept { end_.set_left(root); }
@@ -355,7 +352,7 @@ protected:
     {
         assert(get_root());
 
-        base_node_ptr right_end = rhs.get_end_node();
+        base_node_ptr right_end = &rhs.end_;
         get_root()->set_parent(right_end);
         get_leftmost()->set_left_thread(right_end);
         get_rightmost()->set_right_thread(right_end);
@@ -377,13 +374,13 @@ protected:
                 return node;
         }
 
-        return get_end_node();
+        return &end_;
     }
 
     std::pair<const_base_node_ptr, const_base_node_ptr> find_with_parent(const key_type &key) const
     {
         const_base_node_ptr node = get_root();
-        const_base_node_ptr parent = get_end_node();
+        const_base_node_ptr parent = &end_;
 
         while (node)
         {
@@ -401,7 +398,7 @@ protected:
     virtual const_base_node_ptr lower_bound_impl(const key_type &key) const
     {
         const_base_node_ptr node = get_root();
-        const_base_node_ptr lower_bound = get_end_node();
+        const_base_node_ptr lower_bound = &end_;
 
         while (node)
         {
@@ -417,7 +414,7 @@ protected:
     virtual const_base_node_ptr upper_bound_impl(const key_type &key) const
     {
         const_base_node_ptr node = get_root();
-        const_base_node_ptr upper_bound = get_end_node();
+        const_base_node_ptr upper_bound = &end_;
 
         while (node)
         {
@@ -436,7 +433,7 @@ protected:
         assert(!parent->get_left() || !parent->get_right());
 
         base_node_ptr new_node = new node_type{key, nullptr, nullptr, parent};
-        base_node_ptr end_node = get_end_node();
+        base_node_ptr end_node = &end_;
 
         if (parent == end_node)
         {
