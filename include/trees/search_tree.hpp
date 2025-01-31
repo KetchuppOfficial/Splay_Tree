@@ -212,12 +212,7 @@ public:
             set_leftmost(base_ptr(res));
 
         if (node == get_rightmost())
-        {
-            if (size() == 1)
-                set_rightmost(&end_);
-            else
-                set_rightmost(base_ptr(std::prev(pos)));
-        }
+            set_rightmost(size() == 1 ? &end_ : base_ptr(std::prev(pos)));
 
         unlink_node(node);
         size_--;
