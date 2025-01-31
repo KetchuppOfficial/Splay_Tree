@@ -33,18 +33,18 @@ public:
     using typename base_tree::iterator;
     using typename base_tree::const_iterator;
 
-    Splay_Tree_Base() : Splay_Tree_Base{key_compare{}} {}
+    Splay_Tree_Base() : Splay_Tree_Base{key_compare()} {}
 
-    explicit Splay_Tree_Base(const key_compare &comp) : base_tree{comp} {}
+    explicit Splay_Tree_Base(const key_compare &comp) : base_tree(comp) {}
 
     template<std::input_iterator it>
-    Splay_Tree_Base(it first, it second, const key_compare &comp = key_compare{}) : base_tree{comp}
+    Splay_Tree_Base(it first, it second, const key_compare &comp = key_compare()) : base_tree(comp)
     {
         this->insert(first, second);
     }
 
     Splay_Tree_Base(std::initializer_list<value_type> ilist,
-                    const key_compare &comp = key_compare{})
+                    const key_compare &comp = key_compare())
         : Splay_Tree_Base(ilist.begin(), ilist.end(), comp) {}
 
     Splay_Tree_Base(const Splay_Tree_Base &rhs)
