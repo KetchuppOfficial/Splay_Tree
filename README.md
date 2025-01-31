@@ -127,7 +127,7 @@ To have a test one might find **generator** useful. It has the following options
 
 The **generator** generates a test of the format:
 
-```
+```text
 ((k\s-?\d+)|(q\s-?\d+\s-?\d+))+
 ```
 
