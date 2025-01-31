@@ -98,7 +98,7 @@ public:
     Splay_Tree_Base split(const key_type &key)
     requires contains_subtree_size<node_type>
     {
-        const_base_node_ptr node = find_impl(key);
+        const_base_node_ptr node = do_find(key);
         base_node_ptr end_node = &this->end_;
 
         if (node == end_node)
@@ -137,7 +137,7 @@ private:
 
     // Lookup
 
-    const_base_node_ptr find_impl(const key_type &key) const override
+    const_base_node_ptr do_find(const key_type &key) const override
     {
         auto [node, parent] = this->find_with_parent(key);
         auto result = lookup_splay(node, parent);
@@ -145,7 +145,7 @@ private:
         return result;
     }
 
-    const_base_node_ptr lower_bound_impl(const key_type &key) const override
+    const_base_node_ptr do_lower_bound(const key_type &key) const override
     {
         const_base_node_ptr lower_bound = nullptr;
         const_base_node_ptr parent = &this->end_;
@@ -166,7 +166,7 @@ private:
         return result;
     }
 
-    const_base_node_ptr upper_bound_impl(const key_type &key) const override
+    const_base_node_ptr do_upper_bound(const key_type &key) const override
     {
         const_base_node_ptr upper_bound = nullptr;
         const_base_node_ptr parent = &this->end_;
@@ -218,7 +218,7 @@ private:
 
     // Modifiers
 
-    base_node_ptr insert_impl(const key_type &key, base_node_ptr parent) override
+    base_node_ptr do_insert(const key_type &key, base_node_ptr parent) override
     {
         assert(parent);
         assert(!parent->get_left() || !parent->get_right());
@@ -275,7 +275,7 @@ private:
         return new_node;
     }
 
-    void erase_impl(base_node_ptr node) override
+    void unlink_node(base_node_ptr node) override
     {
         assert(node);
 

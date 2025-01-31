@@ -119,7 +119,7 @@ public:
 
     const_iterator find(const key_type &key) const
     {
-        auto node = find_impl(key);
+        auto node = do_find(key);
         return const_iterator{node};
     }
 
@@ -128,14 +128,14 @@ public:
     // Finds first element that is not less than key
     const_iterator lower_bound(const key_type &key) const
     {
-        auto node = lower_bound_impl(key);
+        auto node = do_lower_bound(key);
         return const_iterator{node};
     }
 
     // Finds first element that is greater than key
     const_iterator upper_bound(const key_type &key) const
     {
-        auto node = upper_bound_impl(key);
+        auto node = do_upper_bound(key);
         return const_iterator{node};
     }
 
@@ -174,7 +174,7 @@ public:
 
         if (node == nullptr)
         {
-            node = insert_impl(key, const_cast<base_node_ptr>(parent));
+            node = do_insert(key, const_cast<base_node_ptr>(parent));
 
             if (size() == 0)
             {
@@ -219,7 +219,7 @@ public:
                 set_rightmost(base_ptr(std::prev(pos)));
         }
 
-        erase_impl(node);
+        unlink_node(node);
         size_--;
 
         delete node;
@@ -360,7 +360,7 @@ protected:
 
     // implementation of operations on tree
 
-    virtual const_base_node_ptr find_impl(const key_type &key) const
+    virtual const_base_node_ptr do_find(const key_type &key) const
     {
         const_base_node_ptr node = get_root();
 
@@ -395,7 +395,7 @@ protected:
         return std::pair{node, parent};
     }
 
-    virtual const_base_node_ptr lower_bound_impl(const key_type &key) const
+    virtual const_base_node_ptr do_lower_bound(const key_type &key) const
     {
         const_base_node_ptr node = get_root();
         const_base_node_ptr lower_bound = &end_;
@@ -411,7 +411,7 @@ protected:
         return lower_bound;
     }
 
-    virtual const_base_node_ptr upper_bound_impl(const key_type &key) const
+    virtual const_base_node_ptr do_upper_bound(const key_type &key) const
     {
         const_base_node_ptr node = get_root();
         const_base_node_ptr upper_bound = &end_;
@@ -427,7 +427,7 @@ protected:
         return upper_bound;
     }
 
-    virtual base_node_ptr insert_impl(const key_type &key, base_node_ptr parent)
+    virtual base_node_ptr do_insert(const key_type &key, base_node_ptr parent)
     {
         assert(parent);
         assert(!parent->get_left() || !parent->get_right());
@@ -468,7 +468,7 @@ protected:
         return new_node;
     }
 
-    virtual void erase_impl(base_node_ptr node)
+    virtual void unlink_node(base_node_ptr node)
     {
         assert(node);
 
