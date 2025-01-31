@@ -4,10 +4,10 @@
 #include <stdexcept>
 #include <utility>
 #include <iterator>
-#include <algorithm>
 #include <chrono>
 
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 
 #if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
 #include "trees/trees.hpp"
@@ -23,15 +23,13 @@ namespace
 template<typename Tree_T>
 std::size_t answer_query(const Tree_T &tree, int key_1, int key_2)
 {
-    if (key_1 <= key_2)
-    {
-        if constexpr (yLab::contains_subtree_size<typename Tree_T::node_type>)
-            return tree.n_less_than(key_2) - tree.n_less_than(key_1);
-        else
-            return std::distance(tree.lower_bound(key_1), tree.lower_bound(key_2));
-    }
-    else
+    if (key_1 > key_2)
         return 0;
+
+    if constexpr (yLab::contains_subtree_size<typename Tree_T::node_type>)
+        return tree.n_less_than(key_2) - tree.n_less_than(key_1);
+    else
+        return std::distance(tree.lower_bound(key_1), tree.lower_bound(key_2));
 }
 
 template<typename Tree_T>
@@ -83,14 +81,14 @@ auto run_test()
                 {
                     if (std::cin.eof())
                     {
-                        answers.emplace_back(answer_query(tree, key_1, key_2));
+                        answers.push_back(answer_query(tree, key_1, key_2));
                         break;
                     }
 
                     throw std::runtime_error{"Error while reading the second key"};
                 }
 
-                answers.emplace_back(answer_query(tree, key_1, key_2));
+                answers.push_back(answer_query(tree, key_1, key_2));
                 continue;
             }
 
@@ -102,7 +100,7 @@ auto run_test()
     }
 
     auto finish = std::chrono::high_resolution_clock::now();
-    return std::pair{answers, finish - start};
+    return std::pair{std::move(answers), finish - start};
 }
 
 } // unnamed namespace
@@ -122,8 +120,7 @@ int main() try
     auto [answers, time] = run_test<tree_type>();
 
 #if defined(ANSWERS)
-    std::ranges::copy(answers, std::ostream_iterator<std::size_t>{std::cout, " "});
-    std::cout << std::endl;
+    fmt::println("{}", fmt::join(answers, " "));
 #elif defined(TIME)
     fmt::print("{} ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(time).count());
 #endif
@@ -132,11 +129,11 @@ int main() try
 }
 catch (const std::exception &e)
 {
-    fmt::print("Error: {}. Abort\n", e.what());
+    fmt::println(stderr, "Caught an instance of {}.\n what(): {}", typeid(e).name(), e.what());
     return 1;
 }
 catch (...)
 {
-    fmt::print("Unknown exception caught. Abort\n");
+    fmt::println(stderr, "Caught an unknown exception");
     return 1;
 }
