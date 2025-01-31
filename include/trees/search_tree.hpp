@@ -643,7 +643,7 @@ protected:
     // parent of end_ is the rightmost element of the tree
     base_node_type end_{nullptr, &end_, &end_};
     size_type size_ = 0;
-    key_compare comp_;
+    [[no_unique_address]] key_compare comp_;
 };
 
 template<typename Node_T, typename Compare>
