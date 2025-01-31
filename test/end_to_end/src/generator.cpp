@@ -10,9 +10,12 @@
 #include <exception>
 
 #include <fmt/core.h>
+#include <fmt/ostream.h>
+#include <fmt/ranges.h>
+
 #include <CLI/CLI.hpp>
 
-namespace yLab
+namespace
 {
 
 template<typename Key_T, typename Distr_T, typename Engine>
@@ -24,14 +27,11 @@ std::pair<Key_T, Key_T> generate_keys(std::size_t n_keys, Distr_T distr, Engine 
     for (auto _ : std::views::iota(0uz, n_keys))
         keys.emplace_back(distr(gen));
 
-    auto min = *std::ranges::min_element(keys);
-    auto max = *std::ranges::max_element(keys);
+    auto [min_it, max_it] = std::ranges::minmax_element(keys);
 
-    for (auto k : keys)
-        std::cout << "k " << k;
-    std::cout << std::endl;
+    fmt::println(std::cout, "k {}", fmt::join(keys, " k "));
 
-    return std::pair{std::midpoint(min, max), (max - min) / 2};
+    return std::pair{std::midpoint(*min_it, *max_it), (*max_it - *min_it) / 2};
 }
 
 template<typename Key_T, typename Distr_T, typename Engine>
@@ -39,17 +39,14 @@ void generate_queries(std::size_t n_queries, Distr_T distr, Engine gen)
 {
     for (auto _ : std::views::iota(0uz, n_queries))
     {
-        Key_T lower_bound = std::round(distr(gen));
-        Key_T upper_bound = std::round(distr(gen));
-        if (lower_bound > upper_bound)
-            std::swap(lower_bound, upper_bound);
-
-        std::cout << "q " << lower_bound << ' ' << upper_bound << ' ';
+        const std::pair<Key_T, Key_T> bounds =
+            std::minmax(std::round(distr(gen)), std::round(distr(gen)));
+        fmt::print(std::cout, "q {} {} ", bounds.first, bounds.second);
     }
     std::cout << std::endl;
 }
 
-} // namespace yLab
+} // unnamed namespace
 
 int main(int argc, char *argv[]) try
 {
@@ -57,30 +54,34 @@ int main(int argc, char *argv[]) try
 
     CLI::App app{"Splay tree end-to-end tests driver"};
 
-    std::size_t n_keys, n_queries;
-    app.add_option("--n-keys", n_keys, "Set the number of keys to generate")->required();
-    app.add_option("--n-queries", n_queries, "Set the number of queries to generate")->required();
+    std::size_t n_keys;
+    app.add_option("--n-keys", n_keys, "Set the number of keys to generate")
+        ->required();
+
+    std::size_t n_queries;
+    app.add_option("--n-queries", n_queries, "Set the number of queries to generate")
+        ->required();
 
     CLI11_PARSE(app, argc, argv);
 
     std::random_device rd;
     std::mt19937_64 gen{rd()};
 
-    std::uniform_int_distribution<key_type> key{};
-    auto [mean, stddef] = yLab::generate_keys<key_type>(n_keys, key, gen);
+    std::uniform_int_distribution<key_type> key;
+    auto [mean, stddef] = generate_keys<key_type>(n_keys, key, gen);
 
     std::normal_distribution query{static_cast<double>(mean), static_cast<double>(stddef)};
-    yLab::generate_queries<key_type>(n_queries, query, gen);
+    generate_queries<key_type>(n_queries, query, gen);
 
     return 0;
 }
 catch (const std::exception &e)
 {
-    fmt::print("Error: {}. Abort\n", e.what());
+    fmt::println(stderr, "Caught an instance of {}.\n what(): {}", typeid(e).name(), e.what());
     return 1;
 }
 catch (...)
 {
-    fmt::print("Unknown exception caught. Abort\n");
+    fmt::println(stderr, "Caught an unknown exception");
     return 1;
 }
