@@ -1,43 +1,17 @@
 add_executable(driver ./src/driver.cpp)
-target_include_directories(driver PRIVATE ${INCLUDE_DIR})
-target_compile_definitions(driver PRIVATE SPLAY_TREE ANSWERS)
-target_link_libraries(driver PRIVATE fmt::fmt)
-
-add_executable(stopwatch ./src/driver.cpp)
-target_include_directories(stopwatch PRIVATE ${INCLUDE_DIR})
-target_compile_definitions(stopwatch PRIVATE SPLAY_TREE TIME)
-target_link_libraries(stopwatch PRIVATE fmt::fmt)
-
-add_executable(augmented_driver ./src/driver.cpp)
-target_include_directories(augmented_driver PRIVATE ${INCLUDE_DIR})
-target_compile_definitions(augmented_driver PRIVATE AUGMENTED_SPLAY_TREE ANSWERS)
-target_link_libraries(augmented_driver PRIVATE fmt::fmt)
-
-add_executable(augmented_stopwatch ./src/driver.cpp)
-target_include_directories(augmented_stopwatch PRIVATE ${INCLUDE_DIR})
-target_compile_definitions(augmented_stopwatch PRIVATE AUGMENTED_SPLAY_TREE TIME)
-target_link_libraries(augmented_stopwatch PRIVATE fmt::fmt)
-
-add_executable(std_driver ./src/driver.cpp)
-target_include_directories(std_driver PRIVATE ${INCLUDE_DIR})
-target_compile_definitions(std_driver PRIVATE ANSWERS)
-target_link_libraries(std_driver PRIVATE fmt::fmt)
-
-add_executable(std_stopwatch ./src/driver.cpp)
-target_include_directories(std_stopwatch PRIVATE ${INCLUDE_DIR})
-target_compile_definitions(std_stopwatch PRIVATE TIME)
-target_link_libraries(std_stopwatch PRIVATE fmt::fmt)
+target_include_directories(driver PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 add_executable(generator ./src/generator.cpp)
-target_link_libraries(generator PRIVATE fmt::fmt CLI11::CLI11)
 
-set_directory_properties(PROPERTIES
-                         CXX_STANDARD 23
-                         CXX_STANDARD_REQUIRED ON
-                         CXX_EXTENSIONS OFF)
+set(TARGETS driver generator)
+foreach(target ${TARGETS})
+    target_compile_features(${target} PRIVATE cxx_std_23)
+    target_link_libraries(${target}
+    PRIVATE
+        fmt::fmt
+        CLI11::CLI11
+    )
+endforeach()
 
-install(TARGETS driver stopwatch
-                augmented_driver augmented_stopwatch
-                std_driver std_stopwatch
-                generator
-        DESTINATION ${INSTALL_DIR})
+include(GNUInstallDirs)
+install(TARGETS ${TARGETS})

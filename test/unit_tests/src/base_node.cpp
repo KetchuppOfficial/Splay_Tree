@@ -4,7 +4,7 @@
 
 TEST(Node_Base, Constructor)
 {
-    yLab::Node_Base node_0;
+    yLab::Node_Base node_0{nullptr, nullptr, nullptr};
 
     EXPECT_EQ(node_0.get_left(), nullptr);
     EXPECT_EQ(node_0.get_right(), nullptr);

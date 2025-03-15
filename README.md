@@ -48,14 +48,7 @@ cmake --build build [--target <tgt>]
 
 **tgt** can be
 
-- **driver**: a program that takes a test as an input, runs it on the splay tree and produces the
-              answer;
-- **augmented_driver**: the same as **driver** except that augmented splay tree is used;
-- **std_driver**: the same as **driver** except that `std::set` is used;
-- **stopwatch**: a program that takes a test as an input, runs it on the splay tree and produces
-                 execution time;
-- **augmented_stopwatch**: the same as **stopwatch** except that augmented splay tree is used;
-- **std_stopwatch**: the same as **stopwatch** except that `std::set` is used;
+- **driver**: a program that takes a test as an input, runs it on a tree and produces the answer;
 - **generator**: a program that generates a test;
 - **unit_tests**: self-explanatory.
 
@@ -87,36 +80,50 @@ checker.py --help
 ```
 
 The script generates a test with given number of keys (**N**) and queries (**M**). The test is saved
-in **N_M.test**. After that this script runs **std_driver**, gets answers that are supposed to be
-correct and saves them in file **N_M.ans**. Then, **driver** or **augmented_driver** (depending on
-**tree**) does the same. The results are saved in **N_M.res**. Finally, files **N_M.ans** and
-**N_M.res** are compared. If they differ, then this test is considered "failed". It is considered
-"passed" otherwise.
+in **N_M.test**. After that this script runs **driver** on `std::set`, gets answers that are
+supposed to be correct and saves them in file **N_M.ans**. Then, **driver** on the splay tree or
+augmented splay tree or does the same. The results are saved in **N_M.res**. Finally, files
+**N_M.ans** and **N_M.res** are compared. If they differ, then this test is considered "failed". It
+is considered "passed" otherwise.
 
 **tree** argument has to be of value **splay** for testing splay tree or **splay+** for testing
 augmented splay tree.
 
 All above mentioned files locate in *test/end_to_end/data* directory.
 
-Before running the test all executables should be placed in a single directory. It can be achieved by
-running the following command:
+Before running the test **driver** and **generator** should be placed in a single directory. It can
+be achieved by running the following command:
 
 ```bash
-cmake --install build
+cmake --install build --prefix .
 ```
 
-If you want to run tests manually, you can install all targets except for **unit_tests** in *bin*
-directory and then pass tests to drivers and stopwatches as follows:
+If you want to run tests manually:
 
 ```bash
-./bin/driver < /path/to/file/with/test
+./bin/driver --help
+# Program that runs a benchmark from stdin on a search tree
+# Usage: ./bin/driver [OPTIONS]
+#
+# Options:
+#   -h,--help                   Print this help message and exit
+#   -t,--time                   Measure execution time of the benchmark
+#   -a,--answers                Print answers to the given range queries
+#   --tree TEXT:{std::set,splay,splay+} REQUIRED
+#                               The type of search tree to run benchmark on
+```
+
+Usage example:
+
+```bash
+./bin/driver -a --tree splay+
 ```
 
 To have a test one might find **generator** useful. It has the following options:
 
 ```bash
 ./bin/generator --help
-# Splay tree end-to-end tests driver
+# Splay tree end-to-end tests generator
 # Usage: ./bin/generator [OPTIONS]
 #
 # Options:

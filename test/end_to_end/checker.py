@@ -4,8 +4,8 @@ import sys
 from pathlib import Path
 from termcolor import colored
 
-def parse_options():
 
+def parse_options():
     parser = argparse.ArgumentParser(description =
         "This script is a utility for easy end-to-end testing of splay tree")
 
@@ -33,45 +33,43 @@ def parse_options():
     return args
 
 
-def main():
-
+def main() -> None:
     args = parse_options()
 
-    generator = f"{args.dir}/generator"
+    generator : str = f"{args.dir}/generator"
     if not Path.exists(Path(generator)):
         raise Exception("no test generator found")
 
-    ans_generator = f"{args.dir}/std_driver"
-    if not Path.exists(Path(ans_generator)):
-        raise Exception("no answers generator found")
-
-    driver = "{}/{}".format(args.dir, "driver" if args.tree == "splay" else "augmented_driver")
+    driver : str = f"{args.dir}/driver"
     if not Path.exists(Path(driver)):
         raise Exception("no driver found")
 
-    script_dir = Path(sys.argv[0]).parent
-    data_dir = f"{str(script_dir)}/data"
+    script_dir : Path = Path(sys.argv[0]).parent
+    data_dir : str = f"{str(script_dir)}/data"
     Path.mkdir(Path(data_dir), exist_ok = True)
 
     print(colored("Generating test...", "green"))
-    generate_test_cmd = [generator, "--n-keys", f"{args.keys}", "--n-queries", f"{args.queries}"]
-    test_file_name = f"{data_dir}/{args.keys}_{args.queries}.test"
+    generate_test_cmd : list[str] = \
+        [generator, "--n-keys", f"{args.keys}", "--n-queries", f"{args.queries}"]
+    test_file_name : str = f"{data_dir}/{args.keys}_{args.queries}.test"
     with open(test_file_name, "w+") as test_file:
         subprocess.run(generate_test_cmd, stdout = test_file, check = True)
 
     print(colored("Generating answer...", "green"))
-    ans_file_name = f"{data_dir}/{args.keys}_{args.queries}.ans"
+    generate_ans_cmd : list[str] = [driver, "-a", "--tree", "std::set"]
+    ans_file_name : str = f"{data_dir}/{args.keys}_{args.queries}.ans"
     with open(test_file_name, "r") as test_file, open(ans_file_name, "w+") as ans_file:
-        subprocess.run(ans_generator, stdin = test_file, stdout = ans_file, check = True)
+        subprocess.run(generate_ans_cmd, stdin = test_file, stdout = ans_file, check = True)
 
     print(colored("Running test...", "green"))
-    res_file_name = f"{data_dir}/{args.keys}_{args.queries}.res"
+    generate_res_cmd : list[str] = [driver, "-a", "--tree", args.tree]
+    res_file_name : str = f"{data_dir}/{args.keys}_{args.queries}.res"
     with open(test_file_name, "r") as test_file, open(res_file_name, "w+") as res_file:
-        subprocess.run(driver, stdin = test_file, stdout = res_file, check = True)
+        subprocess.run(generate_res_cmd, stdin = test_file, stdout = ans_file, check = True)
 
     with open(res_file_name, "r") as res_file, open(ans_file_name, "r") as ans_file:
-        res = res_file.read()
-        ans = ans_file.read()
+        res : str = res_file.read()
+        ans : str = ans_file.read()
         if res == ans:
             print(colored("Test passed!", "green"))
         else:

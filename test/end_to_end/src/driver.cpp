@@ -5,31 +5,47 @@
 #include <utility>
 #include <iterator>
 #include <chrono>
+#include <set>
 
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
-#if defined(SPLAY_TREE) || defined(AUGMENTED_SPLAY_TREE)
-#include "trees/trees.hpp"
-#else
-#include <set>
-#endif
+#include <CLI/CLI.hpp>
 
+#include "trees/trees.hpp"
 #include "nodes/node_concepts.hpp"
 
 namespace
 {
 
-template<typename Tree_T>
-std::size_t answer_query(const Tree_T &tree, int key_1, int key_2)
+using key_type = int;
+
+key_type get_key()
 {
-    if (key_1 > key_2)
+    key_type key;
+    std::cin >> key;
+    if (std::cin.fail())
+        throw std::runtime_error{"Error while reading a key"};
+    return key;
+}
+
+std::pair<key_type, key_type> get_range()
+{
+    auto key_1 = get_key();
+    auto key_2 = get_key();
+    return std::pair{key_1, key_2};
+}
+
+template<typename Tree_T>
+std::size_t answer_query(const Tree_T &tree, std::pair<key_type, key_type> range)
+{
+    if (range.first > range.second)
         return 0;
 
     if constexpr (yLab::contains_subtree_size<typename Tree_T::node_type>)
-        return tree.n_less_than(key_2) - tree.n_less_than(key_1);
+        return tree.n_less_than(range.second) - tree.n_less_than(range.first);
     else
-        return std::distance(tree.lower_bound(key_1), tree.lower_bound(key_2));
+        return std::distance(tree.lower_bound(range.first), tree.lower_bound(range.second));
 }
 
 template<typename Tree_T>
@@ -44,59 +60,22 @@ auto run_test()
     {
         char query;
         std::cin >> query;
-
         if (!std::cin.good())
-        {
-            if (std::cin.eof())
-                break;
-            throw std::runtime_error{"Error while reading a query"};
-        }
+            break;
 
         switch (query)
         {
             case 'k':
-            {
-                int key;
-                std::cin >> key;
-                if (!std::cin.good())
-                {
-                    if (std::cin.eof())
-                        break;
-                    throw std::runtime_error{"Error while reading a key"};
-                }
-                tree.insert(key);
-                continue;
-            }
+                tree.insert(get_key());
+                break;
 
             case 'q':
-            {
-                int key_1;
-                std::cin >> key_1;
-                if (!std::cin.good())
-                    throw std::runtime_error{"Error while reading the first key in a pair"};
-
-                int key_2;
-                std::cin >> key_2;
-                if (!std::cin.good())
-                {
-                    if (std::cin.eof())
-                    {
-                        answers.push_back(answer_query(tree, key_1, key_2));
-                        break;
-                    }
-
-                    throw std::runtime_error{"Error while reading the second key"};
-                }
-
-                answers.push_back(answer_query(tree, key_1, key_2));
-                continue;
-            }
+                answers.push_back(answer_query(tree, get_range()));
+                break;
 
             default:
                 throw std::runtime_error{fmt::format("Unknow query \'{}\'", query)};
         }
-
-        break;
     }
 
     auto finish = std::chrono::high_resolution_clock::now();
@@ -105,25 +84,36 @@ auto run_test()
 
 } // unnamed namespace
 
-int main() try
+int main(int argc, char **argv) try
 {
-    using key_type = int;
+    CLI::App app{"Program that runs a benchmark from stdin on a search tree"};
 
-#if defined(AUGMENTED_SPLAY_TREE)
-    using tree_type = yLab::Augmented_Splay_Tree<key_type>;
-#elif defined(SPLAY_TREE)
-    using tree_type = yLab::Splay_Tree<key_type>;
-#else
-    using tree_type = std::set<key_type>;
-#endif
+    auto *time_flag = app.add_flag("-t,--time", "Measure execution time of the benchmark");
+    auto *ans_flag = app.add_flag("-a,--answers", "Print answers to the given range queries");
 
-    auto [answers, time] = run_test<tree_type>();
+    std::string tree_type;
+    app.add_option("--tree", tree_type, "The type of search tree to run benchmark on")
+        ->check(CLI::IsMember({"std::set", "splay", "splay+"}))
+        ->required();
 
-#if defined(ANSWERS)
-    fmt::println("{}", fmt::join(answers, " "));
-#elif defined(TIME)
-    fmt::print("{} ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(time).count());
-#endif
+    CLI11_PARSE(app, argc, argv);
+
+    auto [answers, time] = [&]
+    {
+        if (tree_type == "std::set")
+            return run_test<std::set<key_type>>();
+        else if (tree_type == "splay")
+            return run_test<yLab::Splay_Tree<key_type>>();
+        else if (tree_type == "splay+")
+            return run_test<yLab::Augmented_Splay_Tree<key_type>>();
+        std::unreachable();
+    }();
+
+    if (*time_flag)
+        fmt::print("{} ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(time).count());
+
+    if (*ans_flag)
+        fmt::println("{}", fmt::join(answers, " "));
 
     return 0;
 }

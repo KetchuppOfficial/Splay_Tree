@@ -3,14 +3,12 @@
 #include <vector>
 #include <ranges>
 #include <algorithm>
-#include <iostream>
 #include <numeric>
 #include <cmath>
 #include <random>
 #include <exception>
 
-#include <fmt/core.h>
-#include <fmt/ostream.h>
+#include <fmt/base.h>
 #include <fmt/ranges.h>
 
 #include <CLI/CLI.hpp>
@@ -29,21 +27,53 @@ std::pair<Key_T, Key_T> generate_keys(std::size_t n_keys, Distr_T distr, Engine 
 
     auto [min_it, max_it] = std::ranges::minmax_element(keys);
 
-    fmt::println(std::cout, "k {}", fmt::join(keys, " k "));
+    fmt::println("k {}", fmt::join(keys, " k "));
 
     return std::pair{std::midpoint(*min_it, *max_it), (*max_it - *min_it) / 2};
 }
 
+struct Query final
+{
+    int first;
+    int second;
+};
+
+} // unnamed namespace
+
+namespace fmt
+{
+
+template<>
+struct formatter<Query> final
+{
+    constexpr auto parse(format_parse_context &ctx) { return ctx.begin(); }
+
+    format_context::iterator format(Query q, format_context &ctx) const
+    {
+        return format_to(ctx.out(), "q {} {}", q.first, q.second);
+    }
+};
+
+} // namespace fmt
+
+namespace {
+
 template<typename Key_T, typename Distr_T, typename Engine>
 void generate_queries(std::size_t n_queries, Distr_T distr, Engine gen)
 {
+    std::vector<Query> queries;
+    queries.reserve(n_queries);
+
     for (auto _ : std::views::iota(0uz, n_queries))
     {
-        const std::pair<Key_T, Key_T> bounds =
-            std::minmax(std::round(distr(gen)), std::round(distr(gen)));
-        fmt::print(std::cout, "q {} {} ", bounds.first, bounds.second);
+        auto first = std::round(distr(gen));
+        auto second = std::round(distr(gen));
+        if (first > second)
+            std::swap(first, second);
+        queries.emplace_back(first, second);
     }
-    std::cout << std::endl;
+
+    fmt::println("{}", fmt::join(queries, " "));
 }
 
 } // unnamed namespace
@@ -52,7 +82,7 @@ int main(int argc, char *argv[]) try
 {
     using key_type = int;
 
-    CLI::App app{"Splay tree end-to-end tests driver"};
+    CLI::App app{"Splay tree end-to-end tests generator"};
 
     std::size_t n_keys;
     app.add_option("--n-keys", n_keys, "Set the number of keys to generate")
